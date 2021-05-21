@@ -270,11 +270,12 @@ cdef class VideoFrame(Frame):
                 useful_array(frame.planes[2])
             )).reshape(-1, frame.width)
         elif frame.format.name in ('yuv444p', 'yuvj444p'):
-            return np.hstack((
+            image = np.hstack((
                 useful_array(frame.planes[0]),
                 useful_array(frame.planes[1]),
                 useful_array(frame.planes[2])
-            )).reshape(frame.height, frame.width, -1)
+            )).reshape(-1, frame.height, frame.width)
+            return np.moveaxis(image, 0, -1)
         elif frame.format.name == 'yuyv422':
             assert frame.width % 2 == 0
             assert frame.height % 2 == 0
