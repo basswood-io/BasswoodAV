@@ -270,12 +270,11 @@ cdef class VideoFrame(Frame):
                 useful_array(frame.planes[2])
             )).reshape(-1, frame.width)
         elif frame.format.name in ('yuv444p', 'yuvj444p'):
-            image = np.hstack((
+            return np.hstack((
                 useful_array(frame.planes[0]),
                 useful_array(frame.planes[1]),
                 useful_array(frame.planes[2])
             )).reshape(-1, frame.height, frame.width)
-            return np.moveaxis(image, 0, -1)
         elif frame.format.name == 'yuyv422':
             assert frame.width % 2 == 0
             assert frame.height % 2 == 0
@@ -359,12 +358,12 @@ cdef class VideoFrame(Frame):
         elif format in ('yuv444p', 'yuvj444p'):
             assert array.dtype == 'uint8'
             assert array.ndim == 3
-            assert array.shape[2] == 3
-            frame = VideoFrame(array.shape[1], array.shape[0], format)
-            array = array.reshape(-1, 3)
-            copy_array_to_plane(array[:, 0], frame.planes[0], 1)
-            copy_array_to_plane(array[:, 1], frame.planes[1], 1)
-            copy_array_to_plane(array[:, 2], frame.planes[2], 1)
+            assert array.shape[0] == 3
+            frame = VideoFrame(array.shape[2], array.shape[1], format)
+            array = array.reshape(3, -1)
+            copy_array_to_plane(array[0], frame.planes[0], 1)
+            copy_array_to_plane(array[1], frame.planes[1], 1)
+            copy_array_to_plane(array[2], frame.planes[2], 1)
             return frame
         elif format == 'yuyv422':
             check_ndarray(array, 'uint8', 3)
