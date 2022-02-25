@@ -356,9 +356,9 @@ cdef class VideoFrame(Frame):
             copy_array_to_plane(flat[v_start:], frame.planes[2], 1)
             return frame
         elif format in ('yuv444p', 'yuvj444p'):
-            assert array.dtype == 'uint8'
-            assert array.ndim == 3
-            assert array.shape[0] == 3
+            check_ndarray(array, 'uint8', 3)
+            check_ndarray_shape(array, array.shape[0] == 3)
+
             frame = VideoFrame(array.shape[2], array.shape[1], format)
             array = array.reshape(3, -1)
             copy_array_to_plane(array[0], frame.planes[0], 1)
