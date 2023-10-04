@@ -1,8 +1,10 @@
 # PyAV
 
-[![GitHub Test Status][https://github.com/WyattBlue/PyAV/workflows/tests/badge.svg]][https://github.com/WyattBlue/PyAV/actions?workflow=tests]
+PyAV is a Pythonic binding for the [FFmpeg](https://ffmpeg.org) libraries. We aim to provide all of the power and control of the underlying library, but manage the gritty details as much as possible.
 
-PyAV is a Pythonic binding for the [FFmpeg][https://ffmpeg.org] libraries. We aim to provide all of the power and control of the underlying library, but manage the gritty details as much as possible.
+---
+[![Actions Status](https://github.com/WyattBlue/PyAV/workflows/tests/badge.svg)](https://github.com/wyattblue/PyAV/actions?workflow=tests)
+<a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 
 PyAV is for direct and precise access to your media via containers, streams, packets, codecs, and frames. It exposes a few transformations of that data, and helps you get your data to/from other packages (e.g. Numpy and Pillow).
 
@@ -11,8 +13,8 @@ This power does come with some responsibility as working with media is horrendou
 But where you can't work without it, PyAV is a critical tool.
 
 
-## Installation
-Due to the complexity of the dependencies, PyAV is not always the easiest Python package to install from source. Binary wheels are provided on [PyPI][https://pypi.org/project/pyav] for  MacOS, Windows, and Linux linked against a modern FFmpeg. You can install these wheels by running:
+## Installing
+Due to the complexity of the dependencies, PyAV is not always the easiest Python package to install from source. Binary wheels are provided on [PyPI](https://pypi.org/project/pyav) for  MacOS, Windows, and Linux linked against a modern FFmpeg. You can install these wheels by running:
 
 ```bash
 pip install pyav
@@ -26,7 +28,7 @@ pip install pyav --no-binary pyav
 
 ## Alternative installation methods
 
-Another way of installing PyAV is via [conda-forge][https://conda-forge.github.io/]:
+Another way of installing PyAV is via [conda-forge](https://conda-forge.github.io/):
 
 ```bash
 conda install av -c conda-forge
