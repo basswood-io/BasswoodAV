@@ -3,9 +3,11 @@ on:
   push:
     paths-ignore:
       - '**.md'
+      - '**.rst'
   pull_request:
     paths-ignore:
       - '**.md'
+      - '**.rst'
 jobs:
   style:
     name: "${{ matrix.config.suite }}"

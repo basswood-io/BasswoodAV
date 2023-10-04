@@ -45,6 +45,7 @@ pip install -U -r tests/requirements.txt
 ./scripts/build-deps
 
 make
+# optional: make test
 ```
 
 ---
