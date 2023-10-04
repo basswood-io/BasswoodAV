@@ -1,5 +1,7 @@
 name: tests
 on:
+  release:
+    types: [created]
   push:
     paths-ignore:
       - '**.md'
@@ -262,7 +264,7 @@ jobs:
           name: dist
           path: dist/
       - name: Publish to PyPI
-        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/')
+        if: github.event_name == 'release'
         uses: pypa/gh-action-pypi-publish@master
         with:
           user: __token__
