@@ -28,7 +28,6 @@ old_embed_signature = EmbedSignature._embed_signature
 
 
 def new_embed_signature(self, sig, doc):
-
     # Strip any `self` parameters from the front.
     sig = re.sub(r"\(self(,\s+)?", "(", sig)
 
@@ -184,15 +183,15 @@ package_data = {".".join(pckg.parts): ["*.pxd"] for pckg in package_folders}
 
 
 setup(
-    name="av",
+    name="pyav",
     version=about["__version__"],
     description="Pythonic bindings for FFmpeg's libraries.",
-    author="Mike Boers",
-    author_email="pyav@mikeboers.com",
-    url="https://github.com/PyAV-Org/PyAV",
+    author="WyattBlue",
+    author_email="wyattblue@auto-editor.com",
+    url="https://github.com/WyattBlue/PyAV",
     packages=find_packages(exclude=["build*", "examples*", "scratchpad*", "tests*"]),
     package_data=package_data,
-    python_requires='>=3.9',
+    python_requires=">=3.9",
     zip_safe=False,
     ext_modules=ext_modules,
     test_suite="tests",
