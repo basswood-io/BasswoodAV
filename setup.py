@@ -81,12 +81,12 @@ def get_config_from_pkg_config():
         print("pkg-config is required for building PyAV")
         exit(1)
     except subprocess.CalledProcessError:
-        print("pkg-config could not find libraries {}".format(FFMPEG_LIBRARIES))
+        print(f"pkg-config could not find libraries {FFMPEG_LIBRARIES}")
         exit(1)
 
     known, unknown = parse_cflags(raw_cflags.decode("utf-8"))
     if unknown:
-        print("pkg-config returned flags we don't understand: {}".format(unknown))
+        print(f"pkg-config returned flags we don't understand: {unknown}")
         if "-pthread" in unknown:
             print("Building PyAV against static FFmpeg libraries is not supported.")
         exit(1)
@@ -109,7 +109,7 @@ def parse_cflags(raw_flags):
         parts = x.split("=", 1)
         value = x[1] or None if len(x) == 2 else None
         config["define_macros"][i] = (parts[0], value)
-    return config, " ".join(shlex.quote(x) for x in unknown)
+    return config, shlex.join(unknown)
 
 
 # Parse command-line arguments.
@@ -213,6 +213,7 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Multimedia :: Sound/Audio",
         "Topic :: Multimedia :: Sound/Audio :: Conversion",
