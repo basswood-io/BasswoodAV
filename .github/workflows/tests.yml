@@ -6,10 +6,12 @@ on:
     paths-ignore:
       - '**.md'
       - '**.rst'
+      - '**.txt'
   pull_request:
     paths-ignore:
       - '**.md'
       - '**.rst'
+      - '**.txt'
 jobs:
   style:
     name: "${{ matrix.config.suite }}"
@@ -37,8 +39,7 @@ jobs:
       - name: Packages
         run: |
           . scripts/activate.sh
-          # A bit of a hack that we can get away with this.
-          python -m pip install ${{ matrix.config.suite }}
+          python -m pip install black flake8 isort
 
       - name: "${{ matrix.config.suite }}"
         run: |
