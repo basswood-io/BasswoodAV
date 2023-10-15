@@ -15,15 +15,6 @@ from .common import Image, TestCase, fate_suite
 def generate_audio_frame(
     frame_num, input_format="s16", layout="stereo", sample_rate=44100, frame_size=1024
 ):
-    """
-    Generate audio frame representing part of the sinusoidal wave
-    :param input_format: default: s16
-    :param layout: default: stereo
-    :param sample_rate: default: 44100
-    :param frame_size: default: 1024
-    :param frame_num: frame number
-    :return: audio frame for sinusoidal wave audio signal slice
-    """
     frame = AudioFrame(format=input_format, layout=layout, samples=frame_size)
     frame.sample_rate = sample_rate
     frame.pts = frame_num * frame_size
@@ -50,7 +41,6 @@ def pull_until_blocked(graph):
 
 class TestFilters(TestCase):
     def test_filter_descriptor(self):
-
         f = Filter("testsrc")
         self.assertEqual(f.name, "testsrc")
         self.assertEqual(f.description, "Generate test pattern.")
@@ -62,7 +52,6 @@ class TestFilters(TestCase):
         self.assertEqual(f.outputs[0].type, "video")
 
     def test_dynamic_filter_descriptor(self):
-
         f = Filter("split")
         self.assertFalse(f.dynamic_inputs)
         self.assertEqual(len(f.inputs), 1)
@@ -70,7 +59,6 @@ class TestFilters(TestCase):
         self.assertEqual(len(f.outputs), 0)
 
     def test_generator_graph(self):
-
         graph = Graph()
         src = graph.add("testsrc")
         lutrgb = graph.add(
@@ -93,7 +81,6 @@ class TestFilters(TestCase):
             frame.to_image().save(self.sandboxed("mandelbrot2.png"))
 
     def test_auto_find_sink(self):
-
         graph = Graph()
         src = graph.add("testsrc")
         src.link_to(graph.add("buffersink"))
@@ -105,7 +92,6 @@ class TestFilters(TestCase):
             frame.to_image().save(self.sandboxed("mandelbrot3.png"))
 
     def test_delegate_sink(self):
-
         graph = Graph()
         src = graph.add("testsrc")
         src.link_to(graph.add("buffersink"))
@@ -117,7 +103,6 @@ class TestFilters(TestCase):
             frame.to_image().save(self.sandboxed("mandelbrot4.png"))
 
     def test_haldclut_graph(self):
-
         raise SkipTest()
 
         graph = Graph()

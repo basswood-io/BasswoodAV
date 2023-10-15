@@ -117,7 +117,6 @@ class TestCodecContext(TestCase):
         self.assertEqual(ctx.pix_fmt, "yuv420p")
 
     def test_parse(self):
-
         # This one parses into a single packet.
         self._assert_parse("mpeg4", fate_suite("h264/interlaced_crop.mp4"))
 
@@ -125,7 +124,6 @@ class TestCodecContext(TestCase):
         self._assert_parse("mpeg2video", fate_suite("mpeg2/mpeg2_field_encoding.ts"))
 
     def _assert_parse(self, codec_name, path):
-
         fh = av.open(path)
         packets = []
         for packet in fh.demux(video=0):
@@ -134,7 +132,6 @@ class TestCodecContext(TestCase):
         full_source = b"".join(bytes(p) for p in packets)
 
         for size in 1024, 8192, 65535:
-
             ctx = Codec(codec_name).create()
             packets = []
 
@@ -159,7 +156,6 @@ class TestEncoding(TestCase):
         self.image_sequence_encode("tiff")
 
     def image_sequence_encode(self, codec_name):
-
         try:
             codec = Codec(codec_name, "w")
         except UnknownCodecError:
@@ -184,7 +180,6 @@ class TestEncoding(TestCase):
         frame_count = 1
         path_list = []
         for frame in iter_frames(container, video_stream):
-
             new_frame = frame.reformat(width, height, pix_fmt)
             new_packets = ctx.encode(new_frame)
 
@@ -246,7 +241,6 @@ class TestEncoding(TestCase):
         self.video_encoding("dnxhd", options)
 
     def video_encoding(self, codec_name, options={}, codec_tag=None):
-
         try:
             codec = Codec(codec_name, "w")
         except UnknownCodecError:
@@ -277,9 +271,7 @@ class TestEncoding(TestCase):
         frame_count = 0
 
         with open(path, "wb") as f:
-
             for frame in iter_frames(container, video_stream):
-
                 new_frame = frame.reformat(width, height, pix_fmt)
 
                 # reset the picture type
@@ -323,7 +315,6 @@ class TestEncoding(TestCase):
         self.audio_encoding("mp2")
 
     def audio_encoding(self, codec_name):
-
         try:
             codec = Codec(codec_name, "w")
         except UnknownCodecError:
@@ -358,7 +349,6 @@ class TestEncoding(TestCase):
 
         with open(path, "wb") as f:
             for frame in iter_frames(container, audio_stream):
-
                 resampled_frames = resampler.resample(frame)
                 for resampled_frame in resampled_frames:
                     samples += resampled_frame.samples

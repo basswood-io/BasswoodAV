@@ -173,7 +173,9 @@ class TestCase(_Base):
 
         def assertIsNot(self, a, b, msg=None):
             if a is b:
-                self.fail(msg or "both are {!r} at 0x{:x}; {!r}".format(type(a), id(a), a))
+                self.fail(
+                    msg or "both are {!r} at 0x{:x}; {!r}".format(type(a), id(a), a)
+                )
 
         def assertIsNone(self, x, msg=None):
             if x is not None:
@@ -193,7 +195,9 @@ class TestCase(_Base):
 
         def assertIsInstance(self, instance, types, msg=None):
             if not isinstance(instance, types):
-                self.fail(msg or "not an instance of {!r}; {!r}".format(types, instance))
+                self.fail(
+                    msg or "not an instance of {!r}; {!r}".format(types, instance)
+                )
 
         def assertNotIsInstance(self, instance, types, msg=None):
             if isinstance(instance, types):
