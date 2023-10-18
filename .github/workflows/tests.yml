@@ -84,7 +84,7 @@ jobs:
             ;;
           macos-latest)
             brew update
-            brew install automake libtool nasm pkg-config shtool texi2html wget
+            brew install automake libtool nasm pkg-config shtool wget
             brew install libass libjpeg libpng libvorbis libvpx opus theora x264
             ;;
         esac
