@@ -139,33 +139,27 @@ class UnknownCodecError(ValueError):
 
 
 cdef class Codec(object):
-
-    """Codec(name, mode='r')
-
-    :param str name: The codec name.
-    :param str mode: ``'r'`` for decoding or ``'w'`` for encoding.
+    """
+    name: str
+    mode: "r" | "w"
 
     This object exposes information about an available codec, and an avenue to
-    create a :class:`.CodecContext` to encode/decode directly.
+    create a CodecContext to encode/decode directly.
 
-    ::
-
-        >>> codec = Codec('mpeg4', 'r')
-        >>> codec.name
-        'mpeg4'
-        >>> codec.type
-        'video'
-        >>> codec.is_encoder
-        False
-
+    >>> codec = Codec("mpeg4", "r")
+    >>> codec.name
+    'mpeg4'
+    >>> codec.type
+    'video'
+    >>> codec.is_encoder
+    False
     """
 
-    def __cinit__(self, name, mode='r'):
-
+    def __cinit__(self, name, mode="r"):
         if name is _cinit_sentinel:
             return
 
-        if mode == 'w':
+        if mode == "w":
             self.ptr = lib.avcodec_find_encoder_by_name(name)
             if not self.ptr:
                 self.desc = lib.avcodec_descriptor_get_by_name(name)
@@ -223,12 +217,6 @@ cdef class Codec(object):
 
     @property
     def type(self):
-        """
-        The media type of this codec.
-
-        E.g: ``'audio'``, ``'video'``, ``'subtitle'``.
-
-        """
         return lib.av_get_media_type_string(self.ptr.type)
 
     property id:
@@ -292,7 +280,6 @@ cdef class Codec(object):
 
     @Properties.property
     def properties(self):
-        """Flag property of :class:`.Properties`"""
         return self.desc.props
 
     intra_only = properties.flag_property('INTRA_ONLY')
@@ -304,7 +291,6 @@ cdef class Codec(object):
 
     @Capabilities.property
     def capabilities(self):
-        """Flag property of :class:`.Capabilities`"""
         return self.ptr.capabilities
 
     draw_horiz_band = capabilities.flag_property('DRAW_HORIZ_BAND')
@@ -343,16 +329,13 @@ cdef get_codec_names():
             break
     return names
 
+
 codecs_available = get_codec_names()
-
-
 codec_descriptor = wrap_avclass(lib.avcodec_get_class())
 
 
 def dump_codecs():
-    """Print information about available codecs."""
-
-    print '''Codecs:
+    print """Codecs:
  D..... = Decoding supported
  .E.... = Encoding supported
  ..V... = Video codec
@@ -361,17 +344,16 @@ def dump_codecs():
  ...I.. = Intra frame-only codec
  ....L. = Lossy compression
  .....S = Lossless compression
- ------'''
+ ------"""
 
     for name in sorted(codecs_available):
-
         try:
-            e_codec = Codec(name, 'w')
+            e_codec = Codec(name, "w")
         except ValueError:
             e_codec = None
 
         try:
-            d_codec = Codec(name, 'r')
+            d_codec = Codec(name, "r")
         except ValueError:
             d_codec = None
 

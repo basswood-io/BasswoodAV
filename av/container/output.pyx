@@ -44,40 +44,38 @@ cdef class OutputContainer(Container):
             lib.av_packet_free(&self.packet_ptr)
 
     def add_stream(self, codec_name=None, object rate=None, Stream template=None, options=None, **kwargs):
-        """add_stream(codec_name, rate=None)
+        """add_stream(codec_name, rate=None) -> av.stream.Stream
 
         Create a new stream, and return it.
 
-        :param str codec_name: The name of a codec.
-        :param rate: The frame rate for video, and sample rate for audio.
-            Examples for video include ``24``, ``23.976``, and
-            ``Fraction(30000,1001)``. Examples for audio include ``48000``
-            and ``44100``.
-        :returns: The new :class:`~av.stream.Stream`.
-
+        codec_name: str | Codec | None :: The name of a codec.
+        rate: Real | None      :: The frame rate for video, and sample rate for audio.
+            Examples for video include `24`, `23.976`, and `Fraction(30000, 1001)`.
+            Examples for audio include `48000` and `44100`.
         """
 
         if (codec_name is None and template is None) or (codec_name is not None and template is not None):
-            raise ValueError('needs one of codec_name or template')
+            raise ValueError("needs one of codec_name or template")
 
         cdef const lib.AVCodec *codec
         cdef Codec codec_obj
 
         if codec_name is not None:
-            codec_obj = codec_name if isinstance(codec_name, Codec) else Codec(codec_name, 'w')
+            codec_obj = codec_name if isinstance(codec_name, Codec) else Codec(codec_name, "w")
         else:
             if not template.codec_context:
                 raise ValueError("template has no codec context")
             codec_obj = template.codec_context.codec
         codec = codec_obj.ptr
 
-        # Assert that this format supports the requested codec.
         if not lib.avformat_query_codec(
             self.ptr.oformat,
             codec.id,
             lib.FF_COMPLIANCE_NORMAL,
         ):
-            raise ValueError("%r format does not support %r codec" % (self.format.name, codec_name))
+            raise ValueError(
+                f"{self.format.name} format does not support {codec_name} codec"
+            )
 
         # Create new stream in the AVFormatContext, set AVCodecContext values.
         lib.avformat_new_stream(self.ptr, codec)
@@ -190,7 +188,7 @@ cdef class OutputContainer(Container):
         # ... and warn if any weren't used.
         unused_options = {k: v for k, v in self.options.items() if k not in used_options}
         if unused_options:
-            log.warning('Some options were not used: %s' % unused_options)
+            log.warning(f"Some options were not used: {unused_options}")
 
         self._started = True
 

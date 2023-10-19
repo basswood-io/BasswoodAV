@@ -120,7 +120,7 @@ cdef class VideoFrame(Frame):
         lib.av_freep(&self._buffer)
 
     def __repr__(self):
-        return '<av.%s #%d, pts=%s %s %dx%d at 0x%x>' % (
+        return "<av.%s #%d, pts=%s %s %dx%d at 0x%x>" % (
             self.__class__.__name__,
             self.index,
             self.pts,
@@ -133,7 +133,7 @@ cdef class VideoFrame(Frame):
     @property
     def planes(self):
         """
-        A tuple of :class:`.VideoPlane` objects.
+        planes(self) -> tuple[VideoPlane ...]
         """
         # We need to detect which planes actually exist, but also contrain
         # ourselves to the maximum plane count (as determined only by VideoFrames
@@ -144,7 +144,7 @@ cdef class VideoFrame(Frame):
             count = self.format.ptr.comp[i].plane + 1
             if max_plane_count < count:
                 max_plane_count = count
-        if self.format.name == 'pal8':
+        if self.format.name == "pal8":
             max_plane_count = 2
 
         cdef int plane_count = 0
@@ -154,26 +154,22 @@ cdef class VideoFrame(Frame):
         return tuple([VideoPlane(self, i) for i in range(plane_count)])
 
     property width:
-        """Width of the image, in pixels."""
         def __get__(self): return self.ptr.width
 
     property height:
-        """Height of the image, in pixels."""
         def __get__(self): return self.ptr.height
 
     property key_frame:
-        """Is this frame a key frame?
-
-        Wraps :ffmpeg:`AVFrame.key_frame`.
-
+        """
+        -> bool
+        Wraps AVFrame.key_frame
         """
         def __get__(self): return self.ptr.key_frame
 
     property interlaced_frame:
-        """Is this frame an interlaced or progressive?
-
-        Wraps :ffmpeg:`AVFrame.interlaced_frame`.
-
+        """
+        -> bool
+        Wraps AVFrame.interlaced_frame
         """
         def __get__(self): return self.ptr.interlaced_frame
 

@@ -211,19 +211,13 @@ cdef class Container(object):
 
         cdef lib.AVOutputFormat *ofmt
         if self.writeable:
-
             ofmt = self.format.optr if self.format else lib.av_guess_format(NULL, name, NULL)
             if ofmt == NULL:
                 raise ValueError("Could not determine output format")
 
             with nogil:
                 # This does not actually open the file.
-                res = lib.avformat_alloc_output_context2(
-                    &self.ptr,
-                    ofmt,
-                    NULL,
-                    name,
-                )
+                res = lib.avformat_alloc_output_context2(&self.ptr, ofmt, NULL, name)
             self.err_check(res)
 
         else:
@@ -252,20 +246,14 @@ cdef class Container(object):
         cdef lib.AVInputFormat *ifmt
         cdef _Dictionary c_options
         if not self.writeable:
-
             ifmt = self.format.iptr if self.format else NULL
-
             c_options = Dictionary(self.options, self.container_options)
 
             self.set_timeout(self.open_timeout)
             self.start_timeout()
             with nogil:
-                res = lib.avformat_open_input(
-                    &self.ptr,
-                    name,
-                    ifmt,
-                    &c_options.ptr
-                )
+                res = lib.avformat_open_input(&self.ptr, name, ifmt, &c_options.ptr)
+
             self.set_timeout(None)
             self.err_check(res)
             self.input_was_opened = True
@@ -284,7 +272,7 @@ cdef class Container(object):
         self.close()
 
     def __repr__(self):
-        return '<av.%s %r>' % (self.__class__.__name__, self.file or self.name)
+        return f"<av.{self.__class__.__name__} {self.file or self.name}>"
 
     cdef int err_check(self, int value) except -1:
         return err_check(value, filename=self.name)
@@ -292,7 +280,7 @@ cdef class Container(object):
     def dumps_format(self):
         with LogCapture() as logs:
             lib.av_dump_format(self.ptr, 0, "", isinstance(self, OutputContainer))
-        return ''.join(log[2] for log in logs)
+        return "".join(log[2] for log in logs)
 
     cdef set_timeout(self, timeout):
         if timeout is None:
@@ -309,11 +297,7 @@ cdef class Container(object):
     def _set_flags(self, value):
         self.ptr.flags = value
 
-    flags = Flags.property(
-        _get_flags,
-        _set_flags,
-        """Flags property of :class:`.Flags`"""
-    )
+    flags = Flags.property(_get_flags, _set_flags, "Flags property of :class:`.Flags`")
 
     gen_pts = flags.flag_property('GENPTS')
     ign_idx = flags.flag_property('IGNIDX')
@@ -332,60 +316,66 @@ cdef class Container(object):
     auto_bsf = flags.flag_property('AUTO_BSF')
 
 
-def open(file, mode=None, format=None, options=None,
-         container_options=None, stream_options=None,
-         metadata_encoding='utf-8', metadata_errors='strict',
-         buffer_size=32768, timeout=None, io_open=None):
-    """open(file, mode='r', **kwargs)
+"""Main entrypoint to opening files/streams.
 
-    Main entrypoint to opening files/streams.
+open(file) -> InputContainer | OutputContainer
+open(file, mode="r") -> InputContainer
+open(file, mode="w") -> OutputContainer
 
-    :param str file: The file to open, which can be either a string or a file-like object.
-    :param str mode: ``"r"`` for reading and ``"w"`` for writing.
-    :param str format: Specific format to use. Defaults to autodect.
-    :param dict options: Options to pass to the container and all streams.
-    :param dict container_options: Options to pass to the container.
-    :param list stream_options: Options to pass to each stream.
-    :param str metadata_encoding: Encoding to use when reading or writing file metadata.
-        Defaults to ``"utf-8"``.
-    :param str metadata_errors: Specifies how to handle encoding errors; behaves like
-        ``str.encode`` parameter. Defaults to ``"strict"``.
-    :param int buffer_size: Size of buffer for Python input/output operations in bytes.
-        Honored only when ``file`` is a file-like object. Defaults to 32768 (32k).
-    :param timeout: How many seconds to wait for data before giving up, as a float, or a
-        :ref:`(open timeout, read timeout) <timeouts>` tuple.
-    :type timeout: float or tuple
-    :param callable io_open: Custom I/O callable for opening files/streams.
-        This option is intended for formats that need to open additional
-        file-like objects to ``file`` using custom I/O.
-        The callable signature is ``io_open(url: str, flags: int, options: dict)``, where
-        ``url`` is the url to open, ``flags`` is a combination of AVIO_FLAG_* and
-        ``options`` is a dictionary of additional options. The callable should return a
-        file-like object.
+file    :: The file to open, which can be either a string or a file-like object.
+mode: "r" | "w" | None
+format: str | None       :: Specific format to use. Defaults to autodect.
+options: dict            :: Options to pass to the container and all streams.
+container_options: dict  :: Options to pass to the container.
+stream_options: list     :: Options to pass to each stream.
+metadata_encoding: str   :: Encoding to use when reading or writing file metadata.
+metadata_errors: str     :: Specifies how to handle encoding errors
+buffer_size: int     :: Size of buffer for Python input/output operations in bytes.
+                        Honored only when `file` is a file-like object.
+timeout: float | None | tuple[open timeout, read timeout]
+                         :: How many seconds to wait for data before giving up
+io_open: callable | None
+    :: Custom I/O callable for opening files/streams.
+    :: This option is intended for formats that need to open additional
+    :: file-like objects to `file` using custom I/O. The callable signature is
+    :: `io_open(url: str, flags: int, options: dict)`, where `url` is the url to
+    :: open, `flags` is a combination of AVIO_FLAG_* and `options` is a dictionary
+    :: of additional options. The callable should return a file-like object.
 
-    For devices (via ``libavdevice``), pass the name of the device to ``format``,
-    e.g.::
+For devices (via `libavdevice`), pass the name of the device to `format`,
+e.g.
+    >>> # Open webcam on MacOS.
+    >>> av.open(format="avfoundation", file="0")
 
-        >>> # Open webcam on OS X.
-        >>> av.open(format='avfoundation', file='0') # doctest: +SKIP
+For DASH and custom I/O using `io_open`, add a protocol prefix to the `file` to
+prevent the DASH encoder defaulting to the file protocol and using temporary files.
+The custom I/O callable can be used to remove the protocol prefix to reveal the
+actual name for creating the file-like object.
 
-    For DASH and custom I/O using ``io_open``, add a protocol prefix to the ``file`` to
-    prevent the DASH encoder defaulting to the file protocol and using temporary files.
-    The custom I/O callable can be used to remove the protocol prefix to reveal the actual
-    name for creating the file-like object. E.g.::
+e.g.
+    >>> av.open("customprotocol://manifest.mpd", "w", io_open=custom_io)
+"""
 
-        >>> av.open("customprotocol://manifest.mpd", "w", io_open=custom_io) # doctest: +SKIP
-
-    .. seealso:: :ref:`garbage_collection`
-
-    More information on using input and output devices is available on the
-    `FFmpeg website <https://www.ffmpeg.org/ffmpeg-devices.html>`_.
-    """
+def open(
+    file,
+    mode: str | None = None,
+    format: str | None = None,
+    options: dict | None = None,
+    container_options: dict | None = None,  # dict[str, str]??
+    stream_options: list | None = None,
+    metadata_encoding: str = "utf-8",
+    metadata_errors: str = "strict",
+    buffer_size: int = 32768,
+    timeout = None,  # Real | None | tuple[Real | None, Real | None]
+    io_open = None,
+):
+    if not (mode is None or (type(mode) is str and (mode == "r" or mode == "w"))):
+        raise ValueError('mode must be "r" or "w" or None')
 
     if mode is None:
-        mode = getattr(file, 'mode', None)
+        mode = getattr(file, "mode", None)
     if mode is None:
-        mode = 'r'
+        mode = "r"
 
     if isinstance(timeout, tuple):
         open_timeout = timeout[0]
@@ -394,15 +384,7 @@ def open(file, mode=None, format=None, options=None,
         open_timeout = timeout
         read_timeout = timeout
 
-    if mode.startswith('r'):
-        return InputContainer(
-            _cinit_sentinel, file, format, options,
-            container_options, stream_options,
-            metadata_encoding, metadata_errors,
-            buffer_size, open_timeout, read_timeout,
-            io_open
-        )
-    if mode.startswith('w'):
+    if mode.startswith("w"):
         if stream_options:
             raise ValueError("Provide stream options via Container.add_stream(..., options={}).")
         return OutputContainer(
@@ -412,4 +394,11 @@ def open(file, mode=None, format=None, options=None,
             buffer_size, open_timeout, read_timeout,
             io_open
         )
-    raise ValueError("mode must be 'r' or 'w'; got %r" % mode)
+
+    return InputContainer(
+        _cinit_sentinel, file, format, options,
+        container_options, stream_options,
+        metadata_encoding, metadata_errors,
+        buffer_size, open_timeout, read_timeout,
+        io_open
+    )

@@ -2,9 +2,7 @@ from av.video.frame cimport VideoFrame
 
 
 cdef class VideoPlane(Plane):
-
     def __cinit__(self, VideoFrame frame, int index):
-
         # The palette plane has no associated component or linesize; set fields manually
         if frame.format.name == 'pal8' and index == 1:
             self.width = 256
@@ -19,7 +17,7 @@ cdef class VideoPlane(Plane):
                 self.height = component.height
                 break
         else:
-            raise RuntimeError('could not find plane %d of %r' % (index, frame.format))
+            raise RuntimeError(f"could not find plane {index} of {frame.format!r}")
 
         # Sometimes, linesize is negative (and that is meaningful). We are only
         # insisting that the buffer size be based on the extent of linesize, and
@@ -31,9 +29,8 @@ cdef class VideoPlane(Plane):
 
     property line_size:
         """
+        -> int
         Bytes per horizontal line in this plane.
-
-        :type: int
         """
         def __get__(self):
             return self.frame.ptr.linesize[self.index]
