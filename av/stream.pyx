@@ -1,11 +1,12 @@
 import warnings
 
 from cpython cimport PyWeakref_NewRef
-from libc.stdint cimport int64_t, uint8_t
+from libc.stdint cimport int32_t, int64_t, uint8_t
 from libc.string cimport memcpy
 cimport libav as lib
 
 from av.codec.context cimport wrap_codec_context
+from av.enum cimport define_enum
 from av.error cimport err_check
 from av.packet cimport Packet
 from av.utils cimport (
@@ -20,6 +21,11 @@ from av.deprecation import AVDeprecationWarning
 
 cdef object _cinit_bypass_sentinel = object()
 
+SideData = define_enum('SideData', __name__, (
+    ('DISPLAYMATRIX', lib.AV_PKT_DATA_DISPLAYMATRIX 	,
+        """Display Matrix"""),
+    # TODO: put all others from here https://ffmpeg.org/doxygen/trunk/group__lavc__packet.html#ga9a80bfcacc586b483a973272800edb97
+))
 
 cdef Stream wrap_stream(Container container, lib.AVStream *c_stream, CodecContext codec_context):
     """Build an av.Stream for an existing AVStream.
@@ -83,6 +89,17 @@ cdef class Stream(object):
         if self.codec_context:
             self.codec_context.stream_index = stream.index
 
+        self.nb_side_data = stream.nb_side_data
+        if self.nb_side_data:
+            self.side_data = {}
+            for i in range(self.nb_side_data):
+                # Get side_data that we know how to get
+                if SideData.get(stream.side_data[i].type):
+                    # Use dumpsidedata maybe here I guess : https://www.ffmpeg.org/doxygen/trunk/dump_8c_source.html#l00430
+                    self.side_data[SideData.get(stream.side_data[i].type)] = lib.av_display_rotation_get(<const int32_t *>stream.side_data[i].data)
+        else:    
+            self.side_data = None
+        
         self.metadata = avdict_to_dict(
             stream.metadata,
             encoding=self.container.metadata_encoding,
@@ -106,6 +123,10 @@ cdef class Stream(object):
                 "VideoStream.%s is deprecated as it is not always set; please use VideoStream.average_rate." % name,
                 AVDeprecationWarning
             )
+
+
+        if name == 'side_data':
+            return self.side_data
 
         # Convenience getter for codec context properties.
         if self.codec_context is not None:

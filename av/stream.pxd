@@ -1,4 +1,4 @@
-from libc.stdint cimport int64_t
+from libc.stdint cimport int32_t, int64_t
 cimport libav as lib
 
 from av.codec.context cimport CodecContext
@@ -13,6 +13,8 @@ cdef class Stream(object):
     # Stream attributes.
     cdef readonly Container container
     cdef readonly dict metadata
+    cdef readonly int nb_side_data
+    cdef readonly dict side_data
 
     # CodecContext attributes.
     cdef readonly CodecContext codec_context
