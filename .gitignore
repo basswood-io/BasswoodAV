@@ -31,7 +31,6 @@
 /src
 
 # Testing.
-/.vagrant
 /sandbox
 /tests/assets
 /tests/samples

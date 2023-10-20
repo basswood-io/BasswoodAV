@@ -9,8 +9,6 @@ fi
 export PYAV_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.."; pwd)"
 
 if [[ ! "$PYAV_LIBRARY" ]]; then
-
-    # Pull from command line argument.
     if [[ "$1" ]]; then
         PYAV_LIBRARY="$1"
     else
@@ -65,15 +63,9 @@ print("{}{}.{}".format(platform.python_implementation().lower(), *sys.version_in
 
 fi
 
-
 # Just a flag so that we know this was supposedly run.
 export _PYAV_ACTIVATED=1
 
-if [[ ! "$PYAV_LIBRARY_BUILD_ROOT" && -d /vagrant ]]; then
-    # On Vagrant, building the library in the shared directory causes some
-    # problems, so we move it to the user's home.
-    PYAV_LIBRARY_ROOT="/home/vagrant/vendor"
-fi
 export PYAV_LIBRARY_ROOT="${PYAV_LIBRARY_ROOT-$PYAV_ROOT/vendor}"
 export PYAV_LIBRARY_BUILD="${PYAV_LIBRARY_BUILD-$PYAV_LIBRARY_ROOT/build}"
 export PYAV_LIBRARY_PREFIX="$PYAV_LIBRARY_BUILD/$PYAV_LIBRARY"

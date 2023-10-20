@@ -38,25 +38,9 @@ lint:
 test:
 	$(PYTHON) setup.py test
 
-
-vagrant:
-	vagrant box list | grep -q precise32 || vagrant box add precise32 http://files.vagrantup.com/precise32.box
-
-vtest:
-	vagrant ssh -c /vagrant/scripts/vagrant-test
-
-
 tmp/ffmpeg-git:
 	@ mkdir -p tmp/ffmpeg-git
 	git clone --depth=1 git://source.ffmpeg.org/ffmpeg.git tmp/ffmpeg-git
-
-tmp/Doxyfile: tmp/ffmpeg-git
-	cp tmp/ffmpeg-git/doc/Doxyfile $@
-	echo "GENERATE_TAGFILE = ../tagfile.xml" >> $@
-
-tmp/tagfile.xml: tmp/Doxyfile
-	cd tmp/ffmpeg-git; doxygen ../Doxyfile
-
 
 clean-build:
 	- rm -rf build
@@ -64,7 +48,7 @@ clean-build:
 
 clean-sandbox:
 	- rm -rf sandbox/201*
-	- rm sandbox/last
+	- rm -f sandbox/last
 
 clean-src:
 	- rm -rf src
