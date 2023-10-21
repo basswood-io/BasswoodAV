@@ -12,14 +12,8 @@ on:
       - '**.txt'
 jobs:
   style:
-    name: "${{ matrix.config.suite }}"
+    name: "Style"
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        config:
-          - {suite: black}
-          - {suite: flake8}
-          - {suite: isort}
     env:
       PYAV_PYTHON: python3
       PYAV_LIBRARY: ffmpeg-6.0
@@ -39,10 +33,12 @@ jobs:
           . scripts/activate.sh
           python -m pip install black flake8 isort
 
-      - name: "${{ matrix.config.suite }}"
+      - name: "Test Style"
         run: |
           . scripts/activate.sh
-          ./scripts/test ${{ matrix.config.suite }}
+          ./scripts/test black
+          ./scripts/test flake8
+          ./scripts/test isort
 
   nix:
     name: "py-${{ matrix.config.python }} lib-${{ matrix.config.ffmpeg }} ${{matrix.config.os}}"
@@ -129,8 +125,6 @@ jobs:
           setuptools
           if [[ "${{ matrix.config.ffmpeg }}" == "5.1" ]]; then
             curl -L -o ffmpeg.tar.gz https://github.com/PyAV-Org/pyav-ffmpeg/releases/download/5.1.2-1/ffmpeg-win_amd64.tar.gz
-          elif [[ "${{ matrix.config.ffmpeg }}" == "5.0" ]]; then
-            curl -L -o ffmpeg.tar.gz https://github.com/PyAV-Org/pyav-ffmpeg/releases/download/5.0.1-1/ffmpeg-win_amd64.tar.gz
           else
             conda install -q -n pyav ffmpeg=${{ matrix.config.ffmpeg }}
           fi
