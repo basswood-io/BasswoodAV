@@ -31,7 +31,8 @@ source scripts/activate.sh
 pip install -U -r tests/requirements.txt
 ./scripts/build-deps
 make
-# optional: make test
+deactivate
+pip install .
 ```
 
 ## Motivations For a Fork

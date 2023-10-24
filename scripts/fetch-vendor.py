@@ -21,7 +21,7 @@ def get_url():
         plat = f"macosx_{machine}"
 
     if system == "Linux" or system == "Darwin":
-        return f"https://github.com/WyattBlue/pyav-ffmpeg/releases/download/6.0-1/ffmpeg-{plat}.tar.gz"
+        return f"https://github.com/WyattBlue/pyav-ffmpeg/releases/download/6.0-2/ffmpeg-{plat}.tar.gz"
 
     if system == "Windows":
         plat = "win_amd64" if calcsize("P") * 8 == 64 else "win32"
