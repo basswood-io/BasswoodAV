@@ -5,13 +5,7 @@ from fractions import Fraction
 from av.sidedata.sidedata import SideDataContainer
 
 
-cdef class Frame(object):
-    """
-    Base class for audio and video frames.
-
-    See also :class:`~av.audio.frame.AudioFrame` and :class:`~av.video.frame.VideoFrame`.
-    """
-
+cdef class Frame:
     def __cinit__(self, *args, **kwargs):
         with nogil:
             self.ptr = lib.av_frame_alloc()
