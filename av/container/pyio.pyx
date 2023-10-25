@@ -7,10 +7,8 @@ from av.error cimport stash_exception
 ctypedef int64_t (*seek_func_t)(void *opaque, int64_t offset, int whence) noexcept nogil
 
 
-cdef class PyIOFile(object):
-
+cdef class PyIOFile:
     def __cinit__(self, file, buffer_size, writeable=None):
-
         self.file = file
 
         cdef seek_func_t seek_func = NULL

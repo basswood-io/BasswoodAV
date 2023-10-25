@@ -3,8 +3,7 @@ cimport libav as lib
 from av.video.frame cimport VideoFrame
 
 
-cdef class VideoReformatter(object):
-
+cdef class VideoReformatter:
     cdef lib.SwsContext *ptr
 
     cdef _reformat(self, VideoFrame frame, int width, int height,

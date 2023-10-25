@@ -43,7 +43,6 @@ cdef object avrational_to_fraction(const lib.AVRational *input):
 
 
 cdef object to_avrational(object value, lib.AVRational *input):
-
     if value is None:
         input.num = 0
         input.den = 1

@@ -21,8 +21,7 @@ cdef FilterContext wrap_filter_context(Graph graph, Filter filter, lib.AVFilterC
     return self
 
 
-cdef class FilterContext(object):
-
+cdef class FilterContext:
     def __cinit__(self, sentinel):
         if sentinel is not _cinit_sentinel:
             raise RuntimeError('cannot construct FilterContext')
@@ -52,7 +51,6 @@ cdef class FilterContext(object):
             return self._outputs
 
     def init(self, args=None, **kwargs):
-
         if self.inited:
             raise ValueError('already inited')
         if args and kwargs:

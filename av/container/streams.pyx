@@ -11,7 +11,7 @@ def _flatten(input_):
             yield x
 
 
-cdef class StreamContainer(object):
+cdef class StreamContainer:
 
     """
 
@@ -95,7 +95,6 @@ cdef class StreamContainer(object):
         selection = []
 
         for x in _flatten((args, kwargs)):
-
             if x is None:
                 pass
 

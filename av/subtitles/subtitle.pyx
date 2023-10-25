@@ -1,13 +1,12 @@
 from cpython cimport PyBuffer_FillInfo
 
 
-cdef class SubtitleProxy(object):
+cdef class SubtitleProxy:
     def __dealloc__(self):
         lib.avsubtitle_free(&self.struct)
 
 
-cdef class SubtitleSet(object):
-
+cdef class SubtitleSet:
     def __cinit__(self, SubtitleProxy proxy):
         self.proxy = proxy
         cdef int i
@@ -63,8 +62,7 @@ cdef Subtitle build_subtitle(SubtitleSet subtitle, int index):
         raise ValueError('unknown subtitle type %r' % ptr.type)
 
 
-cdef class Subtitle(object):
-
+cdef class Subtitle:
     def __cinit__(self, SubtitleSet subtitle, int index):
         if index < 0 or <unsigned int>index >= subtitle.proxy.struct.num_rects:
             raise ValueError('subtitle rect index out of range')
@@ -91,7 +89,6 @@ cdef class Subtitle(object):
 
 
 cdef class BitmapSubtitle(Subtitle):
-
     def __cinit__(self, SubtitleSet subtitle, int index):
         self.planes = tuple(
             BitmapSubtitlePlane(self, i)
@@ -131,10 +128,8 @@ cdef class BitmapSubtitle(Subtitle):
         return self.planes[i]
 
 
-cdef class BitmapSubtitlePlane(object):
-
+cdef class BitmapSubtitlePlane:
     def __cinit__(self, BitmapSubtitle subtitle, int index):
-
         if index >= 4:
             raise ValueError('BitmapSubtitles have only 4 planes')
         if not subtitle.ptr.linesize[index]:
@@ -146,13 +141,11 @@ cdef class BitmapSubtitlePlane(object):
         self._buffer = <void*>subtitle.ptr.data[index]
 
     # New-style buffer support.
-
     def __getbuffer__(self, Py_buffer *view, int flags):
         PyBuffer_FillInfo(view, self, self._buffer, self.buffer_size, 0, flags)
 
 
 cdef class TextSubtitle(Subtitle):
-
     def __repr__(self):
         return '<%s.%s %r at 0x%x>' % (
             self.__class__.__module__,
@@ -166,7 +159,6 @@ cdef class TextSubtitle(Subtitle):
 
 
 cdef class AssSubtitle(Subtitle):
-
     def __repr__(self):
         return '<%s.%s %r at 0x%x>' % (
             self.__class__.__module__,

@@ -135,7 +135,7 @@ Flags2 = define_enum('Flags2', __name__, (
 ), is_flags=True)
 
 
-cdef class CodecContext(object):
+cdef class CodecContext:
 
     @staticmethod
     def create(codec, mode=None):
@@ -389,7 +389,6 @@ cdef class CodecContext(object):
         return packets
 
     cdef _send_frame_and_recv(self, Frame frame):
-
         cdef Packet packet
 
         cdef int res

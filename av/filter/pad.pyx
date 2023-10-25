@@ -4,8 +4,7 @@ from av.filter.link cimport wrap_filter_link
 cdef object _cinit_sentinel = object()
 
 
-cdef class FilterPad(object):
-
+cdef class FilterPad:
     def __cinit__(self, sentinel):
         if sentinel is not _cinit_sentinel:
             raise RuntimeError('cannot construct FilterPad')
@@ -40,9 +39,7 @@ cdef class FilterPad(object):
 
 
 cdef class FilterContextPad(FilterPad):
-
     def __repr__(self):
-
         return '<av.FilterContextPad %s.%s[%d] of %s: %s (%s)>' % (
             self.filter.name,
             'inputs' if self.is_input else 'outputs',
@@ -71,7 +68,6 @@ cdef class FilterContextPad(FilterPad):
 
 
 cdef tuple alloc_filter_pads(Filter filter, const lib.AVFilterPad *ptr, bint is_input, FilterContext context=None):
-
     if not ptr:
         return ()
 

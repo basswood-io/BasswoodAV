@@ -21,8 +21,7 @@ cpdef enum FilterFlags:
     SUPPORT_TIMELINE_INTERNAL = lib.AVFILTER_FLAG_SUPPORT_TIMELINE_INTERNAL
 
 
-cdef class Filter(object):
-
+cdef class Filter:
     def __cinit__(self, name):
         if name is _cinit_sentinel:
             return
@@ -30,7 +29,7 @@ cdef class Filter(object):
             raise TypeError('takes a filter name as a string')
         self.ptr = lib.avfilter_get_by_name(name)
         if not self.ptr:
-            raise ValueError('no filter %s' % name)
+            raise ValueError(f"no filter {name}")
 
     property descriptor:
         def __get__(self):

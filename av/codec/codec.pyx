@@ -138,7 +138,7 @@ class UnknownCodecError(ValueError):
     pass
 
 
-cdef class Codec(object):
+cdef class Codec:
     """
     name: str
     mode: "r" | "w"
@@ -183,7 +183,6 @@ cdef class Codec(object):
             raise RuntimeError("Found codec does not match mode.", name, mode)
 
     cdef _init(self, name=None):
-
         if not self.ptr:
             raise UnknownCodecError(name)
 
@@ -199,7 +198,6 @@ cdef class Codec(object):
             raise RuntimeError('%s is both encoder and decoder.')
 
     def create(self):
-        """Create a :class:`.CodecContext` for this codec."""
         from .context import CodecContext
         return CodecContext.create(self)
 

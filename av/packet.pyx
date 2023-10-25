@@ -21,7 +21,6 @@ cdef class Packet(Buffer):
             self.ptr = lib.av_packet_alloc()
 
     def __init__(self, input=None):
-
         cdef size_t size = 0
         cdef ByteSource source = None
 
@@ -64,7 +63,6 @@ cdef class Packet(Buffer):
         return self.ptr.data
 
     cdef _rebase_time(self, lib.AVRational dst):
-
         if not dst.num:
             raise ValueError('Cannot rebase to zero time.')
 

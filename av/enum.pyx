@@ -135,7 +135,7 @@ def _unpickle(mod_name, cls_name, item_name):
 copyreg.constructor(_unpickle)
 
 
-cdef class EnumItem(object):
+cdef class EnumItem:
 
     """
     Enumerations are when an attribute may only take on a single value at once, and
@@ -251,7 +251,6 @@ cdef class EnumItem(object):
 
 
 cdef class EnumFlag(EnumItem):
-
     """
     Flags are sets of boolean attributes, which the FFmpeg API represents as individual
     bits in a larger integer which you manipulate with the bitwise operators.
@@ -322,8 +321,7 @@ cdef class EnumFlag(EnumItem):
         return bool(self.value)
 
 
-cdef class EnumProperty(object):
-
+cdef class EnumProperty:
     cdef object enum
     cdef object fget
     cdef object fset
@@ -378,7 +376,6 @@ cdef class EnumProperty(object):
 
 
 cpdef define_enum(name, module, items, bint is_flags=False):
-
     if is_flags:
         base_cls = EnumFlag
     else:

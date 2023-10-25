@@ -50,31 +50,6 @@ cpdef tag_to_code(bytes tag):
 
 
 class FFmpegError(Exception):
-
-    """Exception class for errors from within FFmpeg.
-
-    .. attribute:: errno
-
-        FFmpeg's integer error code.
-
-    .. attribute:: strerror
-
-        FFmpeg's error message.
-
-    .. attribute:: filename
-
-        The filename that was being operated on (if available).
-
-    .. attribute:: type
-
-        The :class:`av.error.ErrorType` enum value for the error type.
-
-    .. attribute:: log
-
-        The tuple from :func:`av.logging.get_last_log`, or ``None``.
-
-    """
-
     def __init__(self, code, message, filename=None, log=None):
         args = [code, message]
         if filename or log:
@@ -108,7 +83,6 @@ class FFmpegError(Exception):
             pass
 
     def __str__(self):
-
         msg = f'[Errno {self.errno}] {self.strerror}'
 
         if self.filename:

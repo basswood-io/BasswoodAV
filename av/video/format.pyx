@@ -19,17 +19,8 @@ cdef lib.AVPixelFormat get_pix_fmt(const char *name) except lib.AV_PIX_FMT_NONE:
     return pix_fmt
 
 
-cdef class VideoFormat(object):
-    """
-
-        >>> format = VideoFormat('rgb24')
-        >>> format.name
-        'rgb24'
-
-    """
-
+cdef class VideoFormat:
     def __cinit__(self, name, width=0, height=0):
-
         if name is _cinit_bypass_sentinel:
             return
 
@@ -122,8 +113,7 @@ cdef class VideoFormat(object):
         return -((-luma_height) >> self.ptr.log2_chroma_h) if luma_height else 0
 
 
-cdef class VideoFormatComponent(object):
-
+cdef class VideoFormatComponent:
     def __cinit__(self, VideoFormat format, size_t index):
         self.format = format
         self.index = index

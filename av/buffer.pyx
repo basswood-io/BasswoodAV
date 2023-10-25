@@ -5,13 +5,7 @@ from av import deprecation
 from av.bytesource cimport ByteSource, bytesource
 
 
-cdef class Buffer(object):
-
-    """A base class for PyAV objects which support the buffer protocol, such
-    as :class:`.Packet` and :class:`.Plane`.
-
-    """
-
+cdef class Buffer:
     cdef size_t _buffer_size(self):
         return 0
 
@@ -28,7 +22,6 @@ cdef class Buffer(object):
 
     @property
     def buffer_size(self):
-        """The size of the buffer in bytes."""
         return self._buffer_size()
 
     @property

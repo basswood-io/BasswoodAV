@@ -1,18 +1,15 @@
 cimport libav as lib
 
 
-cdef class BaseOption(object):
-
+cdef class BaseOption:
     cdef const lib.AVOption *ptr
 
 
 cdef class Option(BaseOption):
-
     cdef readonly tuple choices
 
 
 cdef class OptionChoice(BaseOption):
-
     cdef readonly bint is_default
 
 

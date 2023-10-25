@@ -7,8 +7,7 @@ import errno
 import av.filter
 
 
-cdef class AudioResampler(object):
-
+cdef class AudioResampler:
     """AudioResampler(format=None, layout=None, rate=None)
 
     :param AudioFormat format: The target format, or string that parses to one
