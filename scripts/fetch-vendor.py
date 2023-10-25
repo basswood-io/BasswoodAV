@@ -25,7 +25,7 @@ def get_url():
 
     if system == "Windows":
         plat = "win_amd64" if calcsize("P") * 8 == 64 else "win32"
-        return f"https://github.com/PyAV-Org/pyav-ffmpeg/releases/download/5.1.2-1/ffmpeg-{plat}.tar.gz"
+        return f"https://github.com/WyattBlue/pyav-ffmpeg/releases/download/5.1.3/ffmpeg-{plat}.tar.gz"
 
     raise Exception(f"Unsupported system {system}")
 
