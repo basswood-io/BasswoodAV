@@ -296,9 +296,6 @@ class DisplayWidget(QtGui.QLabel):
         if self.pixmap:
             super().setPixmap(self.pixmap.scaled(self.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
 
-    def sizeHint(self):
-        return QtCore.QSize(1920 / 2.5, 1080 / 2.5)
-
 
 class VideoPlayerWidget(QtGui.QWidget):
 

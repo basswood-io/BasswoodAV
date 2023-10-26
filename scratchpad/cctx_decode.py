@@ -1,9 +1,8 @@
 import logging
 
-logging.basicConfig()
-
-
 from av.codec import CodecContext
+
+logging.basicConfig()
 
 
 cc = CodecContext.create('mpeg4', 'r')
