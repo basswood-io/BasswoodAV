@@ -1,8 +1,4 @@
-import array
 import argparse
-import sys
-import pprint
-import subprocess
 import time
 
 from qtproxy import Q

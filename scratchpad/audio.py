@@ -1,10 +1,6 @@
-import array
 import argparse
-import sys
-import pprint
 import subprocess
 
-from PIL import Image
 import av
 
 

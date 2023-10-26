@@ -1,11 +1,7 @@
-import array
 import argparse
 import logging
-import sys
-import pprint
 import subprocess
 
-from PIL import Image
 
 from av import open, time_base
 

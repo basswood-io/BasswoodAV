@@ -76,10 +76,10 @@ class FrameGrabber(QtCore.QObject):
                     else:
                         pts = frame.dts
 
-                    if not pts is None:
+                    if pts is not None:
                         frame_index = pts_to_frame(pts, time_base, rate, self.start_time)
 
-                elif not frame_index is None:
+                elif frame_index is not None:
                     frame_index += 1
 
 
@@ -218,7 +218,7 @@ class FrameGrabber(QtCore.QObject):
                 print(frame_index, frame)
                 continue
 
-            if not frame_index is None:
+            if frame_index is not None:
                 break
             else:
                 seek_frame -= 1

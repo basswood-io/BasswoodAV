@@ -1,8 +1,5 @@
 import argparse
 import ctypes
-import os
-import sys
-import pprint
 import time
 
 from qtproxy import Q
