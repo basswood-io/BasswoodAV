@@ -1,11 +1,6 @@
-import warnings
-
-from cpython cimport PyWeakref_NewRef
-from libc.stdint cimport int32_t, int64_t, uint8_t
-from libc.string cimport memcpy
+from libc.stdint cimport int32_t
 cimport libav as lib
 
-from av.codec.context cimport wrap_codec_context
 from av.enum cimport define_enum
 from av.error cimport err_check
 from av.packet cimport Packet
@@ -95,9 +90,9 @@ cdef class Stream:
                 if SideData.get(stream.side_data[i].type):
                     # Use dumpsidedata maybe here I guess : https://www.ffmpeg.org/doxygen/trunk/dump_8c_source.html#l00430
                     self.side_data[SideData.get(stream.side_data[i].type)] = lib.av_display_rotation_get(<const int32_t *>stream.side_data[i].data)
-        else:    
+        else:
             self.side_data = None
-        
+
         self.metadata = avdict_to_dict(
             stream.metadata,
             encoding=self.container.metadata_encoding,
