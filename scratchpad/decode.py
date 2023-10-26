@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.DEBUG)
 def format_time(time, time_base):
     if time is None:
         return 'None'
-    return '{:.3f}s ({} or {}/{})'.format(time_base * time, time_base * time, time_base.numerator * time, time_base.denominator)
+    return f'{time_base * time:.3f}s ({time_base * time} or {time_base.numerator * time}/{time_base.denominator})'
 
 
 arg_parser = argparse.ArgumentParser()
@@ -41,7 +41,7 @@ print('\tformat:', container.format)
 print('\tduration:', float(container.duration) / time_base)
 print('\tmetadata:')
 for k, v in sorted(container.metadata.items()):
-    print('\t\t{}: {!r}'.format(k, v))
+    print(f'\t\t{k}: {v!r}')
 print()
 
 print(len(container.streams), 'stream(s):')
@@ -75,7 +75,7 @@ for i, stream in enumerate(container.streams):
 
     print('\t\tmetadata:')
     for k, v in sorted(stream.metadata.items()):
-        print('\t\t\t{}: {!r}'.format(k, v))
+        print(f'\t\t\t{k}: {v!r}')
 
     print()
 
