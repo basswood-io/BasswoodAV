@@ -111,15 +111,6 @@ cdef extern from "libavcodec/avcodec.h" nogil:
         AV_CODEC_ID_MPEG2VIDEO
         AV_CODEC_ID_MPEG1VIDEO
 
-    cdef enum AVDiscard:
-        AVDISCARD_NONE
-        AVDISCARD_DEFAULT
-        AVDISCARD_NONREF
-        AVDISCARD_BIDIR
-        AVDISCARD_NONINTRA
-        AVDISCARD_NONKEY
-        AVDISCARD_ALL
-
     cdef struct AVCodec:
 
         char *name
@@ -491,6 +482,28 @@ cdef extern from "libavcodec/avcodec.h" nogil:
     cdef struct AVCodecParameters:
         AVMediaType codec_type
         AVCodecID codec_id
+        uint32_t codec_tag
+        uint8_t *extradata
+        int extradata_size
+        int format
+        int64_t bit_rate
+        int bits_per_coded_sample
+        int bits_per_raw_sample
+        int profile
+        int level
+        int width
+        int height
+        AVRational sample_aspect_ratio
+        AVFieldOrder field_order
+        AVColorRange color_range
+        AVColorPrimaries color_primaries
+        AVColorTransferCharacteristic color_trc
+        AVColorSpace color_space
+        AVChromaLocation chroma_location
+        int video_delay
+        AVRational framerate
+        AVPacketSideData *coded_side_data
+        int nb_coded_side_data
 
     cdef int avcodec_parameters_copy(
         AVCodecParameters *dst,
