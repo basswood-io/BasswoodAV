@@ -35,10 +35,10 @@ deactivate
 pip install .
 ```
 
-## Motivations For a Fork
-Unlike [PyAV](https://github.com/PyAV-Org/PyAV) (The original repo), this fork offers the following benefits:
+## Features 
+pyav is forked from [PyAV](https://github.com/PyAV-Org/PyAV), and currently has the following benefits:
  * Wheels for Python 3.12
  * Support for Cython 3
  * Support for FFmpeg 6, and beyond
  * Expanded support for different pixel formats
- * Being maintained
+
