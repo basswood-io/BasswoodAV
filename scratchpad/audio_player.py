@@ -1,8 +1,4 @@
-import array
 import argparse
-import sys
-import pprint
-import subprocess
 import time
 
 from qtproxy import Q
@@ -57,7 +53,7 @@ for pi, fi, frame in decode_iter():
     bytes_buffered = output.bufferSize() - output.bytesFree()
     us_processed = output.processedUSecs()
     us_buffered = 1000000 * bytes_buffered / (2 * 16 / 8) / 48000
-    print('pts: {:.3f}, played: {:.3f}, buffered: {:.3f}'.format(frame.time or 0, us_processed / 1000000.0, us_buffered / 1000000.0))
+    print(f'pts: {frame.time or 0:.3f}, played: {us_processed / 1000000.0:.3f}, buffered: {us_buffered / 1000000.0:.3f}')
 
 
     data = bytes(frame.planes[0])

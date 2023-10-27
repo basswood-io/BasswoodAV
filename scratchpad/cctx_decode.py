@@ -1,12 +1,8 @@
 import logging
 
+from av.codec import CodecContext
+
 logging.basicConfig()
-
-
-import av
-from av.codec import CodecContext, CodecParser
-from av.video import VideoFrame
-from av.packet import Packet
 
 
 cc = CodecContext.create('mpeg4', 'r')

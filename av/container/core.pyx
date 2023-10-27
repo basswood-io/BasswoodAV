@@ -1,6 +1,5 @@
 from cython.operator cimport dereference
 from libc.stdint cimport int64_t
-from libc.stdlib cimport free, malloc
 
 import os
 import time
@@ -206,7 +205,6 @@ cdef class Container:
 
         cdef bytes name_obj = os.fsencode(self.name)
         cdef char *name = name_obj
-        cdef seek_func_t seek_func = NULL
 
         cdef lib.AVOutputFormat *ofmt
         if self.writeable:
@@ -315,45 +313,45 @@ cdef class Container:
     auto_bsf = flags.flag_property('AUTO_BSF')
 
 
-"""Main entrypoint to opening files/streams.
+# Main entrypoint to opening files/streams.
+#
+# open(file) -> InputContainer | OutputContainer
+# open(file, mode="r") -> InputContainer
+# open(file, mode="w") -> OutputContainer
+#
+# file    :: The file to open, which can be either a string or a file-like object.
+# mode: "r" | "w" | None
+# format: str | None       :: Specific format to use. Defaults to autodect.
+# options: dict            :: Options to pass to the container and all streams.
+# container_options: dict  :: Options to pass to the container.
+# stream_options: list     :: Options to pass to each stream.
+# metadata_encoding: str   :: Encoding to use when reading or writing file metadata.
+# metadata_errors: str     :: Specifies how to handle encoding errors
+# buffer_size: int     :: Size of buffer for Python input/output operations in bytes.
+#                         Honored only when `file` is a file-like object.
+# timeout: float | None | tuple[open timeout, read timeout]
+#                          :: How many seconds to wait for data before giving up
+# io_open: callable | None
+#     :: Custom I/O callable for opening files/streams.
+#     :: This option is intended for formats that need to open additional
+#     :: file-like objects to `file` using custom I/O. The callable signature is
+#     :: `io_open(url: str, flags: int, options: dict)`, where `url` is the url to
+#     :: open, `flags` is a combination of AVIO_FLAG_* and `options` is a dictionary
+#     :: of additional options. The callable should return a file-like object.
+#
+# For devices (via `libavdevice`), pass the name of the device to `format`,
+# e.g.
+#     >>> # Open webcam on MacOS.
+#     >>> av.open(format="avfoundation", file="0")
+#
+# For DASH and custom I/O using `io_open`, add a protocol prefix to the `file` to
+# prevent the DASH encoder defaulting to the file protocol and using temporary files.
+# The custom I/O callable can be used to remove the protocol prefix to reveal the
+# actual name for creating the file-like object.
+#
+# e.g.
+#     >>> av.open("customprotocol://manifest.mpd", "w", io_open=custom_io)
 
-open(file) -> InputContainer | OutputContainer
-open(file, mode="r") -> InputContainer
-open(file, mode="w") -> OutputContainer
-
-file    :: The file to open, which can be either a string or a file-like object.
-mode: "r" | "w" | None
-format: str | None       :: Specific format to use. Defaults to autodect.
-options: dict            :: Options to pass to the container and all streams.
-container_options: dict  :: Options to pass to the container.
-stream_options: list     :: Options to pass to each stream.
-metadata_encoding: str   :: Encoding to use when reading or writing file metadata.
-metadata_errors: str     :: Specifies how to handle encoding errors
-buffer_size: int     :: Size of buffer for Python input/output operations in bytes.
-                        Honored only when `file` is a file-like object.
-timeout: float | None | tuple[open timeout, read timeout]
-                         :: How many seconds to wait for data before giving up
-io_open: callable | None
-    :: Custom I/O callable for opening files/streams.
-    :: This option is intended for formats that need to open additional
-    :: file-like objects to `file` using custom I/O. The callable signature is
-    :: `io_open(url: str, flags: int, options: dict)`, where `url` is the url to
-    :: open, `flags` is a combination of AVIO_FLAG_* and `options` is a dictionary
-    :: of additional options. The callable should return a file-like object.
-
-For devices (via `libavdevice`), pass the name of the device to `format`,
-e.g.
-    >>> # Open webcam on MacOS.
-    >>> av.open(format="avfoundation", file="0")
-
-For DASH and custom I/O using `io_open`, add a protocol prefix to the `file` to
-prevent the DASH encoder defaulting to the file protocol and using temporary files.
-The custom I/O callable can be used to remove the protocol prefix to reveal the
-actual name for creating the file-like object.
-
-e.g.
-    >>> av.open("customprotocol://manifest.mpd", "w", io_open=custom_io)
-"""
 
 def open(
     file,

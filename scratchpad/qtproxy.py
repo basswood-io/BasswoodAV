@@ -1,6 +1,3 @@
-import sys
-
-sys.path.append('/usr/local/lib/python2.7/site-packages')
 from PyQt4 import QtCore, QtGui, QtOpenGL, QtMultimedia
 
 

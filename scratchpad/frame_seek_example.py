@@ -76,10 +76,10 @@ class FrameGrabber(QtCore.QObject):
                     else:
                         pts = frame.dts
 
-                    if not pts is None:
+                    if pts is not None:
                         frame_index = pts_to_frame(pts, time_base, rate, self.start_time)
 
-                elif not frame_index is None:
+                elif frame_index is not None:
                     frame_index += 1
 
 
@@ -218,7 +218,7 @@ class FrameGrabber(QtCore.QObject):
                 print(frame_index, frame)
                 continue
 
-            if not frame_index is None:
+            if frame_index is not None:
                 break
             else:
                 seek_frame -= 1
@@ -295,9 +295,6 @@ class DisplayWidget(QtGui.QLabel):
     def resizeEvent(self, event):
         if self.pixmap:
             super().setPixmap(self.pixmap.scaled(self.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
-
-    def sizeHint(self):
-        return QtCore.QSize(1920 / 2.5, 1080 / 2.5)
 
 
 class VideoPlayerWidget(QtGui.QWidget):

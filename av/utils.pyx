@@ -1,4 +1,4 @@
-from libc.stdint cimport int64_t, uint8_t, uint64_t
+from libc.stdint cimport uint64_t
 
 from fractions import Fraction
 
@@ -84,9 +84,3 @@ cdef flag_in_bitfield(uint64_t bitfield, uint64_t flag):
     if not flag:
         return None
     return bool(bitfield & flag)
-
-
-# === BACKWARDS COMPAT ===
-
-from .error import FFmpegError as AVError
-from .error import err_check

@@ -1,8 +1,5 @@
 import argparse
 import os
-import sys
-import pprint
-import itertools
 
 import cv2
 

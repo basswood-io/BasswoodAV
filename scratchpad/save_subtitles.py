@@ -6,7 +6,6 @@ As you can see, the subtitle API needs some work.
 
 import os
 import sys
-import pprint
 
 from PIL import Image
 
