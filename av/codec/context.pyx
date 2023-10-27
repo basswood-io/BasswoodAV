@@ -344,7 +344,6 @@ cdef class CodecContext:
         packets = []
 
         while True:
-
             with nogil:
                 consumed = lib.av_parser_parse2(
                     self.parser,
@@ -357,7 +356,6 @@ cdef class CodecContext:
             err_check(consumed)
 
             if out_size:
-
                 # We copy the data immediately, as we have yet to figure out
                 # the expected lifetime of the buffer we get back. All of the
                 # examples decode it immediately.
@@ -406,7 +404,6 @@ cdef class CodecContext:
         return out
 
     cdef _send_packet_and_recv(self, Packet packet):
-
         cdef Frame frame
 
         cdef int res
@@ -430,7 +427,6 @@ cdef class CodecContext:
         raise NotImplementedError('Base CodecContext cannot decode.')
 
     cdef _recv_frame(self):
-
         if not self._next_frame:
             self._next_frame = self._alloc_next_frame()
         cdef Frame frame = self._next_frame
@@ -448,7 +444,6 @@ cdef class CodecContext:
             return frame
 
     cdef _recv_packet(self):
-
         cdef Packet packet = Packet()
 
         cdef int res
@@ -516,7 +511,6 @@ cdef class CodecContext:
         return res
 
     cdef _setup_decoded_frame(self, Frame frame, Packet packet):
-
         # Propagate our manual times.
         # While decoding, frame times are in stream time_base, which PyAV
         # is carrying around.
