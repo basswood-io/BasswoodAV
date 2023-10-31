@@ -13,21 +13,19 @@ def get_url():
     if system == "Linux":
         plat = f"manylinux_{machine}"
 
-    if system == "Darwin":
+    elif system == "Darwin":
         # cibuildwheel sets ARCHFLAGS:
         # https://github.com/pypa/cibuildwheel/blob/5255155bc57eb6224354356df648dc42e31a0028/cibuildwheel/macos.py#L207-L220
         if "ARCHFLAGS" in os.environ:
             machine = os.environ["ARCHFLAGS"].split()[1]
         plat = f"macosx_{machine}"
 
-    if system == "Linux" or system == "Darwin":
-        return f"https://github.com/WyattBlue/pyav-ffmpeg/releases/download/6.0-3/ffmpeg-{plat}.tar.gz"
-
-    if system == "Windows":
+    elif system == "Windows":
         plat = "win_amd64" if calcsize("P") * 8 == 64 else "win32"
-        return f"https://github.com/PyAV-Org/pyav-ffmpeg/releases/download/5.1.2-1/ffmpeg-{plat}.tar.gz"
+    else:
+        raise Exception(f"Unsupported system {system}")
 
-    raise Exception(f"Unsupported system {system}")
+    return f"https://github.com/WyattBlue/pyav-ffmpeg/releases/download/6.0-4/ffmpeg-{plat}.tar.gz"
 
 
 parser = argparse.ArgumentParser(description="Fetch and extract tarballs")
