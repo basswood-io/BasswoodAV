@@ -50,8 +50,7 @@ ColorRange = define_enum('ColorRange', __name__, (
 ))
 
 
-cdef class VideoReformatter(object):
-
+cdef class VideoReformatter:
     """An object for reformatting size and pixel format of :class:`.VideoFrame`.
 
     It is most efficient to have a reformatter object for each set of parameters

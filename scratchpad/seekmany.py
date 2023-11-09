@@ -1,4 +1,3 @@
-from __future__ import print_function
 import sys
 
 import av
@@ -25,10 +24,9 @@ print()
 
 def iter_frames():
     for packet in container.demux(stream):
-        for frame in packet.decode():
-            yield frame
+        yield from packet.decode()
 
-for i in xrange(steps):
+for i in range(steps):
 
     time = real_duration * i / steps
     min_time = time - tolerance

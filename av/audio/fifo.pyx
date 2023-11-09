@@ -1,28 +1,32 @@
-from av.audio.format cimport get_audio_format
 from av.audio.frame cimport alloc_audio_frame
-from av.audio.layout cimport get_audio_layout
 from av.error cimport err_check
 
 
 cdef class AudioFifo:
-
     """A simple audio sample FIFO (First In First Out) buffer."""
 
     def __repr__(self):
-        return '<av.%s %s samples of %dhz %s %s at 0x%x>' % (
-            self.__class__.__name__,
-            self.samples,
-            self.sample_rate,
-            self.layout,
-            self.format,
-            id(self),
-        )
+        try:
+            result = "<av.%s %s samples of %dhz %s %s at 0x%x>" % (
+                self.__class__.__name__,
+                self.samples,
+                self.sample_rate,
+                self.layout,
+                self.format,
+                id(self),
+            )
+        except AttributeError:
+            result = "<av.%s uninitialized, use fifo.write(frame), at 0x%x>" % (
+                self.__class__.__name__,
+                id(self),
+            )
+        return result
 
     def __dealloc__(self):
         if self.ptr:
             lib.av_audio_fifo_free(self.ptr)
 
-    cpdef write(self, AudioFrame frame):
+    cpdef write(self, frame: AudioFrame):
         """write(frame)
 
         Push a frame of samples into the queue.

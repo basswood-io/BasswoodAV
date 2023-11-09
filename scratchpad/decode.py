@@ -1,12 +1,7 @@
-from __future__ import print_function
-import array
 import argparse
 import logging
-import sys
-import pprint
 import subprocess
 
-from PIL import Image
 
 from av import open, time_base
 
@@ -17,7 +12,7 @@ logging.basicConfig(level=logging.DEBUG)
 def format_time(time, time_base):
     if time is None:
         return 'None'
-    return '%.3fs (%s or %s/%s)' % (time_base * time, time_base * time, time_base.numerator * time, time_base.denominator)
+    return f'{time_base * time:.3f}s ({time_base * time} or {time_base.numerator * time}/{time_base.denominator})'
 
 
 arg_parser = argparse.ArgumentParser()
@@ -46,7 +41,7 @@ print('\tformat:', container.format)
 print('\tduration:', float(container.duration) / time_base)
 print('\tmetadata:')
 for k, v in sorted(container.metadata.items()):
-    print('\t\t%s: %r' % (k, v))
+    print(f'\t\t{k}: {v!r}')
 print()
 
 print(len(container.streams), 'stream(s):')
@@ -80,7 +75,7 @@ for i, stream in enumerate(container.streams):
 
     print('\t\tmetadata:')
     for k, v in sorted(stream.metadata.items()):
-        print('\t\t\t%s: %r' % (k, v))
+        print(f'\t\t\t{k}: {v!r}')
 
     print()
 
@@ -145,18 +140,18 @@ for i, packet in enumerate(container.demux(streams)):
                 ]
                 proc = subprocess.Popen(cmd, stdin=subprocess.PIPE)
             try:
-                proc.stdin.write(frame.planes[0].to_bytes())
-            except IOError as e:
+                proc.stdin.write(bytes(frame.planes[0]))
+            except OSError as e:
                 print(e)
                 exit()
 
         if args.dump_planes:
             print('\t\tplanes')
             for i, plane in enumerate(frame.planes or ()):
-                data = plane.to_bytes()
+                data = bytes(plane)
                 print('\t\t\tPLANE %d, %d bytes' % (i, len(data)))
                 data = data.encode('hex')
-                for i in xrange(0, len(data), 128):
+                for i in range(0, len(data), 128):
                     print('\t\t\t%s' % data[i:i + 128])
 
         if args.count and frame_count >= args.count:

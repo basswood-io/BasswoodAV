@@ -1,20 +1,15 @@
-from __future__ import print_function
-import array
 import argparse
-import sys
-import pprint
 import subprocess
 
-from PIL import Image
 import av
 
 
 def print_data(frame):
     for i, plane in enumerate(frame.planes or ()):
-        data = plane.to_bytes()
+        data = bytes(plane)
         print('\tPLANE %d, %d bytes' % (i, len(data)))
         data = data.encode('hex')
-        for i in xrange(0, len(data), 128):
+        for i in range(0, len(data), 128):
             print('\t\t\t%s' % data[i:i + 128])
 
 
@@ -92,8 +87,8 @@ for i, packet in enumerate(container.demux(stream)):
                 ffplay = subprocess.Popen(cmd, stdin=subprocess.PIPE)
             try:
                 for frame in frames:
-                    ffplay.stdin.write(frame.planes[0].to_bytes())
-            except IOError as e:
+                    ffplay.stdin.write(bytes(frame.planes[0]))
+            except OSError as e:
                 print(e)
                 exit()
 

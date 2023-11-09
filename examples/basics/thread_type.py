@@ -6,7 +6,9 @@ import av.datasets
 
 print("Decoding with default (slice) threading...")
 
-container = av.open(av.datasets.curated('pexels/time-lapse-video-of-night-sky-857195.mp4'))
+container = av.open(
+    av.datasets.curated("pexels/time-lapse-video-of-night-sky-857195.mp4")
+)
 
 start_time = time.time()
 for packet in container.demux():
@@ -20,10 +22,12 @@ container.close()
 
 print("Decoding with auto threading...")
 
-container = av.open(av.datasets.curated('pexels/time-lapse-video-of-night-sky-857195.mp4'))
+container = av.open(
+    av.datasets.curated("pexels/time-lapse-video-of-night-sky-857195.mp4")
+)
 
 # !!! This is the only difference.
-container.streams.video[0].thread_type = 'AUTO'
+container.streams.video[0].thread_type = "AUTO"
 
 start_time = time.time()
 for packet in container.demux():
@@ -35,5 +39,5 @@ auto_time = time.time() - start_time
 container.close()
 
 
-print("Decoded with default threading in {:.2f}s.".format(default_time))
-print("Decoded with auto threading in {:.2f}s.".format(auto_time))
+print(f"Decoded with default threading in {default_time:.2f}s.")
+print(f"Decoded with auto threading in {auto_time:.2f}s.")

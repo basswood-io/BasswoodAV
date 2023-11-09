@@ -3,7 +3,6 @@ from av.frame cimport Frame
 
 
 cdef class Plane(Buffer):
-
     cdef Frame frame
     cdef int index
 

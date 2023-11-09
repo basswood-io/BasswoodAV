@@ -1,5 +1,0 @@
-
-Globals
-=======
-
-.. autofunction:: av.open

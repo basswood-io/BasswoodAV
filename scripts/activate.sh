@@ -8,17 +8,11 @@ fi
 
 export PYAV_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.."; pwd)"
 
-if [[ "$TRAVIS" ]]; then
-    PYAV_LIBRARY=$LIBRARY
-fi
-
 if [[ ! "$PYAV_LIBRARY" ]]; then
-
-    # Pull from command line argument.
     if [[ "$1" ]]; then
         PYAV_LIBRARY="$1"
     else
-        PYAV_LIBRARY=ffmpeg-4.2
+        PYAV_LIBRARY=ffmpeg-6.0
         echo "No \$PYAV_LIBRARY set; defaulting to $PYAV_LIBRARY"
     fi
 fi
@@ -40,15 +34,10 @@ fi
 export PYAV_PYTHON
 export PYAV_PIP="${PYAV_PIP-$PYAV_PYTHON -m pip}"
 
-if [[ "$GITHUB_ACTION" || "$TRAVIS" ]]; then
+if [[ "$GITHUB_ACTION" ]]; then
 
-    # GitHub/Travis as a very self-contained environment. Lets just work in that.
+    # GitHub has a very self-contained environment. Lets just work in that.
     echo "We're on CI, so not setting up another virtualenv."
-
-    if [[ "$TRAVIS_PYTHON_VERSION" = "2.7" || "$TRAVIS_PYTHON_VERSION" = "pypy" ]]; then
-        PYAV_PYTHON=python
-        PYAV_PIP=pip
-    fi
 
 else
 
@@ -74,15 +63,9 @@ print("{}{}.{}".format(platform.python_implementation().lower(), *sys.version_in
 
 fi
 
-
 # Just a flag so that we know this was supposedly run.
 export _PYAV_ACTIVATED=1
 
-if [[ ! "$PYAV_LIBRARY_BUILD_ROOT" && -d /vagrant ]]; then
-    # On Vagrant, building the library in the shared directory causes some
-    # problems, so we move it to the user's home.
-    PYAV_LIBRARY_ROOT="/home/vagrant/vendor"
-fi
 export PYAV_LIBRARY_ROOT="${PYAV_LIBRARY_ROOT-$PYAV_ROOT/vendor}"
 export PYAV_LIBRARY_BUILD="${PYAV_LIBRARY_BUILD-$PYAV_LIBRARY_ROOT/build}"
 export PYAV_LIBRARY_PREFIX="$PYAV_LIBRARY_BUILD/$PYAV_LIBRARY"

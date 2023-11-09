@@ -1,44 +1,36 @@
-from __future__ import absolute_import
-
+from urllib.request import urlopen
 import errno
 import logging
 import os
 import sys
 
 
-try:
-    from urllib.request import urlopen
-except ImportError:
-    from urllib2 import urlopen
-
-
 log = logging.getLogger(__name__)
 
 
-def iter_data_dirs(check_writable=False):
-
+def iter_data_dirs(check_writable: bool = False):
     try:
-        yield os.environ['PYAV_TESTDATA_DIR']
+        yield os.environ["PYAV_TESTDATA_DIR"]
     except KeyError:
         pass
 
-    if os.name == 'nt':
-        yield os.path.join(sys.prefix, 'pyav', 'datasets')
+    if os.name == "nt":
+        yield os.path.join(sys.prefix, "pyav", "datasets")
         return
 
     bases = [
-        '/usr/local/share',
-        '/usr/local/lib',
-        '/usr/share',
-        '/usr/lib',
+        "/usr/local/share",
+        "/usr/local/lib",
+        "/usr/share",
+        "/usr/lib",
     ]
 
     # Prefer the local virtualenv.
-    if hasattr(sys, 'real_prefix'):
+    if hasattr(sys, "real_prefix"):
         bases.insert(0, sys.prefix)
 
     for base in bases:
-        dir_ = os.path.join(base, 'pyav', 'datasets')
+        dir_ = os.path.join(base, "pyav", "datasets")
         if check_writable:
             if os.path.exists(dir_):
                 if not os.access(dir_, os.W_OK):
@@ -48,11 +40,10 @@ def iter_data_dirs(check_writable=False):
                     continue
         yield dir_
 
-    yield os.path.join(os.path.expanduser('~'), '.pyav', 'datasets')
+    yield os.path.join(os.path.expanduser("~"), ".pyav", "datasets")
 
 
-def cached_download(url, name):
-
+def cached_download(url: str, name: str) -> str:
     """Download the data at a URL, and cache it under the given name.
 
     The file is stored under `pyav/test` with the given name in the directory
@@ -69,7 +60,7 @@ def cached_download(url, name):
 
     clean_name = os.path.normpath(name)
     if clean_name != name:
-        raise ValueError("{} is not normalized.".format(name))
+        raise ValueError(f"{name} is not normalized.")
 
     for dir_ in iter_data_dirs():
         path = os.path.join(dir_, name)
@@ -79,11 +70,11 @@ def cached_download(url, name):
     dir_ = next(iter_data_dirs(True))
     path = os.path.join(dir_, name)
 
-    log.info("Downloading {} to {}".format(url, path))
+    log.info(f"Downloading {url} to {path}")
 
     response = urlopen(url)
     if response.getcode() != 200:
-        raise ValueError("HTTP {}".format(response.getcode()))
+        raise ValueError(f"HTTP {response.getcode()}")
 
     dir_ = os.path.dirname(path)
     try:
@@ -92,8 +83,8 @@ def cached_download(url, name):
         if e.errno != errno.EEXIST:
             raise
 
-    tmp_path = path + '.tmp'
-    with open(tmp_path, 'wb') as fh:
+    tmp_path = path + ".tmp"
+    with open(tmp_path, "wb") as fh:
         while True:
             chunk = response.read(8196)
             if chunk:
@@ -106,23 +97,15 @@ def cached_download(url, name):
     return path
 
 
-def fate(name):
-    """Download and return a path to a sample from the FFmpeg test suite.
-
-    Data is handled by :func:`cached_download`.
-
-    See the `FFmpeg Automated Test Environment <https://www.ffmpeg.org/fate.html>`_
-
-    """
-    return cached_download('http://fate.ffmpeg.org/fate-suite/' + name,
-                           os.path.join('fate-suite', name.replace('/', os.path.sep)))
+def fate(name: str) -> str:
+    return cached_download(
+        f"http://fate.ffmpeg.org/fate-suite/{name}",
+        os.path.join("fate-suite", name.replace("/", os.path.sep)),
+    )
 
 
-def curated(name):
-    """Download and return a path to a sample that is curated by the PyAV developers.
-
-    Data is handled by :func:`cached_download`.
-
-    """
-    return cached_download('https://pyav.org/datasets/' + name,
-                           os.path.join('pyav-curated', name.replace('/', os.path.sep)))
+def curated(name: str) -> str:
+    return cached_download(
+        f"https://pyav.org/datasets/{name}",
+        os.path.join("pyav-curated", name.replace("/", os.path.sep)),
+    )

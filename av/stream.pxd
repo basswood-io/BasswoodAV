@@ -1,5 +1,4 @@
-from libc.stdint cimport int64_t
-
+from libc.stdint cimport int32_t, int64_t
 cimport libav as lib
 
 from av.codec.context cimport CodecContext
@@ -8,23 +7,23 @@ from av.frame cimport Frame
 from av.packet cimport Packet
 
 
-cdef class Stream(object):
+cdef class Stream:
+    cdef lib.AVStream *ptr
 
     # Stream attributes.
     cdef readonly Container container
-
-    cdef lib.AVStream *_stream
     cdef readonly dict metadata
+    cdef readonly int nb_side_data
+    cdef readonly dict side_data
 
     # CodecContext attributes.
-    cdef lib.AVCodecContext *_codec_context
-    cdef const lib.AVCodec *_codec
-
     cdef readonly CodecContext codec_context
 
     # Private API.
-    cdef _init(self, Container, lib.AVStream*)
+    cdef _init(self, Container, lib.AVStream*, CodecContext)
     cdef _finalize_for_output(self)
+    cdef _set_time_base(self, value)
+    cdef _set_id(self, value)
 
 
-cdef Stream wrap_stream(Container, lib.AVStream*)
+cdef Stream wrap_stream(Container, lib.AVStream*, CodecContext)

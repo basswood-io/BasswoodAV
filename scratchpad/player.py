@@ -1,9 +1,5 @@
-from __future__ import print_function
 import argparse
 import ctypes
-import os
-import sys
-import pprint
 import time
 
 from qtproxy import Q
@@ -46,10 +42,14 @@ class PlayerGLWidget(Q.GLWidget):
         # print 'paint!'
         gl.clear(gl.COLOR_BUFFER_BIT)
         with gl.begin('polygon'):
-            gl.texCoord(0, 0); gl.vertex(-1, 1)
-            gl.texCoord(1, 0); gl.vertex(1, 1)
-            gl.texCoord(1, 1); gl.vertex(1, -1)
-            gl.texCoord(0, 1); gl.vertex(-1, -1)
+            gl.texCoord(0, 0)
+            gl.vertex(-1, 1)
+            gl.texCoord(1, 0)
+            gl.vertex(1, 1)
+            gl.texCoord(1, 1)
+            gl.vertex(1, -1)
+            gl.texCoord(0, 1)
+            gl.vertex(-1, -1)
 
 
 

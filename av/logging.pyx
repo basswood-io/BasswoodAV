@@ -32,24 +32,14 @@ API Reference
 
 from __future__ import absolute_import
 
-from libc.stdio cimport fprintf, printf, stderr
+from libc.stdio cimport fprintf, stderr
 from libc.stdlib cimport free, malloc
 cimport libav as lib
 
-from threading import Lock
+from threading import Lock, get_ident
 import logging
 import os
 import sys
-
-
-try:
-    from threading import get_ident
-except ImportError:
-    from thread import get_ident
-
-
-cdef bint is_py35 = sys.version_info[:2] >= (3, 5)
-cdef str decode_error_handler = 'backslashreplace' if is_py35 else 'replace'
 
 
 # Library levels.
@@ -105,8 +95,8 @@ def set_level(int level):
     """set_level(level)
 
     Sets logging threshold when converting from FFmpeg's logging system
-    to Python's. It is recommended to use the constants availible in this
-    module to set the level: ``QUIET``, ``PANIC``, ``FATAL``, ``ERROR``,
+    to Python's. It is recommended to use the constants available in this
+    module to set the level: ``PANIC``, ``FATAL``, ``ERROR``,
     ``WARNING``, ``INFO``, ``VERBOSE``, and ``DEBUG``.
 
     While less efficient, it is generally preferable to modify logging
@@ -178,7 +168,7 @@ cpdef get_last_error():
 cdef global_captures = []
 cdef thread_captures = {}
 
-cdef class Capture(object):
+cdef class Capture:
 
     """A context manager for capturing logs.
 
@@ -198,7 +188,6 @@ cdef class Capture(object):
     cdef list captures
 
     def __init__(self, bint local=True):
-
         self.logs = []
 
         if local:
@@ -218,7 +207,7 @@ cdef struct log_context:
     lib.AVClass *class_
     const char *name
 
-cdef const char *log_context_name(void *ptr) nogil:
+cdef const char *log_context_name(void *ptr) noexcept nogil:
     cdef log_context *obj = <log_context*>ptr
     return obj.name
 
@@ -226,12 +215,6 @@ cdef lib.AVClass log_class
 log_class.item_name = log_context_name
 
 cpdef log(int level, str name, str message):
-    """Send a log through the library logging system.
-
-    This is mostly for testing.
-
-    """
-
     cdef log_context *obj = <log_context*>malloc(sizeof(log_context))
     obj.class_ = &log_class
     obj.name = name
@@ -239,11 +222,16 @@ cpdef log(int level, str name, str message):
     free(obj)
 
 
-cdef void log_callback(void *ptr, int level, const char *format, lib.va_list args) nogil:
-
+cdef void log_callback(void *ptr, int level, const char *format, lib.va_list args) noexcept nogil:
     cdef bint inited = lib.Py_IsInitialized()
     if not inited and not print_after_shutdown:
         return
+
+    # Fast path: avoid logging overhead. This should match the
+    # log_callback_gil() checks that result in ignoring the message.
+    with gil:
+        if level > level_threshold and level != lib.AV_LOG_ERROR:
+            return
 
     # Format the message.
     cdef char message[1024]
@@ -263,7 +251,6 @@ cdef void log_callback(void *ptr, int level, const char *format, lib.va_list arg
         return
 
     with gil:
-
         try:
             log_callback_gil(level, name, message)
 
@@ -276,18 +263,17 @@ cdef void log_callback(void *ptr, int level, const char *format, lib.va_list arg
 
 
 cdef log_callback_gil(int level, const char *c_name, const char *c_message):
-
     global error_count
     global skip_count
     global last_log
     global last_error
 
     name = <str>c_name if c_name is not NULL else ''
-    message = (<bytes>c_message).decode('utf8', decode_error_handler)
+    message = (<bytes>c_message).decode('utf8', 'backslashreplace')
     log = (level, name, message)
 
     # We have to filter it ourselves, but we will still process it in general so
-    # it is availible to our error handling.
+    # it is available to our error handling.
     # Note that FFmpeg's levels are backwards from Python's.
     cdef bint is_interesting = level <= level_threshold
 
@@ -298,9 +284,7 @@ cdef log_callback_gil(int level, const char *c_name, const char *c_message):
     cdef object repeat_log = None
 
     with skip_lock:
-
         if is_interesting:
-
             is_repeated = skip_repeated and last_log == log
 
             if is_repeated:
@@ -333,7 +317,6 @@ cdef log_callback_gil(int level, const char *c_name, const char *c_message):
 
 
 cdef log_callback_emit(log):
-
     lib_level, name, message = log
 
     captures = thread_captures.get(get_ident()) or global_captures

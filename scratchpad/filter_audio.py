@@ -2,8 +2,6 @@
 Simple audio filtering example ported from C code:
    https://github.com/FFmpeg/FFmpeg/blob/master/doc/examples/filter_audio.c
 """
-from __future__ import division, print_function
-
 from fractions import Fraction
 import hashlib
 import sys
@@ -36,7 +34,7 @@ def init_filter_graph():
         OUTPUT_SAMPLE_RATE,
         OUTPUT_CHANNEL_LAYOUT
     )
-    print('Output format: {}'.format(output_format))
+    print(f'Output format: {output_format}')
 
     # initialize filters
     filter_chain = [
@@ -54,7 +52,7 @@ def init_filter_graph():
     # link up the filters into a chain
     print('Filter graph:')
     for c, n in zip(filter_chain, filter_chain[1:]):
-        print('\t{} -> {}'.format(c, n))
+        print(f'\t{c} -> {n}')
         c.link_to(n)
 
     # initialize the filter graph
@@ -88,7 +86,7 @@ def process_output(frame):
     data = frame.to_ndarray()
     for i in range(data.shape[0]):
         m = hashlib.md5(data[i, :].tobytes())
-        print('Plane: {:0d} checksum: {}'.format(i, m.hexdigest()))
+        print(f'Plane: {i:0d} checksum: {m.hexdigest()}')
 
 
 def main(duration):

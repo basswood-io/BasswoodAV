@@ -1,8 +1,11 @@
-from libc.stdint cimport int64_t, uint8_t, uint64_t
+from libc.stdint cimport int64_t, uint8_t, uint64_t, int32_t
 
 
 cdef extern from "libavutil/mathematics.h" nogil:
     pass
+
+cdef extern from "libavutil/display.h" nogil:
+    cdef double av_display_rotation_get(const int32_t matrix[9])
 
 cdef extern from "libavutil/rational.h" nogil:
     cdef int av_reduce(int *dst_num, int *dst_den, int64_t num, int64_t den, int64_t max)
@@ -22,13 +25,6 @@ cdef extern from "libavutil/avutil.h" nogil:
         AV_PICTURE_TYPE_SI
         AV_PICTURE_TYPE_SP
         AV_PICTURE_TYPE_BI
-
-    cdef enum AVPixelFormat:
-        AV_PIX_FMT_NONE
-        AV_PIX_FMT_YUV420P
-        AV_PIX_FMT_RGB24
-        PIX_FMT_RGB24
-        PIX_FMT_RGBA
 
     cdef enum AVRounding:
         AV_ROUND_ZERO
@@ -63,6 +59,7 @@ cdef extern from "libavutil/avutil.h" nogil:
 
     cdef void* av_malloc(size_t size)
     cdef void *av_calloc(size_t nmemb, size_t size)
+    cdef void *av_realloc(void *ptr, size_t size)
 
     cdef void av_freep(void *ptr)
 
@@ -85,9 +82,9 @@ cdef extern from "libavutil/avutil.h" nogil:
 
     # Rescales from one time base to another
     cdef int64_t av_rescale_q(
-        int64_t a, # time stamp
-        AVRational bq, # source time base
-        AVRational cq  # target time base
+        int64_t a,  # time stamp
+        AVRational bq,  # source time base
+        AVRational cq   # target time base
     )
 
     # Rescale a 64-bit integer with specified rounding.
@@ -96,14 +93,14 @@ cdef extern from "libavutil/avutil.h" nogil:
         int64_t a,
         int64_t b,
         int64_t c,
-        int r # should be AVRounding, but then we can't use bitwise logic.
+        int r  # should be AVRounding, but then we can't use bitwise logic.
     )
 
     cdef int64_t av_rescale_q_rnd(
         int64_t a,
         AVRational bq,
         AVRational cq,
-        int r # should be AVRounding, but then we can't use bitwise logic.
+        int r  # should be AVRounding, but then we can't use bitwise logic.
     )
 
     cdef int64_t av_rescale(
@@ -164,7 +161,6 @@ cdef extern from "libavutil/pixdesc.h" nogil:
     int av_get_padded_bits_per_pixel(AVPixFmtDescriptor *pixdesc)
 
 
-
 cdef extern from "libavutil/channel_layout.h" nogil:
 
     # Layouts.
@@ -182,8 +178,6 @@ cdef extern from "libavutil/channel_layout.h" nogil:
     cdef uint64_t av_channel_layout_extract_channel(uint64_t layout, int index)
     cdef char* av_get_channel_name(uint64_t channel)
     cdef char* av_get_channel_description(uint64_t channel)
-
-
 
 
 cdef extern from "libavutil/audio_fifo.h" nogil:

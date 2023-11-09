@@ -1,11 +1,9 @@
-from __future__ import print_function
 import argparse
-import logging
 import os
 import sys
 
 import av
-from tests.common import asset, sandboxed
+from tests.common import sandboxed
 
 
 arg_parser = argparse.ArgumentParser()

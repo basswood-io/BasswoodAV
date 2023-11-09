@@ -59,8 +59,7 @@ OptionFlags = define_enum('OptionFlags', __name__, (
     ('FILTERING_PARAM', lib.AV_OPT_FLAG_FILTERING_PARAM),
 ), is_flags=True)
 
-cdef class BaseOption(object):
-
+cdef class BaseOption:
     def __cinit__(self, sentinel):
         if sentinel is not _cinit_sentinel:
             raise RuntimeError('Cannot construct av.%s' % self.__class__.__name__)
@@ -105,7 +104,6 @@ cdef class BaseOption(object):
 
 
 cdef class Option(BaseOption):
-
     property type:
         def __get__(self):
             return OptionType._get(self.ptr.type, create=True)
