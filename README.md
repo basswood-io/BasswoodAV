@@ -20,13 +20,13 @@ Installation
 Binary wheels are provided on [PyPI][pypi] for Linux, MacOS and Windows linked against the latest stable version of ffmpeg. You can install these wheels by running:
 
 ```bash
-pip install av
+pip install pyav
 ```
 
 Another way of installing PyAV is via [conda-forge][conda-forge]:
 
 ```bash
-conda install av -c conda-forge
+conda install pyav -c conda-forge
 ```
 
 See the [Conda install][conda-install] docs to get started with (mini)Conda.
@@ -38,7 +38,7 @@ Installing From Source
 Here's how to build PyAV from source source. You must use [MSYS2](https://www.msys2.org/) when using Windows.
 
 ```bash
-git clone https://github.com/PyAV-Org/PyAV.git
+git clone https://github.com/basswood-io/PyAV.git
 cd PyAV
 source scripts/activate.sh
 
@@ -63,17 +63,17 @@ Have fun, [read the docs][docs], [come chat with us][discuss], and good luck!
 
 
 
-[conda-badge]: https://img.shields.io/conda/vn/conda-forge/av.svg?colorB=CCB39A
-[conda]: https://anaconda.org/conda-forge/av
+[conda-badge]: https://img.shields.io/conda/vn/conda-forge/pyav.svg?colorB=CCB39A
+[conda]: https://anaconda.org/conda-forge/pyav
 [docs-badge]: https://img.shields.io/badge/docs-on%20pyav.basswood--io.com-blue.svg
 [docs]: https://pyav.basswood-io.com
-[pypi-badge]: https://img.shields.io/pypi/v/av.svg?colorB=CCB39A
+[pypi-badge]: https://img.shields.io/pypi/v/pyav.svg?colorB=CCB39A
 [pypi]: https://pypi.org/project/av
-[discuss]: https://github.com/PyAV-Org/PyAV/discussions
+[discuss]: https://github.com/basswood-io/PyAV/discussions
 
-[github-tests-badge]: https://github.com/PyAV-Org/PyAV/workflows/tests/badge.svg
-[github-tests]: https://github.com/PyAV-Org/PyAV/actions?workflow=tests
-[github]: https://github.com/PyAV-Org/PyAV
+[github-tests-badge]: https://github.com/basswood-io/PyAV/workflows/tests/badge.svg
+[github-tests]: https://github.com/basswood-io/PyAV/actions?workflow=tests
+[github]: https://github.com/basswood-io/PyAV
 
 [ffmpeg]: https://ffmpeg.org/
 [conda-forge]: https://conda-forge.github.io/
