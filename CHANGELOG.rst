@@ -17,8 +17,8 @@ We are operating with `semantic versioning <https://semver.org>`_.
     are merged into the "default" branch.
 
 
-v14.2.0 (Unreleased)
---------------------
+v14.2.0
+-------
 
 Features:
 

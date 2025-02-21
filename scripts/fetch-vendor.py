@@ -1,6 +1,5 @@
 import argparse
 import logging
-import json
 import os
 import platform
 import struct
@@ -30,19 +29,18 @@ def get_platform():
 parser = argparse.ArgumentParser(description="Fetch and extract tarballs")
 parser.add_argument("destination_dir")
 parser.add_argument("--cache-dir", default="tarballs")
-parser.add_argument("--config-file", default=os.path.splitext(__file__)[0] + ".json")
 args = parser.parse_args()
 logging.basicConfig(level=logging.INFO)
 
-with open(args.config_file) as fp:
-    config = json.load(fp)
 
 # ensure destination directory exists
 logging.info(f"Creating directory {args.destination_dir}")
 if not os.path.exists(args.destination_dir):
     os.makedirs(args.destination_dir)
 
-tarball_url = config["url"].replace("{platform}", get_platform())
+
+config_url = "https://github.com/basswood-io/PyAV-ffmpeg/releases/download/7.1-a/ffmpeg-{platform}.tar.gz"
+tarball_url = config_url.replace("{platform}", get_platform())
 
 # download tarball
 tarball_name = tarball_url.split("/")[-1]

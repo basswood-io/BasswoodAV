@@ -109,7 +109,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {os: windows-latest, python: "3.9", ffmpeg: "7.1"}
+          - {os: windows-latest, python: "3.9"}
 
     steps:
     - name: Checkout
@@ -134,8 +134,7 @@ jobs:
       run: |
         . $CONDA/etc/profile.d/conda.sh
         conda activate pyav
-        python scripts\\fetch-vendor.py --config-file scripts\\ffmpeg-${{ matrix.config.ffmpeg }}.json $CONDA_PREFIX\\Library
-        python scripts\\comptime.py  ${{ matrix.config.ffmpeg }}
+        python scripts\\fetch-vendor.py $CONDA_PREFIX\\Library
         python setup.py build_ext --inplace --ffmpeg-dir=$CONDA_PREFIX\\Library
 
     - name: Test
