@@ -31,7 +31,6 @@ Features:
 Misc:
 
 - Drop support for MacOS 11 by :gh-user:`WyattBlue` in (:pr:`1764`).
-- Add warnings when compiling from source by :gh-user:`WyattBlue` in (:pr:`1773`).
 
 
 v14.1.0
