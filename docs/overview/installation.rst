@@ -11,16 +11,6 @@ Binary wheels are provided on PyPI for Linux, MacOS, and Windows linked against 
     pip install av
 
 
-Conda
------
-
-Another way to install PyAV is via `conda-forge <https://conda-forge.github.io>`_::
-
-    conda install av -c conda-forge
-
-See the `Conda quick install <https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html>`_ docs to get started with (mini)Conda.
-
-
 Building from the latest source
 -------------------------------
 
@@ -38,10 +28,6 @@ Building from the latest source
 
     # Build PyAV.
     make
-
-On **MacOS** you may have issues with regards to Python expecting gcc but finding clang. Try to export the following before installation::
-
-    export ARCHFLAGS=-Wno-error=unused-command-line-argument-hard-error-in-future
 
 
 .. _build_on_windows:

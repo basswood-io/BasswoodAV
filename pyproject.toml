@@ -2,7 +2,7 @@
 requires = ["setuptools>61", "cython>=3,<4"]
 
 [project]
-name = "pyav"
+name = "basswood-av"
 description = "Pythonic bindings for FFmpeg's libraries."
 readme = "README.md"
 license = {text = "BSD-3-Clause"}
