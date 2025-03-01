@@ -22,7 +22,7 @@ v15.0.0 (Unreleased)
 
 Major:
 
-- Rework ``av.ValueError``
+- Turn ``av.ValueError`` into ``av.ArgumentError``. The latter is now not a subclass of ``ValueError``. This change better reflects how PyAV users should think about this exception.
 
 Features:
 

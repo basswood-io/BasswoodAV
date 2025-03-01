@@ -273,25 +273,6 @@ for enum in ErrorType:
     else:
         enum.strerror = lib.av_err2str(-enum.value)
 
-
-# Mimick the builtin exception types.
-# See https://www.python.org/dev/peps/pep-3151/#new-exception-classes
-# Use the named ones we have, otherwise default to OSError for anything in errno.
-
-# See this command for the count of POSIX codes used:
-#
-#    egrep -IR 'AVERROR\(E[A-Z]+\)' vendor/ffmpeg-4.2 |\
-#        sed -E 's/.*AVERROR\((E[A-Z]+)\).*/\1/' | \
-#        sort | uniq -c
-#
-# The biggest ones that don't map to PEP 3151 builtins:
-#
-#    2106 EINVAL -> ValueError
-#     649 EIO    -> IOError (if it is distinct from OSError)
-#    4080 ENOMEM -> MemoryError
-#     340 ENOSYS -> NotImplementedError
-#      35 ERANGE -> OverflowError
-
 classes = {}
 
 
@@ -310,7 +291,6 @@ def _extend_builtin(name, codes):
     return cls
 
 
-# PEP 3151 builtins.
 _extend_builtin("PermissionError", (errno.EACCES, errno.EPERM))
 _extend_builtin("BlockingIOError", (errno.EAGAIN, errno.EALREADY, errno.EINPROGRESS, errno.EWOULDBLOCK))
 _extend_builtin("ChildProcessError", (errno.ECHILD, ))
@@ -325,15 +305,22 @@ _extend_builtin("NotADirectoryError", (errno.ENOTDIR, ))
 _extend_builtin("BrokenPipeError", (errno.EPIPE, errno.ESHUTDOWN))
 _extend_builtin("ProcessLookupError", (errno.ESRCH, ))
 _extend_builtin("TimeoutError", (errno.ETIMEDOUT, ))
-
-# Other obvious ones.
-_extend_builtin("ValueError", (errno.EINVAL, ))
 _extend_builtin("MemoryError", (errno.ENOMEM, ))
 _extend_builtin("NotImplementedError", (errno.ENOSYS, ))
 _extend_builtin("OverflowError", (errno.ERANGE, ))
-
-# The rest of them (for now)
 _extend_builtin("OSError", [code for code in errno.errorcode if code not in classes])
+
+class ArgumentError(FFmpegError):
+    pass
+
+class UndefinedError(FFmpegError):
+    """Fallback exception type in case FFmpeg returns an error we don't know about."""
+    pass
+
+classes[errno.EINVAL] = ArgumentError
+globals()["ArgumentError"] = ArgumentError
+__all__.append("ArgumentError")
+
 
 # Classes for the FFmpeg errors.
 for enum_name, code, name, base in _ffmpeg_specs:
@@ -423,8 +410,3 @@ cpdef int err_check(int res, filename=None) except -1:
         raise cls(code, message, filename, log)
     finally:
         free(error_buffer)
-
-
-class UndefinedError(FFmpegError):
-    """Fallback exception type in case FFmpeg returns an error we don't know about."""
-    pass
