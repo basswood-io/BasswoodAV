@@ -17,6 +17,18 @@ We are operating with `semantic versioning <https://semver.org>`_.
     are merged into the "default" branch.
 
 
+v15.0.0 (Unreleased)
+--------------------
+
+Major:
+
+- Rework ``av.ValueError``
+
+Features:
+
+- Add support Python free-threading builds.
+
+
 v14.2.0
 -------
 
