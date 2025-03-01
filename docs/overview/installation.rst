@@ -8,7 +8,7 @@ Binary wheels are provided on PyPI for Linux, MacOS, and Windows linked against 
 
 .. code-block:: bash
 
-    pip install av
+    pip install basswood-av
 
 
 Building from the latest source

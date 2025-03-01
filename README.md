@@ -17,10 +17,10 @@ But where you can't work without it, PyAV is a critical tool.
 Installation
 ------------
 
-Binary wheels are provided on [PyPI](https://pypi.org/project/pyav) for Linux, MacOS and Windows linked against the latest stable version of ffmpeg. You can install these wheels by running:
+Binary wheels are provided on [PyPI][pypi] for Linux, MacOS and Windows linked against the latest stable version of ffmpeg. You can install these wheels by running:
 
 ```bash
-pip install pyav
+pip install basswood-av
 ```
 
 
@@ -55,6 +55,7 @@ pip install .
 [docs-badge]: https://img.shields.io/badge/docs-on%20pyav.basswood--io.com-blue.svg
 [docs]: https://pyav.basswood-io.com
 [pypi-badge]: https://img.shields.io/pypi/v/pyav.svg?colorB=CCB39A
+[pypi]: https://pypi.org/project/basswood-av
 
 [github-tests-badge]: https://github.com/basswood-io/PyAV/workflows/tests/badge.svg
 [github-tests]: https://github.com/basswood-io/PyAV/actions?workflow=tests
