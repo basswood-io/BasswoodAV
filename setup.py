@@ -8,6 +8,8 @@ import subprocess
 import sys
 from time import sleep
 
+from packaging.version import Version
+
 
 def is_virtualenv():
     return sys.base_prefix != sys.prefix
@@ -34,6 +36,7 @@ else:
 
 from Cython.Build import cythonize
 from Cython.Compiler.AutoDocTransforms import EmbedSignature
+from Cython.Compiler.Version import version as cython_version
 from setuptools import Extension, find_packages, setup
 
 FFMPEG_LIBRARIES = [
@@ -61,6 +64,9 @@ def insert_enum_in_generated_files(source):
         # Replace "AVChannel __pyx_v_channel;" with "enum AVChannel __pyx_v_channel;"
         modified_content = re.sub(
             r"\b(?<!enum\s)(AVChannel\s+__pyx_v_\w+;)", r"enum \1", content
+        )
+        modified_content = re.sub(
+            r"__pyx_vectorcallfunc", r"vectorcallfunc", modified_content
         )
         with open(source, "w") as file:
             file.write(modified_content)
@@ -188,15 +194,20 @@ loudnorm_extension = Extension(
     library_dirs=extension_extra["library_dirs"],
 )
 
+compiler_directives = {
+    "c_string_type": "str",
+    "c_string_encoding": "ascii",
+    "embedsignature": True,
+    "language_level": 3,
+}
+
+if Version(cython_version) >= Version("3.1.0a0"):
+    compiler_directives["freethreading_compatible"] = True
+
 # Add the cythonized loudnorm extension to ext_modules
 ext_modules = cythonize(
     loudnorm_extension,
-    compiler_directives={
-        "c_string_type": "str",
-        "c_string_encoding": "ascii",
-        "embedsignature": True,
-        "language_level": 3,
-    },
+    compiler_directives=compiler_directives,
     build_dir="src",
     include_path=["include"],
 )
@@ -223,12 +234,7 @@ for dirname, dirnames, filenames in os.walk("av"):
                 library_dirs=extension_extra["library_dirs"],
                 sources=[pyx_path],
             ),
-            compiler_directives={
-                "c_string_type": "str",
-                "c_string_encoding": "ascii",
-                "embedsignature": True,
-                "language_level": 3,
-            },
+            compiler_directives=compiler_directives,
             build_dir="src",
             include_path=["include"],
         )

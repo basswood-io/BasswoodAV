@@ -3,6 +3,7 @@
 .DS_Store
 .nfs.*
 ._*
+uv.lock
 
 # Environment
 /.eggs

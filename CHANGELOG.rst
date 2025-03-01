@@ -26,7 +26,7 @@ Major:
 
 Features:
 
-- Add support Python free-threading builds.
+- Add support for Python free-threading builds.
 
 
 v14.2.0

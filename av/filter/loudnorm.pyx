@@ -1,5 +1,3 @@
-# av/filter/loudnorm.pyx
-
 cimport libav as lib
 from cpython.bytes cimport PyBytes_FromString
 from libc.stdlib cimport free

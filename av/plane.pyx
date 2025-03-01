@@ -1,4 +1,3 @@
-
 cdef class Plane(Buffer):
     """
     Base class for audio and video planes.

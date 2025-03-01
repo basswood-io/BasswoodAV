@@ -1,4 +1,3 @@
-
 cdef object _cinit_bypass_sentinel = object()
 
 cdef VideoFormat get_video_format(lib.AVPixelFormat c_format, unsigned int width, unsigned int height):
