@@ -8,9 +8,6 @@ import subprocess
 import sys
 from time import sleep
 
-from packaging.version import Version
-
-
 def is_virtualenv():
     return sys.base_prefix != sys.prefix
 
@@ -198,11 +195,9 @@ compiler_directives = {
     "c_string_type": "str",
     "c_string_encoding": "ascii",
     "embedsignature": True,
+    "freethreading_compatible": True,
     "language_level": 3,
 }
-
-if Version(cython_version) >= Version("3.1.0a0"):
-    compiler_directives["freethreading_compatible"] = True
 
 # Add the cythonized loudnorm extension to ext_modules
 ext_modules = cythonize(
