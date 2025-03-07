@@ -1,13 +1,13 @@
 name: smoke
 on:
   push:
-    branches: main
+    branches: master
     paths-ignore:
       - '**.md'
       - '**.rst'
       - '**.txt'
   pull_request:
-    branches: main
+    branches: master
     paths-ignore:
       - '**.md'
       - '**.rst'
