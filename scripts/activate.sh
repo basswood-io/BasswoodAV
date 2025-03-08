@@ -28,24 +28,13 @@ if [[ ! "$PYAV_PYTHON" ]]; then
     echo 'No $PYAV_PYTHON set; defaulting to python3.'
 fi
 
-# Hack for PyPy on GitHub Actions.
-# This is because PYAV_PYTHON is constructed from "python${{ matrix.config.python }}"
-# resulting in "pythonpypy3", which won't work.
-# It would be nice to clean this up, but I want it to work ASAP.
-if [[ "$PYAV_PYTHON" == *pypy* ]]; then
-    PYAV_PYTHON=python
-fi
-
 export PYAV_PYTHON
 export PYAV_PIP="${PYAV_PIP-$PYAV_PYTHON -m pip}"
 
 if [[ "$GITHUB_ACTION" ]]; then
-
     # GitHub has a very self-contained environment. Lets just work in that.
     echo "We're on CI, so not setting up another virtualenv."
-
 else
-
     export PYAV_VENV_NAME="$(uname -s).$(uname -r).$("$PYAV_PYTHON" -c '
 import sys
 import platform
@@ -65,18 +54,11 @@ print("{}{}.{}".format(platform.python_implementation().lower(), *sys.version_in
         # Not a virtualenv (perhaps a debug Python); lets manually "activate" it.
         PATH="$PYAV_VENV/bin:$PATH"
     fi
-
 fi
-
 
 # Just a flag so that we know this was supposedly run.
 export _PYAV_ACTIVATED=1
 
-if [[ ! "$PYAV_LIBRARY_BUILD_ROOT" && -d /vagrant ]]; then
-    # On Vagrant, building the library in the shared directory causes some
-    # problems, so we move it to the user's home.
-    PYAV_LIBRARY_ROOT="/home/vagrant/vendor"
-fi
 export PYAV_LIBRARY_ROOT="${PYAV_LIBRARY_ROOT-$PYAV_ROOT/vendor}"
 export PYAV_LIBRARY_BUILD="${PYAV_LIBRARY_BUILD-$PYAV_LIBRARY_ROOT/build}"
 export PYAV_LIBRARY_PREFIX="$PYAV_LIBRARY_BUILD/$PYAV_LIBRARY"
