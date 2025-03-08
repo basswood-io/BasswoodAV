@@ -121,7 +121,6 @@ jobs:
         conda config --set always_yes true
         conda config --add channels conda-forge
         conda create -q -n pyav \
-          cython \
           numpy \
           pillow \
           pytest \
@@ -133,6 +132,8 @@ jobs:
       run: |
         . $CONDA/etc/profile.d/conda.sh
         conda activate pyav
+        pip install 'Cython==3.1.0a1'
+
         python scripts\\fetch-vendor.py $CONDA_PREFIX\\Library
         python setup.py build_ext --inplace --ffmpeg-dir=$CONDA_PREFIX\\Library
 
