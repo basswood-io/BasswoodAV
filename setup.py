@@ -8,6 +8,7 @@ import subprocess
 import sys
 from time import sleep
 
+
 def is_virtualenv():
     return sys.base_prefix != sys.prefix
 

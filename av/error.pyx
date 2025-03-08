@@ -127,6 +127,7 @@ class HTTPClientError(FFmpegError):
 
 
 # Tuples of (enum_name, enum_value, exc_name, exc_base).
+# tuple[str, int, str | None, Exception | none]
 _ffmpeg_specs = (
     ("BSF_NOT_FOUND", -lib.AVERROR_BSF_NOT_FOUND, "BSFNotFoundError", LookupError),
     ("BUG", -lib.AVERROR_BUG, None, RuntimeError),
@@ -187,42 +188,6 @@ class EnumType(type):
 
     def __iter__(self):
         return iter(self._all)
-
-    def __getitem__(self, key):
-        if isinstance(key, str):
-            return self._by_name[key]
-
-        if isinstance(key, int):
-            try:
-                return self._by_value[key]
-            except KeyError:
-                pass
-
-            raise KeyError(key)
-
-        if isinstance(key, self):
-            return key
-
-        raise TypeError(f"{self.__name__} indices must be str, int, or itself")
-
-    def _get(self, long value, bint create=False):
-        try:
-            return self._by_value[value]
-        except KeyError:
-            pass
-
-        if not create:
-            return
-
-        return self._create(f"{self.__name__.upper()}_{value}", value, by_value_only=True)
-
-    def get(self, key, default=None, create=False):
-        try:
-            return self[key]
-        except KeyError:
-            if create:
-                return self._get(key, create=True)
-            return default
 
 
 cdef class EnumItem:
