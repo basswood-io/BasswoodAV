@@ -1,9 +1,36 @@
-body {
-    text-rendering: optimizeLegibility;
+body { text-rendering: optimizeLegibility }
+
+.sphinxsidebarwrapper { overflow: scroll }
+div.bodywrapper { margin: 0 0 0 300px }
+div.sphinxsidebar { width: 300px }
+
+@media screen and (max-width: 768px) {
+  div.sphinxsidebar { width: 200px }
+  div.bodywrapper { margin: 0 0 0 200px }
 }
 
-.sphinxsidebarwrapper {
-    overflow: scroll;
+/* Mobile-sized screens - stack the layout */
+@media screen and (max-width: 480px) {
+  div.document {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+  div.sphinxsidebar {
+    width: 100%;
+    float: none;
+    margin: 0;
+    position: relative;
+    display: block;
+  }
+  div.bodywrapper {
+    margin: 0;
+    width: 100%;
+    float: none;
+  }
+  div.body {
+    min-width: 0;
+  }
+  div.sphinxsidebar p.logo { text-align: center }
 }
 
 .ffmpeg-quicklink {
