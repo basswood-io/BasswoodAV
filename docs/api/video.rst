@@ -75,6 +75,7 @@ Conversions
 .. automethod:: VideoFrame.reformat
 
 .. automethod:: VideoFrame.to_rgb
+.. automethod:: VideoFrame.save
 .. automethod:: VideoFrame.to_image
 .. automethod:: VideoFrame.to_ndarray
 

@@ -9,14 +9,7 @@ import av
 from av import VideoFrame
 from av.video.reformatter import ColorRange, Colorspace, Interpolation
 
-from .common import (
-    TestCase,
-    assertImagesAlmostEqual,
-    assertNdarraysEqual,
-    fate_png,
-    fate_suite,
-    has_pillow,
-)
+from .common import TestCase, assertNdarraysEqual, fate_png, fate_suite
 
 
 def assertPixelValue16(plane, expected, byteorder: str) -> None:
@@ -132,77 +125,29 @@ def test_memoryview_read() -> None:
     assert mem[:7] == b"0.234xx"
 
 
-class TestVideoFrameImage(TestCase):
-    def setUp(self) -> None:
-        if not has_pillow:
-            pytest.skip()
+def test_interpolation() -> None:
+    container = av.open(fate_png())
+    for _ in container.decode(video=0):
+        frame = _
+        break
 
-    def test_roundtrip(self) -> None:
-        import PIL.Image as Image
+    assert frame.width == 330 and frame.height == 330
 
-        image = Image.open(fate_png())
-        frame = VideoFrame.from_image(image)
-        img = frame.to_image()
-        img.save(self.sandboxed("roundtrip-high.jpg"))
-        assertImagesAlmostEqual(image, img)
+    img = frame.reformat(width=200, height=100, interpolation=Interpolation.BICUBIC)
+    assert img.width == 200 and img.height == 100
 
-    def test_interpolation(self) -> None:
-        import PIL.Image as Image
+    img = frame.reformat(width=200, height=100, interpolation="BICUBIC")
+    assert img.width == 200 and img.height == 100
 
-        image = Image.open(fate_png())
-        frame = VideoFrame.from_image(image)
-        assert frame.width == 330 and frame.height == 330
-
-        img = frame.to_image(width=200, height=100, interpolation=Interpolation.BICUBIC)
-        assert img.width == 200 and img.height == 100
-
-        img = frame.to_image(width=200, height=100, interpolation="BICUBIC")
-        assert img.width == 200 and img.height == 100
-
-        img = frame.to_image(
-            width=200, height=100, interpolation=int(Interpolation.BICUBIC)
-        )
-        assert img.width == 200 and img.height == 100
-
-    def test_to_image_rgb24(self) -> None:
-        sizes = [(318, 238), (320, 240), (500, 500)]
-        for width, height in sizes:
-            frame = VideoFrame(width, height, format="rgb24")
-
-            # fill video frame data
-            for plane in frame.planes:
-                ba = bytearray(plane.buffer_size)
-                pos = 0
-                for row in range(height):
-                    for i in range(plane.line_size):
-                        ba[pos] = i % 256
-                        pos += 1
-                plane.update(ba)
-
-            # construct expected image data
-            expected = bytearray(height * width * 3)
-            pos = 0
-            for row in range(height):
-                for i in range(width * 3):
-                    expected[pos] = i % 256
-                    pos += 1
-
-            img = frame.to_image()
-            assert img.size == (width, height)
-            assert img.tobytes() == expected
+    img = frame.reformat(
+        width=200, height=100, interpolation=int(Interpolation.BICUBIC)
+    )
+    assert img.width == 200 and img.height == 100
 
 
 def test_basic_to_ndarray() -> None:
     array = VideoFrame(640, 480, "rgb24").to_ndarray()
     assert array.shape == (480, 640, 3)
-
-
-def test_to_image_with_dimensions() -> None:
-    if not has_pillow:
-        pytest.skip()
-
-    img = VideoFrame(640, 480, format="rgb24").to_image(width=320, height=240)
-    assert img.size == (320, 240)
 
 
 def test_ndarray_gray() -> None:

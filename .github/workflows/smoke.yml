@@ -122,7 +122,6 @@ jobs:
         conda config --add channels conda-forge
         conda create -q -n pyav \
           numpy \
-          pillow \
           pytest \
           python=${{ matrix.config.python }} \
           setuptools

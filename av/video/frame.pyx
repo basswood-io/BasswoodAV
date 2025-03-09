@@ -469,6 +469,9 @@ cdef class VideoFrame(Frame):
     def from_image(img):
         """
         Construct a frame from a ``PIL.Image``.
+
+        .. deprecated:: 15.0
+           This method will be removed in version 16.
         """
         if img.mode != "RGB":
             img = img.convert("RGB")

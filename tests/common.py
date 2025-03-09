@@ -13,17 +13,8 @@ import numpy as np
 
 from av.datasets import fate as fate_suite
 
-try:
-    import PIL  # noqa
-
-    has_pillow = True
-except ImportError:
-    has_pillow = False
-
 if TYPE_CHECKING:
     from typing import Any, Callable, TypeVar
-
-    from PIL.Image import Image
 
     T = TypeVar("T")
 
@@ -112,18 +103,6 @@ def assertNdarraysEqual(a: np.ndarray, b: np.ndarray) -> None:
                     b[it.multi_index],
                 )
         assert False, f"ndarrays contents differ\n{msg}"
-
-
-@typing.no_type_check
-def assertImagesAlmostEqual(a: Image, b: Image, epsilon: float = 0.1) -> None:
-    import PIL.ImageFilter as ImageFilter
-
-    assert a.size == b.size
-    a = a.filter(ImageFilter.BLUR).getdata()
-    b = b.filter(ImageFilter.BLUR).getdata()
-    for i, ax, bx in zip(range(len(a)), a, b):
-        diff = sum(abs(ac / 256 - bc / 256) for ac, bc in zip(ax, bx)) / 3
-        assert diff < epsilon, f"images differed by {diff} at index {i}; {ax} {bx}"
 
 
 class TestCase(_Base):

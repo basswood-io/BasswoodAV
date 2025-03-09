@@ -10,105 +10,11 @@ from av import AudioFrame, VideoFrame
 from av.audio.stream import AudioStream
 from av.video.stream import VideoStream
 
-from .common import TestCase, fate_suite, has_pillow
+from .common import TestCase, fate_suite
 
 WIDTH = 320
 HEIGHT = 240
 DURATION = 48
-
-
-def write_rgb_rotate(output: av.container.OutputContainer) -> None:
-    if not has_pillow:
-        pytest.skip()
-
-    import PIL.Image as Image
-
-    output.metadata["title"] = "container"
-    output.metadata["key"] = "value"
-
-    stream = output.add_stream("mpeg4", 24)
-    stream.width = WIDTH
-    stream.height = HEIGHT
-    stream.pix_fmt = "yuv420p"
-
-    for frame_i in range(DURATION):
-        frame = VideoFrame(WIDTH, HEIGHT, "rgb24")
-        image = Image.new(
-            "RGB",
-            (WIDTH, HEIGHT),
-            (
-                int(255 * (0.5 + 0.5 * math.sin(frame_i / DURATION * 2 * math.pi))),
-                int(
-                    255
-                    * (
-                        0.5
-                        + 0.5
-                        * math.sin(frame_i / DURATION * 2 * math.pi + 2 / 3 * math.pi)
-                    )
-                ),
-                int(
-                    255
-                    * (
-                        0.5
-                        + 0.5
-                        * math.sin(frame_i / DURATION * 2 * math.pi + 4 / 3 * math.pi)
-                    )
-                ),
-            ),
-        )
-        frame.planes[0].update(image.tobytes())
-
-        for packet in stream.encode_lazy(frame):
-            output.mux(packet)
-
-    for packet in stream.encode_lazy(None):
-        output.mux(packet)
-
-
-def assert_rgb_rotate(
-    self, input_: av.container.InputContainer, is_dash: bool = False
-) -> None:
-    # Now inspect it a little.
-    assert len(input_.streams) == 1
-    assert input_.metadata.get("Title" if is_dash else "title") == "container"
-    assert input_.metadata.get("key") is None
-
-    stream = input_.streams[0]
-
-    if is_dash:
-        # The DASH format doesn't provide a duration for the stream
-        # and so the container duration (micro seconds) is checked instead
-        assert input_.duration == 2000000
-        expected_average_rate = 24
-        expected_duration = None
-        expected_frames = 0
-        expected_id = 0
-    else:
-        expected_average_rate = 24
-        expected_duration = 24576
-        expected_frames = 48
-        expected_id = 1
-
-    # actual stream properties
-    assert isinstance(stream, VideoStream)
-    assert stream.average_rate == expected_average_rate
-    assert stream.base_rate == 24
-    assert stream.duration == expected_duration
-    assert stream.guessed_rate == 24
-    assert stream.frames == expected_frames
-    assert stream.id == expected_id
-    assert stream.index == 0
-    assert stream.profile == "Simple Profile"
-    assert stream.start_time == 0
-    assert stream.time_base == Fraction(1, 12288)
-    assert stream.type == "video"
-
-    # codec context properties
-    assert stream.codec.name == "mpeg4"
-    assert stream.codec.long_name == "MPEG-4 part 2"
-    assert stream.format.name == "yuv420p"
-    assert stream.format.width == WIDTH
-    assert stream.format.height == HEIGHT
 
 
 class TestBasicVideoEncoding(TestCase):
@@ -126,14 +32,6 @@ class TestBasicVideoEncoding(TestCase):
             assert stream.height == 480
             assert stream.pix_fmt == "yuv420p"
             assert stream.width == 640
-
-    def test_encoding(self) -> None:
-        path = self.sandboxed("rgb_rotate.mov")
-
-        with av.open(path, "w") as output:
-            write_rgb_rotate(output)
-        with av.open(path) as input:
-            assert_rgb_rotate(self, input)
 
     def test_encoding_with_pts(self) -> None:
         path = self.sandboxed("video_with_pts.mov")
@@ -157,14 +55,6 @@ class TestBasicVideoEncoding(TestCase):
             for packet in stream.encode(None):
                 assert packet.time_base == Fraction(1, 24)
                 output.mux(packet)
-
-    def test_encoding_with_unicode_filename(self) -> None:
-        path = self.sandboxed("¢∞§¶•ªº.mov")
-
-        with av.open(path, "w") as output:
-            write_rgb_rotate(output)
-        with av.open(path) as input:
-            assert_rgb_rotate(self, input)
 
 
 class TestBasicAudioEncoding(TestCase):

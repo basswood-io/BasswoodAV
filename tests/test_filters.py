@@ -8,7 +8,7 @@ from av import AudioFrame, VideoFrame
 from av.audio.frame import format_dtypes
 from av.filter import Filter, Graph
 
-from .common import TestCase, has_pillow
+from .common import TestCase
 
 
 def generate_audio_frame(
@@ -83,8 +83,7 @@ class TestFilters(TestCase):
         frame = sink.pull()
         assert isinstance(frame, VideoFrame)
 
-        if has_pillow:
-            frame.to_image().save(self.sandboxed("mandelbrot2.png"))
+        frame.save(self.sandboxed("mandelbrot2.png"))
 
     def test_auto_find_sink(self) -> None:
         graph = Graph()
@@ -93,9 +92,7 @@ class TestFilters(TestCase):
         graph.configure()
 
         frame = graph.vpull()
-
-        if has_pillow:
-            frame.to_image().save(self.sandboxed("mandelbrot3.png"))
+        frame.save(self.sandboxed("mandelbrot3.png"))
 
     def test_delegate_sink(self) -> None:
         graph = Graph()
@@ -106,8 +103,7 @@ class TestFilters(TestCase):
         frame = src.pull()
         assert isinstance(frame, av.VideoFrame)
 
-        if has_pillow:
-            frame.to_image().save(self.sandboxed("mandelbrot4.png"))
+        frame.save(self.sandboxed("mandelbrot4.png"))
 
     def test_audio_buffer_sink(self):
         graph = Graph()

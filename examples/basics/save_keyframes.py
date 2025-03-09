@@ -9,4 +9,4 @@ with av.open(content) as container:
 
     for i, frame in enumerate(container.decode(stream)):
         print(frame)
-        frame.to_image().save(f"night-sky.{i:04d}.jpg", quality=80)
+        frame.save(f"night-sky.{i:04d}.jpg")

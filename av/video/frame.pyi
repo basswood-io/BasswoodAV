@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Any, ClassVar, Union
 
 import numpy as np
-from PIL import Image
 
 from av.frame import Frame
 
@@ -67,7 +66,7 @@ class VideoFrame(Frame):
         self, channel_last: bool = False, **kwargs: Any
     ) -> _SupportedNDarray: ...
     @staticmethod
-    def from_image(img: Image.Image) -> VideoFrame: ...
+    def from_image(img): ...
     @staticmethod
     def from_numpy_buffer(
         array: _SupportedNDarray, format: str = "rgb24", width: int = 0

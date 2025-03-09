@@ -55,7 +55,7 @@ Basic Demo
     container = av.open(path_to_video)
 
     for index, frame in enumerate(container.decode(video=0)):
-        frame.to_image().save(f"frame-{index:04d}.jpg")
+        frame.save(f"frame-{index:04d}.jpg")
 
 
 Overview
