@@ -269,30 +269,31 @@ cdef class VideoFrame(Frame):
         return self.reformat(format="rgb24", **kwargs)
 
 
-    def save(self, filepath):
+    cpdef save(self, object filepath):
         """Save a VideoFrame as a JPG or PNG.
 
         :param filepath: str | Path
         """
+        cdef bint is_jpg
+
         if filepath.endswith(".png"):
-            is_png = True
+            is_jpg = False
         elif filepath.endswith(".jpg") or filepath.endswith(".jpeg"):
-            is_png = False
+            is_jpg = True
         else:
             raise ValueError("filepath must end with png or jpg.")
 
+        cdef str encoder = "mjpeg" if is_jpg else "png"
+        cdef str pix_fmt = "yuvj420p" if is_jpg else "rgb24"
+
         from av.container.core import open
 
-        with open(filepath, "w") as output:
-            encoder = "png" if is_png else "mjpeg"
-            pix_fmt = "rgb24" if is_png else "yuvj420p"
-
-            frame = self.reformat(format=pix_fmt)
+        with open(filepath, "w", options={"update": "1"}) as output:
             output_stream = output.add_stream(encoder, pix_fmt=pix_fmt)
-            output_stream.width = frame.width
-            output_stream.height = frame.height
+            output_stream.width = self.width
+            output_stream.height = self.height
 
-            output.mux(output_stream.encode(frame))
+            output.mux(output_stream.encode(self.reformat(format=pix_fmt)))
             output.mux(output_stream.encode(None))
 
 
