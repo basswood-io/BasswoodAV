@@ -1,3 +1,5 @@
+<p align="center"><img src="https://av.basswood-io.com/docs/stable/_static/logo.avif" title="BasswoodAV" width="700"></p>
+
 # BasswoodAV
 
 BasswoodAV provides Pythonic binding for the [FFmpeg][ffmpeg] libraries. We aim to provide all of the power and control of the underlying library, but manage the gritty details as much as possible.
@@ -43,9 +45,9 @@ pip install .
 
 ---
 
-[docs-badge]: https://img.shields.io/badge/docs-on%20pyav.basswood--io.com-blue.svg
+[docs-badge]: https://img.shields.io/badge/docs-on%20av.basswood--io.com-blue.svg
 [docs]: https://av.basswood-io.com
-[pypi-badge]: https://img.shields.io/pypi/v/pyav.svg?colorB=CCB39A
+[pypi-badge]: https://img.shields.io/pypi/v/basswood-av.svg?colorB=CCB39A
 [pypi]: https://pypi.org/project/basswood-av
 [github-tests-badge]: https://github.com/basswood-io/BasswoodAV/workflows/tests/badge.svg
 [github-tests]: https://github.com/basswood-io/BasswoodAV/actions?workflow=tests
