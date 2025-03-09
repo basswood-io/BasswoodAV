@@ -18,7 +18,7 @@ input_ = av.open(
 )
 output = av.open("out.mkv", "w")
 
-output_stream = output.add_stream("h264", rate=30)
+output_stream = output.add_stream("h264_videotoolbox", rate=30)
 output_stream.width = input_.streams.video[0].width
 output_stream.height = input_.streams.video[0].height
 output_stream.pix_fmt = "yuv420p"
