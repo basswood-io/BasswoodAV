@@ -9,6 +9,7 @@ cd "$PYAV_ROOT"
 
 # Skip the rest of the build if it already exists.
 if [[ -e "$PYAV_LIBRARY_PREFIX/bin/ffmpeg" ]]; then
+    echo "$PYAV_LIBRARY_PREFIX/bin/ffmpeg"
     echo "We have a cached build of ffmpeg-$PYAV_LIBRARY; skipping re-build."
     exit 0
 fi

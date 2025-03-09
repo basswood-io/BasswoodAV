@@ -78,7 +78,7 @@ Encoding
 ........
 
 
-For encoding, you (the PyAV developer / FFmpeg "user") must set :ffmpeg:`AVCodecContext.time_base`, ideally to the inverse of the frame rate (or so the library docs say to do if your frame rate is fixed; we're not sure what to do if it is not fixed), and you may set :ffmpeg:`AVStream.time_base` as a hint to the muxer. After you open all the codecs and call :ffmpeg:`avformat_write_header`, the stream time base may change, and you must respect it. We don't know if the codec time base may change, so we will make the safer assumption that it may and respect it as well.
+For encoding, you (the BasswoodAV developer / FFmpeg "user") must set :ffmpeg:`AVCodecContext.time_base`, ideally to the inverse of the frame rate (or so the library docs say to do if your frame rate is fixed; we're not sure what to do if it is not fixed), and you may set :ffmpeg:`AVStream.time_base` as a hint to the muxer. After you open all the codecs and call :ffmpeg:`avformat_write_header`, the stream time base may change, and you must respect it. We don't know if the codec time base may change, so we will make the safer assumption that it may and respect it as well.
 
 You then prepare :ffmpeg:`AVFrame.pts` in :ffmpeg:`AVCodecContext.time_base`. The encoded :ffmpeg:`AVPacket.pts` is simply copied from the frame by the library, and so is still in the codec's time base. You must rescale it to :ffmpeg:`AVStream.time_base` before muxing (as all stream operations assume the packet time is in stream time base).
 

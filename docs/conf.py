@@ -26,8 +26,8 @@ extensions = [
 templates_path = ["_templates"]
 source_suffix = ".rst"
 master_doc = "index"
-project = "PyAV"
-copyright = "2025, The PyAV Team"
+project = "BasswoodAV"
+copyright = "2025, The BasswoodAV Team"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -49,7 +49,7 @@ html_theme_path = [os.path.abspath(os.path.join(__file__, "..", "_themes"))]
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-html_logo = "_static/logo.webp"
+html_logo = "_static/logo.avif"
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
@@ -96,8 +96,8 @@ doctest_global_cleanup = "os.chdir(_cwd)"
 doctest_test_doctest_blocks = ""
 
 extlinks = {
-    "issue": ("https://github.com/PyAV-Org/PyAV/issues/%s", "#%s"),
-    "pr": ("https://github.com/PyAV-Org/PyAV/pull/%s", "#%s"),
+    "issue": ("https://github.com/basswood-io/BasswoodAV/issues/%s", "#%s"),
+    "pr": ("https://github.com/basswood-io/BasswoodAV/pull/%s", "#%s"),
     "gh-user": ("https://github.com/%s", "@%s"),
 }
 

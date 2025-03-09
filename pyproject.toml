@@ -40,7 +40,7 @@ version = {attr = "av.about.__version__"}
 
 [project.urls]
 "Bug Tracker" = "https://github.com/basswood-io/BasswoodAV/discussions/new?category=4-bugs"
-homepage = "https://pyav.basswood-io.com"
+homepage = "https://av.basswood-io.com"
 
 [project.scripts]
 "pyav" = "av.__main__:main"

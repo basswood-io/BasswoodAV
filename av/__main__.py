@@ -15,7 +15,7 @@ def main() -> None:
         import av
         import av._core
 
-        print(f"PyAV v{av.__version__}")
+        print(f"BasswoodAV v{av.__version__}")
 
         by_config: dict = {}
         for libname, config in sorted(av._core.library_meta.items()):

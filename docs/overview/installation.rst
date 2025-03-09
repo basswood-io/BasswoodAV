@@ -4,7 +4,7 @@ Installation
 Binary wheels
 -------------
 
-Binary wheels are provided on PyPI for Linux, MacOS, and Windows linked against FFmpeg. The most straight-forward way to install PyAV is to run:
+Binary wheels are provided on PyPI for Linux, MacOS, and Windows linked against FFmpeg. The most straight-forward way to install BasswoodAV is to run:
 
 .. code-block:: bash
 
@@ -16,9 +16,9 @@ Building from the latest source
 
 ::
 
-    # Get PyAV from GitHub.
-    git clone https://github.com/PyAV-Org/PyAV.git
-    cd PyAV
+    # Get BasswoodAV from GitHub.
+    git clone https://github.com/basswood-io/BasswoodAV
+    cd BasswoodAV
 
     # Prep a virtualenv.
     source scripts/activate.sh
@@ -26,7 +26,7 @@ Building from the latest source
     # Optionally build FFmpeg.
     ./scripts/build-deps
 
-    # Build PyAV.
+    # Build BasswoodAV.
     make
 
 

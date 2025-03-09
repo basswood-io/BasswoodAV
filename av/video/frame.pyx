@@ -268,10 +268,41 @@ cdef class VideoFrame(Frame):
         """
         return self.reformat(format="rgb24", **kwargs)
 
+
+    def save(self, filepath):
+        """Save a VideoFrame as a JPG or PNG.
+
+        :param filepath: str | Path
+        """
+        if filepath.endswith(".png"):
+            is_png = True
+        elif filepath.endswith(".jpg") or filepath.endswith(".jpeg"):
+            is_png = False
+        else:
+            raise ValueError("filepath must end with png or jpg.")
+
+        from av.container.core import open
+
+        with open(filepath, "w") as output:
+            encoder = "png" if is_png else "mjpeg"
+            pix_fmt = "rgb24" if is_png else "yuvj420p"
+
+            frame = self.reformat(format=pix_fmt)
+            output_stream = output.add_stream(encoder, pix_fmt=pix_fmt)
+            output_stream.width = frame.width
+            output_stream.height = frame.height
+
+            output.mux(output_stream.encode(frame))
+            output.mux(output_stream.encode(None))
+
+
     def to_image(self, **kwargs):
         """Get an RGB ``PIL.Image`` of this frame.
 
         Any ``**kwargs`` are passed to :meth:`.VideoReformatter.reformat`.
+
+        .. deprecated:: 15.0
+           This method will be removed in version 16. Use :meth:`.save` instead.
 
         .. note:: PIL or Pillow must be installed.
 

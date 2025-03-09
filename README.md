@@ -19,11 +19,11 @@ pip install basswood-av
 ```
 
 ## Installing From Source
-Here's how to build PyAV from source source. You must use [MSYS2](https://www.msys2.org/) when using Windows.
+Here's how to build BasswoodAV from source source. You must use [MSYS2](https://www.msys2.org/) when using Windows.
 
 ```bash
 git clone https://github.com/basswood-io/BasswoodAV.git
-cd PyAV
+cd BasswoodAV
 source scripts/activate.sh
 
 # Build ffmpeg from source. You can skip this step
@@ -44,7 +44,7 @@ pip install .
 ---
 
 [docs-badge]: https://img.shields.io/badge/docs-on%20pyav.basswood--io.com-blue.svg
-[docs]: https://pyav.basswood-io.com
+[docs]: https://av.basswood-io.com
 [pypi-badge]: https://img.shields.io/pypi/v/pyav.svg?colorB=CCB39A
 [pypi]: https://pypi.org/project/basswood-av
 [github-tests-badge]: https://github.com/basswood-io/BasswoodAV/workflows/tests/badge.svg
