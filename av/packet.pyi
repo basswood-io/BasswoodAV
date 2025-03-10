@@ -1,6 +1,8 @@
 from fractions import Fraction
 
-from av.subtitles.subtitle import SubtitleSet
+from av.audio.frame import AudioFrame
+from av.subtitles.subtitle import AssSubtitle, BitmapSubtitle
+from av.video.frame import VideoFrame
 
 from .buffer import Buffer
 from .stream import Stream
@@ -22,4 +24,8 @@ class Packet(Buffer):
     is_disposable: bool
 
     def __init__(self, input: int | bytes | None = None) -> None: ...
-    def decode(self) -> list[SubtitleSet]: ...
+    def decode(
+        self,
+    ) -> (
+        list[VideoFrame] | list[AudioFrame] | list[AssSubtitle] | list[BitmapSubtitle]
+    ): ...

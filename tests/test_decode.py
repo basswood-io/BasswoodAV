@@ -108,7 +108,7 @@ class TestDecode(TestCase):
 
         for packet in container.demux(stream):
             for frame in packet.decode():
-                assert not isinstance(frame, av.subtitles.subtitle.SubtitleSet)
+                assert isinstance(frame, av.VideoFrame)
                 assert packet.time_base == frame.time_base
                 assert stream.time_base == frame.time_base
                 return

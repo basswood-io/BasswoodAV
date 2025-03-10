@@ -1,3 +1,5 @@
+from typing import cast
+
 import av
 from av.subtitles.subtitle import AssSubtitle, BitmapSubtitle
 
@@ -8,10 +10,10 @@ class TestSubtitle:
     def test_movtext(self) -> None:
         path = fate_suite("sub/MovText_capability_tester.mp4")
 
-        subs = []
+        subs: list[AssSubtitle] = []
         with av.open(path) as container:
             for packet in container.demux():
-                subs.extend(packet.decode())
+                subs.extend(cast(list[AssSubtitle], packet.decode()))
 
         assert len(subs) == 3
 
@@ -40,10 +42,10 @@ class TestSubtitle:
     def test_vobsub(self) -> None:
         path = fate_suite("sub/vobsub.sub")
 
-        subs = []
+        subs: list[BitmapSubtitle] = []
         with av.open(path) as container:
             for packet in container.demux():
-                subs.extend(packet.decode())
+                subs.extend(cast(list[BitmapSubtitle], packet.decode()))
 
         assert len(subs) == 43
 
