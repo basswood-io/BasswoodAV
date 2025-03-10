@@ -23,8 +23,10 @@ v15.0.0 (Unreleased)
 Major:
 
 - Turn ``av.ValueError`` into ``av.ArgumentError``. The latter is now not a subclass of ``ValueError``. This change better reflects how users should think about this exception.
+- Make ``SubtitleStream.decode()`` return the list of subtitles directly, without the intermediate ``SubtitleSet``.
+- Drop Support for Python 3.9.
 
 Features:
 
 - Add support for Python free-threading builds.
-
+- Add ``SubtitleCodecContext.decode2()`` which returns ``SubtitleSet | None``.

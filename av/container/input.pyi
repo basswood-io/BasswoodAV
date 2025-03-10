@@ -5,7 +5,7 @@ from av.audio.stream import AudioStream
 from av.packet import Packet
 from av.stream import Stream
 from av.subtitles.stream import SubtitleStream
-from av.subtitles.subtitle import SubtitleSet
+from av.subtitles.subtitle import AssSubtitle, BitmapSubtitle
 from av.video.frame import VideoFrame
 from av.video.stream import VideoStream
 
@@ -25,17 +25,26 @@ class InputContainer(Container):
     @overload
     def decode(self, audio: int) -> Iterator[AudioFrame]: ...
     @overload
-    def decode(self, subtitles: int) -> Iterator[SubtitleSet]: ...
+    def decode(
+        self, subtitles: int
+    ) -> Iterator[AssSubtitle] | Iterator[BitmapSubtitle]: ...
     @overload
     def decode(self, *args: VideoStream) -> Iterator[VideoFrame]: ...
     @overload
     def decode(self, *args: AudioStream) -> Iterator[AudioFrame]: ...
     @overload
-    def decode(self, *args: SubtitleStream) -> Iterator[SubtitleSet]: ...
+    def decode(
+        self, *args: SubtitleStream
+    ) -> Iterator[AssSubtitle] | Iterator[BitmapSubtitle]: ...
     @overload
     def decode(
         self, *args: Any, **kwargs: Any
-    ) -> Iterator[VideoFrame | AudioFrame | SubtitleSet]: ...
+    ) -> (
+        Iterator[VideoFrame]
+        | Iterator[AudioFrame]
+        | Iterator[AssSubtitle]
+        | Iterator[BitmapSubtitle]
+    ): ...
     def seek(
         self,
         offset: int,

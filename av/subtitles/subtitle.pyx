@@ -13,6 +13,8 @@ cdef class SubtitleProxy:
 cdef class SubtitleSet:
     """
     A :class:`SubtitleSet` can contain many :class:`Subtitle` objects.
+
+    Wraps :ffmpeg:`AVSubtitle`.
     """
     def __cinit__(self, SubtitleProxy proxy):
         self.proxy = proxy
@@ -23,13 +25,21 @@ cdef class SubtitleSet:
         return f"<{self.__class__.__module__}.{self.__class__.__name__} at 0x{id(self):x}>"
 
     @property
-    def format(self): return self.proxy.struct.format
+    def format(self):
+        return self.proxy.struct.format
+
     @property
-    def start_display_time(self): return self.proxy.struct.start_display_time
+    def start_display_time(self):
+        return self.proxy.struct.start_display_time
+
     @property
-    def end_display_time(self): return self.proxy.struct.end_display_time
+    def end_display_time(self):
+        return self.proxy.struct.end_display_time
+
     @property
-    def pts(self): return self.proxy.struct.pts
+    def pts(self):
+        """Same as packet pts, in av.time_base."""
+        return self.proxy.struct.pts
 
     def __len__(self):
         return len(self.rects)
@@ -84,7 +94,7 @@ cdef class Subtitle:
             raise ValueError(f"unknown subtitle type {self.ptr.type!r}")
 
     def __repr__(self):
-        return f"<{self.__class__.__module__}.{self.__class__.__name__} at 0x{id(self):x}>"
+        return f"<av.{self.__class__.__name__} at 0x{id(self):x}>"
 
 
 cdef class BitmapSubtitle(Subtitle):
@@ -144,10 +154,7 @@ cdef class AssSubtitle(Subtitle):
     Represents an ASS/Text subtitle format, as opposed to a bitmap Subtitle format.
     """
     def __repr__(self):
-        return (
-            f"<{self.__class__.__module__}.{self.__class__.__name__} "
-            f"{self.text!r} at 0x{id(self):x}>"
-        )
+        return f"<av.AssSubtitle {self.dialogue!r} at 0x{id(self):x}>"
 
     @property
     def ass(self):

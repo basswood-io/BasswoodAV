@@ -18,6 +18,25 @@ cdef class SubtitleCodecContext(CodecContext):
         )
 
         if got_frame:
-            return [SubtitleSet(proxy)]
-        else:
-            return []
+            return SubtitleSet(proxy)
+        return []
+
+    cpdef decode2(self, Packet packet):
+        """
+        Returns SubtitleSet if you really need it.
+        """
+        if not self.codec.ptr:
+            raise ValueError("cannot decode unknown codec")
+
+        self.open(strict=False)
+
+        cdef SubtitleProxy proxy = SubtitleProxy()
+        cdef int got_frame = 0
+
+        err_check(
+            lib.avcodec_decode_subtitle2(self.ptr, &proxy.struct, &got_frame, packet.ptr)
+        )
+
+        if got_frame:
+            return SubtitleSet(proxy)
+        return None
