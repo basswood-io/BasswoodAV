@@ -33,12 +33,9 @@ else:
 
 
 from Cython.Build import cythonize
-# from Cython.Compiler import Options
 from Cython.Compiler.AutoDocTransforms import EmbedSignature
 from Cython.Compiler.Version import version as cython_version
 from setuptools import Extension, find_packages, setup
-
-# Options.warning_errors = True
 
 FFMPEG_LIBRARIES = [
     "avformat",
@@ -219,7 +216,8 @@ for dirname, dirnames, filenames in os.walk("av"):
     for filename in filenames:
         # We are looking for Cython sources.
         if filename.startswith(".") or os.path.splitext(filename)[1] != ".pyx":
-            continue
+            if filename != "stream.py":
+                continue
 
         pyx_path = os.path.join(dirname, filename)
         base = os.path.splitext(pyx_path)[0]
