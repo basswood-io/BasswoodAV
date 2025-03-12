@@ -33,9 +33,12 @@ else:
 
 
 from Cython.Build import cythonize
+# from Cython.Compiler import Options
 from Cython.Compiler.AutoDocTransforms import EmbedSignature
 from Cython.Compiler.Version import version as cython_version
 from setuptools import Extension, find_packages, setup
+
+# Options.warning_errors = True
 
 FFMPEG_LIBRARIES = [
     "avformat",
@@ -196,8 +199,12 @@ compiler_directives = {
     "c_string_type": "str",
     "c_string_encoding": "ascii",
     "embedsignature": True,
+    "binding": False,
     "freethreading_compatible": True,
     "language_level": 3,
+    # "warn.unused": True,
+    # "warn.unused_arg": True,
+    # "warn.unused_result": True,
 }
 
 # Add the cythonized loudnorm extension to ext_modules
