@@ -5,9 +5,7 @@ from av.stream cimport Stream
 
 
 cdef class Packet(Buffer):
-
     cdef lib.AVPacket* ptr
-
     cdef Stream _stream
 
     # We track our own time.
