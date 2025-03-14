@@ -1,8 +1,9 @@
 cimport libav as lib
 
+from .option cimport Option, OptionChoice, wrap_option, wrap_option_choice
+
 
 cdef class Descriptor:
-
     # These are present as:
     # - AVCodecContext.av_class (same as avcodec_get_class())
     # - AVFormatContext.av_class (same as avformat_get_class())
@@ -13,7 +14,6 @@ cdef class Descriptor:
     # - AVFilter.priv_class
 
     cdef const lib.AVClass *ptr
-
     cdef object _options  # Option list cache.
 
 
