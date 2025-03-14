@@ -46,3 +46,12 @@ class Stream:
     frames: int
     language: str | None
     type: Literal["video", "audio", "data", "subtitle", "attachment"]
+
+class DataStream(Stream):
+    type: Literal["data"]
+    name: str | None
+
+class AttachmentStream(Stream):
+    type: Literal["attachment"]
+    @property
+    def mimetype(self) -> str | None: ...

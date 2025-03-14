@@ -53,25 +53,19 @@ def wrap_stream(
 
     py_stream: Stream
 
-    if c_stream.codecpar.codec_type == lib.AVMEDIA_TYPE_VIDEO:
-        from av.video.stream import VideoStream
+    from av.audio.stream import AudioStream
+    from av.subtitles.stream import SubtitleStream
+    from av.video.stream import VideoStream
 
+    if c_stream.codecpar.codec_type == lib.AVMEDIA_TYPE_VIDEO:
         py_stream = VideoStream.__new__(VideoStream, _cinit_bypass_sentinel)
     elif c_stream.codecpar.codec_type == lib.AVMEDIA_TYPE_AUDIO:
-        from av.audio.stream import AudioStream
-
         py_stream = AudioStream.__new__(AudioStream, _cinit_bypass_sentinel)
     elif c_stream.codecpar.codec_type == lib.AVMEDIA_TYPE_SUBTITLE:
-        from av.subtitles.stream import SubtitleStream
-
         py_stream = SubtitleStream.__new__(SubtitleStream, _cinit_bypass_sentinel)
     elif c_stream.codecpar.codec_type == lib.AVMEDIA_TYPE_ATTACHMENT:
-        from av.attachments.stream import AttachmentStream
-
         py_stream = AttachmentStream.__new__(AttachmentStream, _cinit_bypass_sentinel)
     elif c_stream.codecpar.codec_type == lib.AVMEDIA_TYPE_DATA:
-        from av.data.stream import DataStream
-
         py_stream = DataStream.__new__(DataStream, _cinit_bypass_sentinel)
     else:
         py_stream = Stream.__new__(Stream, _cinit_bypass_sentinel)
@@ -288,3 +282,47 @@ class Stream:
         :type: Literal["audio", "video", "subtitle", "data", "attachment"]
         """
         return lib.av_get_media_type_string(self.ptr.codecpar.codec_type)
+
+
+@cython.cclass
+class DataStream(Stream):
+    def __repr__(self):
+        return (
+            f"<av.{self.__class__.__name__} #{self.index} data/"
+            f"{self.name or '<nocodec>'} at 0x{id(self):x}>"
+        )
+
+    @property
+    def name(self):
+        desc: cython.pointer[cython.const[lib.AVCodecDescriptor]] = (
+            lib.avcodec_descriptor_get(self.ptr.codecpar.codec_id)
+        )
+        if desc == cython.NULL:
+            return None
+        return desc.name
+
+
+@cython.cclass
+class AttachmentStream(Stream):
+    """
+    An :class:`AttachmentStream` represents a stream of attachment data within a media container.
+    Typically used to attach font files that are referenced in ASS/SSA Subtitle Streams.
+    """
+
+    @property
+    def name(self):
+        """
+        Returns the file name of the attachment.
+
+        :rtype: str | None
+        """
+        return self.metadata.get("filename")
+
+    @property
+    def mimetype(self):
+        """
+        Returns the MIME type of the attachment.
+
+        :rtype: str | None
+        """
+        return self.metadata.get("mimetype")

@@ -24,3 +24,10 @@ cdef class Stream:
 
 
 cdef Stream wrap_stream(Container, lib.AVStream*, CodecContext)
+
+
+cdef class DataStream(Stream):
+    pass
+
+cdef class AttachmentStream(Stream):
+    pass

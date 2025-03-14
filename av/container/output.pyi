@@ -2,9 +2,8 @@ from fractions import Fraction
 from typing import Literal, Sequence, TypeVar, Union, overload
 
 from av.audio.stream import AudioStream
-from av.data.stream import DataStream
 from av.packet import Packet
-from av.stream import Stream
+from av.stream import DataStream, Stream
 from av.subtitles.stream import SubtitleStream
 from av.video.stream import VideoStream
 
