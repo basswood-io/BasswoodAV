@@ -20,6 +20,5 @@ class Plane(Buffer):
         )
 
     @cython.cfunc
-    @cython.returns(cython.p_void)
-    def _buffer_ptr(self):
+    def _buffer_ptr(self) -> cython.p_void:
         return self.frame.ptr.extended_data[self.index]

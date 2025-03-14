@@ -56,8 +56,7 @@ class Dictionary(_Dictionary, MutableMapping):
 
 
 @cython.cfunc
-@cython.returns(_Dictionary)
-def wrap_dictionary(input_: cython.pointer[lib.AVDictionary]):
+def wrap_dictionary(input_: cython.pointer[lib.AVDictionary]) -> _Dictionary:
     output = cython.declare(_Dictionary, Dictionary())
     output.ptr = input_
     return output
