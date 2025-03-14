@@ -9,7 +9,7 @@ class SideData(TypedDict, total=False):
 class Frame:
     dts: int | None
     pts: int | None
-    time_base: Fraction
+    time_base: Fraction | None
     side_data: SideData
     opaque: object
     @property
