@@ -1,6 +1,6 @@
 cimport libav as lib
 
-from av.bytesource cimport bytesource
+from av.buffer cimport bytesource
 from av.error cimport err_check
 from av.opaque cimport opaque_container
 from av.utils cimport avrational_to_fraction, to_avrational

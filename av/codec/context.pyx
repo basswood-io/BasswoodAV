@@ -3,7 +3,7 @@ from libc.errno cimport EAGAIN
 from libc.stdint cimport uint8_t
 from libc.string cimport memcpy
 
-from av.bytesource cimport ByteSource, bytesource
+from av.buffer cimport ByteSource, bytesource
 from av.codec.codec cimport Codec, wrap_codec
 from av.dictionary cimport _Dictionary
 from av.error cimport err_check
