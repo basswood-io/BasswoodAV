@@ -28,5 +28,5 @@ Major:
 
 Features:
 
-- Add support for Python free-threading builds.
+- Add support for Python 3.13t.
 - Add ``SubtitleCodecContext.decode2()`` which returns ``SubtitleSet | None``.
