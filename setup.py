@@ -215,9 +215,12 @@ ext_modules = cythonize(
 for dirname, dirnames, filenames in os.walk("av"):
     for filename in filenames:
         # We are looking for Cython sources.
-        if filename.startswith(".") or os.path.splitext(filename)[1] != ".pyx":
-            if filename != "stream.py":
-                continue
+        if filename.startswith("."):
+            continue
+        if filename in {"__init__.py", "__main__.py", "about.py"}:
+            continue
+        if os.path.splitext(filename)[1] not in {".pyx", ".py"}:
+            continue
 
         pyx_path = os.path.join(dirname, filename)
         base = os.path.splitext(pyx_path)[0]
