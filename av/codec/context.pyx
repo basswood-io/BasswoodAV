@@ -220,7 +220,7 @@ cdef class CodecContext:
 
         err_check(
             lib.avcodec_open2(self.ptr, self.codec.ptr, &options.ptr),
-            f'avcodec_open2(self.ptr, "{self.codec.name}", {self.options})',
+            f'avcodec_open2("{self.codec.name}", {self.options})',
         )
         self.is_open = True
         self.options = dict(options)

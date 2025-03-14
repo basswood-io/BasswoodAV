@@ -1,9 +1,31 @@
 import errno
 from traceback import format_exception_only
 
+import pytest
+
 import av
 
 from .common import is_windows
+
+
+def test_stringify() -> None:
+    for cls in (av.FileNotFoundError, av.DecoderNotFoundError):
+        e = cls(1, "foo")
+        assert f"{e}" == "[Errno 1] foo"
+        assert f"{e!r}" == f"{cls.__name__}(1, 'foo')"
+        assert (
+            format_exception_only(cls, e)[-1]
+            == f"av.error.{cls.__name__}: [Errno 1] foo\n"
+        )
+
+    for cls in (av.FileNotFoundError, av.DecoderNotFoundError):
+        e = cls(1, "foo", "bar.txt")
+        assert f"{e}" == "[Errno 1] foo: 'bar.txt'"
+        assert f"{e!r}" == f"{cls.__name__}(1, 'foo', 'bar.txt')"
+        assert (
+            format_exception_only(cls, e)[-1]
+            == f"av.error.{cls.__name__}: [Errno 1] foo: 'bar.txt'\n"
+        )
 
 
 def test_bases() -> None:
@@ -40,3 +62,13 @@ def test_buffertoosmall() -> None:
         assert e.errno == BUFFER_TOO_SMALL
     else:
         assert False, "No exception raised!"
+
+
+def test_argument_error() -> None:
+    with pytest.raises(av.ArgumentError) as e:
+        with av.open("out.gif", "w") as container:
+            output_stream = container.add_stream("gif")
+
+            frame = av.VideoFrame(640, 640, "yuv420p")
+            container.mux(output_stream.encode(frame))
+        assert f"{e}" == """Invalid argument: 'avcodec_open2("gif", {})' returned 22"""
