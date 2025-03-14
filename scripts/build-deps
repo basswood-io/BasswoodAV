@@ -60,6 +60,10 @@ echo ./configure
     --disable-doc \
     --disable-static \
     --disable-stripping \
+    --disable-encoder=avui,dca,mlp,s302m,sonic,sonic_ls,truehd,vorbis \
+    --disable-decoder=sonic \
+    --disable-libjack \
+    --disable-indev=jack \
     --enable-debug=3 \
     --enable-gpl \
     --enable-version3 \

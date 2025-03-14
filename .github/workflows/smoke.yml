@@ -34,8 +34,8 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {os: ubuntu-24.04, python: "3.12", ffmpeg: "7.1", extras: true}
-          - {os: macos-14, python: "3.11", ffmpeg: "7.1"}
+          - {os: ubuntu-24.04, python: "3.12", ffmpeg: "7.1.1", extras: true}
+          - {os: macos-14, python: "3.11", ffmpeg: "7.1.1"}
 
     env:
       PYAV_PYTHON: python${{ matrix.config.python }}
@@ -101,7 +101,7 @@ jobs:
         scripts/test examples
 
   windows:
-    name: "py-${{ matrix.config.python }} lib-${{ matrix.config.ffmpeg }} ${{matrix.config.os}}"
+    name: "py-${{ matrix.config.python }} ${{matrix.config.os}}"
     runs-on: ${{ matrix.config.os }}
 
     strategy:
