@@ -5,9 +5,7 @@ from av.audio.frame cimport AudioFrame
 
 
 cdef class AudioFifo:
-
     cdef lib.AVAudioFifo *ptr
-
     cdef AudioFrame template
 
     cdef readonly uint64_t samples_written
