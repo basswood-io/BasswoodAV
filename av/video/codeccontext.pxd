@@ -14,9 +14,9 @@ cdef struct AVCodecPrivateData:
     lib.AVPixelFormat hardware_pix_fmt
     bint allow_software_fallback
 
+cdef lib.AVPixelFormat _get_hw_format(lib.AVCodecContext *ctx, const lib.AVPixelFormat *pix_fmts) noexcept
 
 cdef class VideoCodecContext(CodecContext):
-
     cdef AVCodecPrivateData _private_data
 
     cdef VideoFormat _format
