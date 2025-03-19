@@ -181,13 +181,15 @@ else:
         "library_dirs": [],
     }
 
+IMPORT_NAME = "bv"
+
 loudnorm_extension = Extension(
-    "av.filter.loudnorm",
+    f"{IMPORT_NAME}.filter.loudnorm",
     sources=[
-        "av/filter/loudnorm.pyx",
-        "av/filter/loudnorm_impl.c",
+        f"{IMPORT_NAME}/filter/loudnorm.pyx",
+        f"{IMPORT_NAME}/filter/loudnorm_impl.c",
     ],
-    include_dirs=["av/filter"] + extension_extra["include_dirs"],
+    include_dirs=[f"{IMPORT_NAME}/filter"] + extension_extra["include_dirs"],
     libraries=extension_extra["libraries"],
     library_dirs=extension_extra["library_dirs"],
 )
@@ -212,7 +214,7 @@ ext_modules = cythonize(
     include_path=["include"],
 )
 
-for dirname, dirnames, filenames in os.walk("av"):
+for dirname, dirnames, filenames in os.walk(IMPORT_NAME):
     for filename in filenames:
         # We are looking for Cython sources.
         if filename.startswith("."):
@@ -248,13 +250,13 @@ for ext in ext_modules:
         insert_enum_in_generated_files(cfile)
 
 
-package_folders = pathlib.Path("av").glob("**/")
+package_folders = pathlib.Path(IMPORT_NAME).glob("**/")
 package_data = {
     ".".join(pckg.parts): ["*.pxd", "*.pyi", "*.typed"] for pckg in package_folders
 }
 
 setup(
-    packages=find_packages(include=["av*"]),
+    packages=find_packages(include=[f"{IMPORT_NAME}*"]),
     package_data=package_data,
     ext_modules=ext_modules,
 )

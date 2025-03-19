@@ -7,12 +7,12 @@ Time
 Overview
 --------
 
-Time is expressed as integer multiples of arbitrary units of time called a ``time_base``. There are different contexts that have different time bases: :class:`.Stream` has :attr:`.Stream.time_base`, :class:`.CodecContext` has :attr:`.CodecContext.time_base`, and :class:`.Container` has :data:`av.TIME_BASE`.
+Time is expressed as integer multiples of arbitrary units of time called a ``time_base``. There are different contexts that have different time bases: :class:`.Stream` has :attr:`.Stream.time_base`, :class:`.CodecContext` has :attr:`.CodecContext.time_base`, and :class:`.Container` has :data:`bv.TIME_BASE`.
 
 .. testsetup::
 
-    import av
-    path = av.datasets.curated('pexels/time-lapse-video-of-night-sky-857195.mp4')
+    import bv
+    path = bv.datasets.curated('pexels/time-lapse-video-of-night-sky-857195.mp4')
 
     def get_nth_packet_and_frame(fh, skip):
         for p in fh.demux():
@@ -23,7 +23,7 @@ Time is expressed as integer multiples of arbitrary units of time called a ``tim
 
 .. doctest::
 
-    >>> fh = av.open(path)
+    >>> fh = bv.open(path)
     >>> video = fh.streams.video[0]
 
     >>> video.time_base

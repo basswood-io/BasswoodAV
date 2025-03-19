@@ -2,7 +2,7 @@
 Buffers
 =======
 
-.. automodule:: av.buffer
+.. automodule:: bv.buffer
 
     .. autoclass:: Buffer
         :members:

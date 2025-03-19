@@ -1,9 +1,9 @@
 import os
 import time
 
-import av
-import av.datasets
-from av.codec.hwaccel import HWAccel, hwdevices_available
+import bv
+import bv.datasets
+from bv.codec.hwaccel import HWAccel, hwdevices_available
 
 # What accelerator to use.
 # Recommendations:
@@ -38,7 +38,7 @@ assert HW_DEVICE in hwdevices_available(), f"{HW_DEVICE} not available."
 
 print("Decoding in software (auto threading)...")
 
-container = av.open(test_file_path)
+container = bv.open(test_file_path)
 
 container.streams.video[0].thread_type = "AUTO"
 
@@ -61,7 +61,7 @@ print(
 hwaccel = HWAccel(device_type=HW_DEVICE, allow_software_fallback=False)
 
 # Note the additional argument here.
-container = av.open(test_file_path, hwaccel=hwaccel)
+container = bv.open(test_file_path, hwaccel=hwaccel)
 
 start_time = time.time()
 frame_count = 0

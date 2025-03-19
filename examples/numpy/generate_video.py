@@ -1,12 +1,12 @@
 import numpy as np
 
-import av
+import bv
 
 duration = 4
 fps = 24
 total_frames = duration * fps
 
-container = av.open("test.mp4", mode="w")
+container = bv.open("test.mp4", mode="w")
 
 stream = container.add_stream("mpeg4", rate=fps)
 stream.width = 480

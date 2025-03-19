@@ -5,10 +5,10 @@ from fractions import Fraction
 import numpy as np
 import pytest
 
-import av
-from av import AudioFrame, VideoFrame
-from av.audio.stream import AudioStream
-from av.video.stream import VideoStream
+import bv
+from bv import AudioFrame, VideoFrame
+from bv.audio.stream import AudioStream
+from bv.video.stream import VideoStream
 
 from .common import TestCase, fate_suite
 
@@ -19,7 +19,7 @@ DURATION = 48
 
 class TestBasicVideoEncoding(TestCase):
     def test_default_options(self) -> None:
-        with av.open(self.sandboxed("output.mov"), "w") as output:
+        with bv.open(self.sandboxed("output.mov"), "w") as output:
             stream = output.add_stream("mpeg4")
             assert stream in output.streams.video
             assert stream.average_rate == Fraction(24, 1)
@@ -36,7 +36,7 @@ class TestBasicVideoEncoding(TestCase):
     def test_encoding_with_pts(self) -> None:
         path = self.sandboxed("video_with_pts.mov")
 
-        with av.open(path, "w") as output:
+        with bv.open(path, "w") as output:
             stream = output.add_stream("h264", 24)
             assert stream in output.streams.video
             stream.width = WIDTH
@@ -59,7 +59,7 @@ class TestBasicVideoEncoding(TestCase):
 
 class TestBasicAudioEncoding(TestCase):
     def test_default_options(self) -> None:
-        with av.open(self.sandboxed("output.mov"), "w") as output:
+        with bv.open(self.sandboxed("output.mov"), "w") as output:
             stream = output.add_stream("mp2")
             assert stream in output.streams.audio
             assert stream.time_base is None
@@ -71,7 +71,7 @@ class TestBasicAudioEncoding(TestCase):
     def test_transcode(self) -> None:
         path = self.sandboxed("audio_transcode.mov")
 
-        with av.open(path, "w") as output:
+        with bv.open(path, "w") as output:
             output.metadata["title"] = "container"
             output.metadata["key"] = "value"
 
@@ -87,7 +87,7 @@ class TestBasicAudioEncoding(TestCase):
             stream.format = sample_fmt
             ctx.layout = channel_layout
 
-            with av.open(
+            with bv.open(
                 fate_suite("audio-reference/chorusnoise_2ch_44kHz_s16.wav")
             ) as src:
                 for frame in src.decode(audio=0):
@@ -97,7 +97,7 @@ class TestBasicAudioEncoding(TestCase):
             for packet in stream.encode(None):
                 output.mux(packet)
 
-        with av.open(path) as container:
+        with bv.open(path) as container:
             assert len(container.streams) == 1
             assert container.metadata.get("title") == "container"
             assert container.metadata.get("key") is None
@@ -112,11 +112,11 @@ class TestBasicAudioEncoding(TestCase):
 
 class TestSubtitleEncoding:
     def test_subtitle_muxing(self) -> None:
-        input_ = av.open(fate_suite("sub/MovText_capability_tester.mp4"))
+        input_ = bv.open(fate_suite("sub/MovText_capability_tester.mp4"))
         in_stream = input_.streams.subtitles[0]
 
         output_bytes = io.BytesIO()
-        output = av.open(output_bytes, "w", format="mp4")
+        output = bv.open(output_bytes, "w", format="mp4")
 
         out_stream = output.add_stream_from_template(in_stream)
 
@@ -135,7 +135,7 @@ class TestSubtitleEncoding:
 
 class TestEncodeStreamSemantics(TestCase):
     def test_stream_index(self) -> None:
-        with av.open(self.sandboxed("output.mov"), "w") as output:
+        with bv.open(self.sandboxed("output.mov"), "w") as output:
             vstream = output.add_stream("mpeg4", 24)
             assert vstream in output.streams.video
             vstream.pix_fmt = "yuv420p"
@@ -173,7 +173,7 @@ class TestEncodeStreamSemantics(TestCase):
             assert apacket.stream_index == 1
 
     def test_stream_audio_resample(self) -> None:
-        with av.open(self.sandboxed("output.mov"), "w") as output:
+        with bv.open(self.sandboxed("output.mov"), "w") as output:
             vstream = output.add_stream("mpeg4", 24)
             vstream.pix_fmt = "yuv420p"
             vstream.width = 320
@@ -204,7 +204,7 @@ class TestEncodeStreamSemantics(TestCase):
                 assert apacket.time_base == Fraction(1, 8000)
 
     def test_set_id_and_time_base(self) -> None:
-        with av.open(self.sandboxed("output.mov"), "w") as output:
+        with bv.open(self.sandboxed("output.mov"), "w") as output:
             stream = output.add_stream("mp2")
             assert stream in output.streams.audio
 
@@ -232,7 +232,7 @@ def encode_file_with_max_b_frames(max_b_frames: int) -> io.BytesIO:
     # Create a video file that is entirely arbitrary, but with the passed
     # max_b_frames parameter.
     file = io.BytesIO()
-    container = av.open(file, mode="w", format="mp4")
+    container = bv.open(file, mode="w", format="mp4")
     stream = container.add_stream("h264", rate=30)
     stream.width = 640
     stream.height = 480
@@ -245,7 +245,7 @@ def encode_file_with_max_b_frames(max_b_frames: int) -> io.BytesIO:
         # This appears to hit a complexity "sweet spot" that makes the codec
         # want to use B frames.
         array[:, :] = (i, 0, 255 - i)
-        frame = av.VideoFrame.from_ndarray(array, format="rgb24")
+        frame = bv.VideoFrame.from_ndarray(array, format="rgb24")
         for packet in stream.encode(frame):
             container.mux(packet)
 
@@ -267,13 +267,13 @@ def max_b_frame_run_in_file(file: io.BytesIO) -> int:
 
     Returns: non-negative integer which is the maximum B frame run length.
     """
-    container = av.open(file, "r")
+    container = bv.open(file, "r")
     stream = container.streams.video[0]
 
     max_b_frame_run = 0
     b_frame_run = 0
     for frame in container.decode(stream):
-        if frame.pict_type == av.video.frame.PictureType.B:
+        if frame.pict_type == bv.video.frame.PictureType.B:
             b_frame_run += 1
         else:
             max_b_frame_run = max(max_b_frame_run, b_frame_run)
@@ -311,11 +311,11 @@ def encode_frames_with_qminmax(frames: list, shape: tuple, qminmax: tuple) -> in
     Returns: total length of the encoded bytes.
     """
 
-    if av.codec.Codec("h264", "w").name != "libx264":
+    if bv.codec.Codec("h264", "w").name != "libx264":
         pytest.skip()
 
     file = io.BytesIO()
-    container = av.open(file, mode="w", format="mp4")
+    container = bv.open(file, mode="w", format="mp4")
     stream = container.add_stream("h264", rate=30)
     stream.height, stream.width, _ = shape
     stream.pix_fmt = "yuv420p"
@@ -351,7 +351,7 @@ class TestQminQmaxEncoding(TestCase):
         shape = (480, 640, 3)
         for _ in range(10):
             frames.append(
-                av.VideoFrame.from_ndarray(
+                bv.VideoFrame.from_ndarray(
                     np.random.randint(0, 256, shape, dtype=np.uint8), format="rgb24"
                 )
             )
@@ -380,7 +380,7 @@ class TestProfiles(TestCase):
 
         for codec_name, rate in codecs:
             print("Testing:", codec_name)
-            container = av.open(file, mode="w", format="mp4")
+            container = bv.open(file, mode="w", format="mp4")
             stream = container.add_stream(codec_name, rate=rate)
             assert len(stream.profiles) >= 1  # check that we're testing something!
 

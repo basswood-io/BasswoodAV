@@ -5,13 +5,13 @@ from fractions import Fraction
 
 import numpy as np
 
-import av
+import bv
 
 (width, height) = (640, 360)
 total_frames = 20
 fps = 30
 
-container = av.open("generate_video_with_pts.mp4", mode="w")
+container = bv.open("generate_video_with_pts.mp4", mode="w")
 
 stream = container.add_stream("mpeg4", rate=fps)  # alibi frame rate
 stream.width = width

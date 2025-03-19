@@ -2,7 +2,7 @@
 Planes
 ======
 
-.. automodule:: av.plane
+.. automodule:: bv.plane
 
     .. autoclass:: Plane
         :members:

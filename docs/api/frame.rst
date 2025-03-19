@@ -2,7 +2,7 @@
 Frames
 ======
 
-.. automodule:: av.frame
+.. automodule:: bv.frame
 
     .. autoclass:: Frame
         :members:

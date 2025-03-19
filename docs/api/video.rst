@@ -4,7 +4,7 @@ Video
 Video Streams
 -------------
 
-.. automodule:: av.video.stream
+.. automodule:: bv.video.stream
 
     .. autoclass:: VideoStream
         :members:
@@ -12,7 +12,7 @@ Video Streams
 Video Codecs
 -------------
 
-.. automodule:: av.video.codeccontext
+.. automodule:: bv.video.codeccontext
 
     .. autoclass:: VideoCodecContext
         :members:
@@ -20,7 +20,7 @@ Video Codecs
 Video Formats
 -------------
 
-.. automodule:: av.video.format
+.. automodule:: bv.video.format
 
     .. autoclass:: VideoFormat
         :members:
@@ -31,7 +31,7 @@ Video Formats
 Video Frames
 ------------
 
-.. automodule:: av.video.frame
+.. automodule:: bv.video.frame
 
 .. autoclass:: VideoFrame
 
@@ -62,11 +62,11 @@ Types
 .. autoattribute:: VideoFrame.interlaced_frame
 .. autoattribute:: VideoFrame.pict_type
 
-.. autoclass:: av.video.frame.PictureType
+.. autoclass:: bv.video.frame.PictureType
 
     Wraps ``AVPictureType`` (``AV_PICTURE_TYPE_*``).
 
-    .. enumtable:: av.video.frame.PictureType
+    .. enumtable:: bv.video.frame.PictureType
 
 
 Conversions
@@ -87,7 +87,7 @@ Conversions
 Video Planes
 -------------
 
-.. automodule:: av.video.plane
+.. automodule:: bv.video.plane
 
     .. autoclass:: VideoPlane
         :members:
@@ -96,7 +96,7 @@ Video Planes
 Video Reformatters
 ------------------
 
-.. automodule:: av.video.reformatter
+.. automodule:: bv.video.reformatter
 
     .. autoclass:: VideoReformatter
 
@@ -105,22 +105,22 @@ Video Reformatters
 Enums
 ~~~~~
 
-.. autoclass:: av.video.reformatter.Interpolation
+.. autoclass:: bv.video.reformatter.Interpolation
 
     Wraps the ``SWS_*`` flags.
 
-    .. enumtable:: av.video.reformatter.Interpolation
+    .. enumtable:: bv.video.reformatter.Interpolation
 
-.. autoclass:: av.video.reformatter.Colorspace
+.. autoclass:: bv.video.reformatter.Colorspace
 
     Wraps the ``SWS_CS_*`` flags. There is a bit of overlap in
     these names which comes from FFmpeg and backards compatibility.
 
-    .. enumtable:: av.video.reformatter.Colorspace
+    .. enumtable:: bv.video.reformatter.Colorspace
 
-.. autoclass:: av.video.reformatter.ColorRange
+.. autoclass:: bv.video.reformatter.ColorRange
 
     Wraps the ``AVCOL*`` flags.
 
-    .. enumtable:: av.video.reformatter.ColorRange
+    .. enumtable:: bv.video.reformatter.ColorRange
 

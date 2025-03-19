@@ -31,11 +31,11 @@ Sometimes we have a raw stream of data, and we need to split it into packets bef
 Threading
 ---------
 
-By default, codec contexts will decode with :data:`~av.codec.context.ThreadType.SLICE` threading. This allows multiple threads to cooperate to decode any given frame.
+By default, codec contexts will decode with :data:`~bv.codec.context.ThreadType.SLICE` threading. This allows multiple threads to cooperate to decode any given frame.
 
 This is faster than no threading, but is not as fast as we can go.
 
-Also enabling :data:`~av.codec.context.ThreadType.FRAME` (or :data:`~av.codec.context.ThreadType.AUTO`) threading allows multiple threads to decode independent frames. This is not enabled by default because it does change the API a bit: you will get a much larger "delay" between starting the decode of a packet and getting it's results. Take a look at the output of this sample to see what we mean:
+Also enabling :data:`~bv.codec.context.ThreadType.FRAME` (or :data:`~bv.codec.context.ThreadType.AUTO`) threading allows multiple threads to decode independent frames. This is not enabled by default because it does change the API a bit: you will get a much larger "delay" between starting the decode of a packet and getting it's results. Take a look at the output of this sample to see what we mean:
 
 .. literalinclude:: ../../examples/basics/thread_type.py
 

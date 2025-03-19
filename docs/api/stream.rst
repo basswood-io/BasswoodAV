@@ -6,7 +6,7 @@ Streams
 Stream collections
 ------------------
 
-.. currentmodule:: av.container.streams
+.. currentmodule:: bv.container.streams
 
 .. autoclass:: StreamContainer
 
@@ -53,7 +53,7 @@ dynamic capabilities of :meth:`.get`:
 Streams
 -------
 
-.. currentmodule:: av.stream
+.. currentmodule:: bv.stream
 
 .. autoclass:: Stream
 

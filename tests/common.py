@@ -11,7 +11,7 @@ from unittest import TestCase as _Base
 
 import numpy as np
 
-from av.datasets import fate as fate_suite
+from bv.datasets import fate as fate_suite
 
 if TYPE_CHECKING:
     from typing import Any, Callable, TypeVar

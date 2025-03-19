@@ -1,6 +1,6 @@
-import av
+import bv
 
-av.logging.set_level(av.logging.VERBOSE)
+bv.logging.set_level(bv.logging.VERBOSE)
 
 """
 This is written for MacOS. Other platforms will need a different file, format pair.
@@ -10,8 +10,8 @@ You may need to change the file "1". Use this command to list all devices:
 
 """
 
-input_ = av.open("1", format="avfoundation")
-output = av.open("out.mkv", "w")
+input_ = bv.open("1", format="avfoundation")
+output = bv.open("out.mkv", "w")
 
 output_stream = output.add_stream("h264_videotoolbox", rate=30)
 output_stream.width = input_.streams.video[0].width
@@ -24,7 +24,7 @@ try:
             for frame in input_.decode(video=0):
                 packet = output_stream.encode(frame)
                 output.mux(packet)
-        except av.BlockingIOError:
+        except bv.BlockingIOError:
             pass
 except KeyboardInterrupt:
     print("Recording stopped by user")

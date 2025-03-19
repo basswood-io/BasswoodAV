@@ -1,7 +1,7 @@
 Errors
 ======
 
-.. currentmodule:: av.error
+.. currentmodule:: bv.error
 
 .. _error_behaviour:
 
@@ -37,7 +37,7 @@ There are two competing ideas that have influenced the final design:
 As such, BasswoodAV effectively shadows as much of the builtin exception hierarchy as
 it requires, extending from both the builtins and from :class:`FFmpegError`.
 
-Therefore, an argument error within FFmpeg will raise a ``av.error.ValueError``, which
+Therefore, an argument error within FFmpeg will raise a ``bv.error.ValueError``, which
 can be caught via either :class:`FFmpegError` or ``ValueError``. All of these
 exceptions expose the typical ``errno`` and ``strerror`` attributes, as well as some 
 BasswoodAV extensions such as :attr:`FFmpegError.log`.
@@ -46,9 +46,9 @@ All of these exceptions are available on the top-level ``av`` package, e.g.::
 
     try:
         do_something()
-    except av.FilterNotFoundError:
+    except bv.FilterNotFoundError:
         handle_error()
 
 
-.. autoclass:: av.FFmpegError
+.. autoclass:: bv.FFmpegError
 

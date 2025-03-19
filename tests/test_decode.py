@@ -6,7 +6,7 @@ from fractions import Fraction
 import numpy as np
 import pytest
 
-import av
+import bv
 
 from .common import TestCase, fate_suite
 
@@ -22,19 +22,19 @@ def make_h264_test_video(path: str) -> None:
     # Our video is H264, 1280x720p (note that some decoders have a minimum resolution limit), 24fps,
     # 8-bit yuv420p.
     pathlib.Path(path).parent.mkdir(parents=True, exist_ok=True)
-    output_container = av.open(path, "w")
+    output_container = bv.open(path, "w")
 
     streams = []
     for _ in range(2):
         stream = output_container.add_stream("libx264", rate=24)
-        assert isinstance(stream, av.VideoStream)
+        assert isinstance(stream, bv.VideoStream)
         stream.width = 1280
         stream.height = 720
         stream.pix_fmt = "yuv420p"
         streams.append(stream)
 
     for _ in range(24):
-        frame = av.VideoFrame.from_ndarray(
+        frame = bv.VideoFrame.from_ndarray(
             np.zeros((720, 1280, 3), dtype=np.uint8), format="rgb24"
         )
         for stream in streams:
@@ -50,7 +50,7 @@ def make_h264_test_video(path: str) -> None:
 
 class TestDecode(TestCase):
     def test_decoded_video_frame_count(self) -> None:
-        container = av.open(fate_suite("h264/interlaced_crop.mp4"))
+        container = bv.open(fate_suite("h264/interlaced_crop.mp4"))
         video_stream = next(s for s in container.streams if s.type == "video")
 
         assert video_stream is container.streams.video[0]
@@ -70,7 +70,7 @@ class TestDecode(TestCase):
         packet_count = 0
         frame_count = 0
 
-        with av.open(path) as container:
+        with bv.open(path) as container:
             for packet in container.demux(audio=0):
                 for frame in packet.decode():
                     frame_count += 1
@@ -80,11 +80,11 @@ class TestDecode(TestCase):
         assert frame_count == 0
 
     def test_decode_audio_sample_count(self) -> None:
-        container = av.open(fate_suite("audio-reference/chorusnoise_2ch_44kHz_s16.wav"))
+        container = bv.open(fate_suite("audio-reference/chorusnoise_2ch_44kHz_s16.wav"))
         audio_stream = next(s for s in container.streams if s.type == "audio")
 
         assert audio_stream is container.streams.audio[0]
-        assert isinstance(audio_stream, av.AudioStream)
+        assert isinstance(audio_stream, bv.AudioStream)
 
         sample_count = 0
 
@@ -101,20 +101,20 @@ class TestDecode(TestCase):
         assert sample_count == total_samples
 
     def test_decoded_time_base(self) -> None:
-        container = av.open(fate_suite("h264/interlaced_crop.mp4"))
+        container = bv.open(fate_suite("h264/interlaced_crop.mp4"))
         stream = container.streams.video[0]
 
         assert stream.time_base == Fraction(1, 25)
 
         for packet in container.demux(stream):
             for frame in packet.decode():
-                assert isinstance(frame, av.VideoFrame)
+                assert isinstance(frame, bv.VideoFrame)
                 assert packet.time_base == frame.time_base
                 assert stream.time_base == frame.time_base
                 return
 
     def test_decoded_motion_vectors(self) -> None:
-        container = av.open(fate_suite("h264/interlaced_crop.mp4"))
+        container = bv.open(fate_suite("h264/interlaced_crop.mp4"))
         stream = container.streams.video[0]
         codec_context = stream.codec_context
         codec_context.options = {"flags2": "+export_mvs"}
@@ -129,7 +129,7 @@ class TestDecode(TestCase):
                 return
 
     def test_decoded_motion_vectors_no_flag(self) -> None:
-        container = av.open(fate_suite("h264/interlaced_crop.mp4"))
+        container = bv.open(fate_suite("h264/interlaced_crop.mp4"))
         stream = container.streams.video[0]
 
         for frame in container.decode(stream):
@@ -147,7 +147,7 @@ class TestDecode(TestCase):
         packet_count = 0
         frame_count = 0
 
-        with av.open(path) as container:
+        with bv.open(path) as container:
             for packet in container.demux(video=0):
                 for frame in packet.decode():
                     frame_count += 1
@@ -157,7 +157,7 @@ class TestDecode(TestCase):
         assert frame_count == 0
 
     def test_decode_close_then_use(self) -> None:
-        container = av.open(fate_suite("h264/interlaced_crop.mp4"))
+        container = bv.open(fate_suite("h264/interlaced_crop.mp4"))
         container.close()
 
         # Check accessing every attribute either works or raises
@@ -170,7 +170,7 @@ class TestDecode(TestCase):
                     pass
 
     def test_flush_decoded_video_frame_count(self) -> None:
-        container = av.open(fate_suite("h264/interlaced_crop.mp4"))
+        container = bv.open(fate_suite("h264/interlaced_crop.mp4"))
         video_stream = container.streams.video[0]
 
         # Decode the first GOP, which requires a flush to get all frames
@@ -200,17 +200,17 @@ class TestDecode(TestCase):
         assert output_count == input_count
 
     def test_no_side_data(self) -> None:
-        container = av.open(fate_suite("h264/interlaced_crop.mp4"))
+        container = bv.open(fate_suite("h264/interlaced_crop.mp4"))
         frame = next(container.decode(video=0))
         assert frame.rotation == 0
 
     def test_side_data(self) -> None:
-        container = av.open(fate_suite("mov/displaymatrix.mov"))
+        container = bv.open(fate_suite("mov/displaymatrix.mov"))
         frame = next(container.decode(video=0))
         assert frame.rotation == -90
 
     def test_hardware_decode(self) -> None:
-        hwdevices_available = av.codec.hwaccel.hwdevices_available()
+        hwdevices_available = bv.codec.hwaccel.hwdevices_available()
         if "HWACCEL_DEVICE_TYPE" not in os.environ:
             pytest.skip(
                 "Set the HWACCEL_DEVICE_TYPE to run this test. "
@@ -225,11 +225,11 @@ class TestDecode(TestCase):
         test_video_path = "tests/assets/black.mp4"
         make_h264_test_video(test_video_path)
 
-        hwaccel = av.codec.hwaccel.HWAccel(
+        hwaccel = bv.codec.hwaccel.HWAccel(
             device_type=HWACCEL_DEVICE_TYPE, allow_software_fallback=False
         )
 
-        container = av.open(test_video_path, hwaccel=hwaccel)
+        container = bv.open(test_video_path, hwaccel=hwaccel)
         video_stream = container.streams.video[0]
         assert video_stream.codec_context.is_hwaccel
 

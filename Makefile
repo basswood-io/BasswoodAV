@@ -17,7 +17,7 @@ build:
 	CFLAGS=$(CFLAGS) LDFLAGS=$(LDFLAGS) $(PYTHON) setup.py build_ext --inplace --debug
 
 clean:
-	- find av -name '*.so' -delete
+	- find bv -name '*.so' -delete
 	- rm -rf build
 	- rm -rf sandbox
 	- rm -rf src
@@ -29,9 +29,9 @@ fate-suite:
 
 lint:
 	$(PIP) install -U ruff isort numpy mypy==1.15.0 pytest
-	ruff format --check av examples tests setup.py
-	isort --check-only --diff av examples tests
-	mypy av tests
+	ruff format --check bv examples tests setup.py
+	isort --check-only --diff bv examples tests
+	mypy bv tests
 
 test:
 	$(PIP) install cython numpy pytest

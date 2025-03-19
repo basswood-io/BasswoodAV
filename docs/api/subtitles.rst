@@ -2,12 +2,12 @@
 Subtitles
 ===========
 
-.. automodule:: av.subtitles.stream
+.. automodule:: bv.subtitles.stream
 
     .. autoclass:: SubtitleStream
         :members:
 
-.. automodule:: av.subtitles.subtitle
+.. automodule:: bv.subtitles.subtitle
 
     .. autoclass:: SubtitleSet
         :members:

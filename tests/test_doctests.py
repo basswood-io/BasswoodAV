@@ -3,8 +3,8 @@ import pkgutil
 import re
 from unittest import TestCase
 
-import av
-import av.datasets
+import bv
+import bv.datasets
 
 
 def fix_doctests(suite):
@@ -17,8 +17,8 @@ def fix_doctests(suite):
             | doctest.NORMALIZE_WHITESPACE
         )
 
-        case._dt_test.globs["av"] = av
-        case._dt_test.globs["video_path"] = av.datasets.curated(
+        case._dt_test.globs["bv"] = bv
+        case._dt_test.globs["video_path"] = bv.datasets.curated(
             "pexels/time-lapse-video-of-night-sky-857195.mp4"
         )
 
@@ -55,6 +55,6 @@ def register_doctests(mod):
 
 
 for importer, mod_name, ispkg in pkgutil.walk_packages(
-    path=av.__path__, prefix=av.__name__ + ".", onerror=lambda x: None
+    path=bv.__path__, prefix=bv.__name__ + ".", onerror=lambda x: None
 ):
     register_doctests(mod_name)

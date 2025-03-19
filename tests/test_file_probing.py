@@ -1,18 +1,18 @@
 from fractions import Fraction
 
-import av
+import bv
 
 from .common import TestCase, fate_suite
 
 
 class TestAudioProbe(TestCase):
     def setUp(self):
-        self.file = av.open(fate_suite("aac/latm_stereo_to_51.ts"))
+        self.file = bv.open(fate_suite("aac/latm_stereo_to_51.ts"))
 
     def test_container_probing(self) -> None:
         assert self.file.bit_rate == 269558
         assert self.file.duration == 6165333
-        assert str(self.file.format) == "<av.ContainerFormat 'mpegts'>"
+        assert str(self.file.format) == "<bv.ContainerFormat 'mpegts'>"
         assert self.file.format.name == "mpegts"
         assert self.file.format.long_name == "MPEG-TS (MPEG-2 Transport Stream)"
         assert self.file.metadata == {}
@@ -23,9 +23,9 @@ class TestAudioProbe(TestCase):
     def test_stream_probing(self) -> None:
         stream = self.file.streams[0]
 
-        assert isinstance(stream, av.AudioStream)
+        assert isinstance(stream, bv.AudioStream)
         assert str(stream).startswith(
-            "<av.AudioStream #0 aac_latm at 48000Hz, stereo, fltp at "
+            "<bv.AudioStream #0 aac_latm at 48000Hz, stereo, fltp at "
         )
 
         # actual stream properties
@@ -59,12 +59,12 @@ class TestAudioProbeCorrupt(TestCase):
         with open(path, "wb"):
             pass
 
-        self.file = av.open(path, "r")
+        self.file = bv.open(path, "r")
 
     def test_container_probing(self) -> None:
         assert self.file.bit_rate == 0
         assert self.file.duration is None
-        assert str(self.file.format) == "<av.ContainerFormat 'flac'>"
+        assert str(self.file.format) == "<bv.ContainerFormat 'flac'>"
         assert self.file.format.name == "flac"
         assert self.file.format.long_name == "raw FLAC"
         assert self.file.metadata == {}
@@ -75,9 +75,9 @@ class TestAudioProbeCorrupt(TestCase):
     def test_stream_probing(self) -> None:
         stream = self.file.streams[0]
 
-        assert isinstance(stream, av.AudioStream)
+        assert isinstance(stream, bv.AudioStream)
         assert str(stream).startswith(
-            "<av.AudioStream #0 flac at 0Hz, 0 channels, None at "
+            "<bv.AudioStream #0 flac at 0Hz, 0 channels, None at "
         )
 
         # actual stream properties
@@ -105,12 +105,12 @@ class TestAudioProbeCorrupt(TestCase):
 
 class TestDataProbe(TestCase):
     def setUp(self) -> None:
-        self.file = av.open(fate_suite("mxf/track_01_v02.mxf"))
+        self.file = bv.open(fate_suite("mxf/track_01_v02.mxf"))
 
     def test_container_probing(self) -> None:
         assert self.file.bit_rate == 27872687
         assert self.file.duration == 417083
-        assert str(self.file.format) == "<av.ContainerFormat 'mxf'>"
+        assert str(self.file.format) == "<bv.ContainerFormat 'mxf'>"
         assert self.file.format.name == "mxf"
         assert self.file.format.long_name == "MXF (Material eXchange Format)"
         assert self.file.size == 1453153
@@ -141,7 +141,7 @@ class TestDataProbe(TestCase):
     def test_stream_probing(self) -> None:
         stream = self.file.streams[0]
 
-        assert str(stream).startswith("<av.DataStream #0 data/<nocodec> at ")
+        assert str(stream).startswith("<bv.DataStream #0 data/<nocodec> at ")
 
         assert stream.duration == 37537
         assert stream.frames == 0
@@ -162,12 +162,12 @@ class TestDataProbe(TestCase):
 
 class TestSubtitleProbe(TestCase):
     def setUp(self) -> None:
-        self.file = av.open(fate_suite("sub/MovText_capability_tester.mp4"))
+        self.file = bv.open(fate_suite("sub/MovText_capability_tester.mp4"))
 
     def test_container_probing(self) -> None:
         assert self.file.bit_rate == 810
         assert self.file.duration == 8140000
-        assert str(self.file.format) == "<av.ContainerFormat 'mov,mp4,m4a,3gp,3g2,mj2'>"
+        assert str(self.file.format) == "<bv.ContainerFormat 'mov,mp4,m4a,3gp,3g2,mj2'>"
         assert self.file.format.name == "mov,mp4,m4a,3gp,3g2,mj2"
         assert self.file.format.long_name == "QuickTime / MOV"
         assert self.file.metadata == {
@@ -183,7 +183,7 @@ class TestSubtitleProbe(TestCase):
     def test_stream_probing(self) -> None:
         stream = self.file.streams[0]
 
-        assert str(stream).startswith("<av.SubtitleStream #0 subtitle/mov_text at ")
+        assert str(stream).startswith("<bv.SubtitleStream #0 subtitle/mov_text at ")
 
         # actual stream properties
         assert stream.duration == 8140
@@ -208,12 +208,12 @@ class TestSubtitleProbe(TestCase):
 
 class TestVideoProbe(TestCase):
     def setUp(self) -> None:
-        self.file = av.open(fate_suite("mpeg2/mpeg2_field_encoding.ts"))
+        self.file = bv.open(fate_suite("mpeg2/mpeg2_field_encoding.ts"))
 
     def test_container_probing(self) -> None:
         assert self.file.bit_rate == 3950617
         assert self.file.duration == 1620000
-        assert str(self.file.format) == "<av.ContainerFormat 'mpegts'>"
+        assert str(self.file.format) == "<bv.ContainerFormat 'mpegts'>"
         assert self.file.format.name == "mpegts"
         assert self.file.format.long_name == "MPEG-TS (MPEG-2 Transport Stream)"
         assert self.file.metadata == {}
@@ -224,9 +224,9 @@ class TestVideoProbe(TestCase):
     def test_stream_probing(self) -> None:
         stream = self.file.streams[0]
 
-        assert isinstance(stream, av.video.stream.VideoStream)
+        assert isinstance(stream, bv.video.stream.VideoStream)
         assert str(stream).startswith(
-            "<av.VideoStream #0 mpeg2video, yuv420p 720x576 at "
+            "<bv.VideoStream #0 mpeg2video, yuv420p 720x576 at "
         )
 
         # actual stream properties
@@ -266,10 +266,10 @@ class TestVideoProbeCorrupt(TestCase):
         with open(path, "wb"):
             pass
 
-        self.file = av.open(path)
+        self.file = bv.open(path)
 
     def test_container_probing(self) -> None:
-        assert str(self.file.format) == "<av.ContainerFormat 'h264'>"
+        assert str(self.file.format) == "<bv.ContainerFormat 'h264'>"
         assert self.file.format.name == "h264"
         assert self.file.format.long_name == "raw H.264 video"
         assert self.file.size == 0
@@ -283,8 +283,8 @@ class TestVideoProbeCorrupt(TestCase):
     def test_stream_probing(self) -> None:
         stream = self.file.streams[0]
 
-        assert isinstance(stream, av.VideoStream)
-        assert str(stream).startswith("<av.VideoStream #0 h264, None 0x0 at ")
+        assert isinstance(stream, bv.VideoStream)
+        assert str(stream).startswith("<bv.VideoStream #0 h264, None 0x0 at ")
 
         # actual stream properties
         assert stream.type == "video"

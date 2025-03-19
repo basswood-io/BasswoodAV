@@ -1,16 +1,17 @@
 from fractions import Fraction
 
-import av
+import bv
+from bv import AudioFifo, AudioFrame
 
 from .common import TestCase, fate_suite
 
 
 class TestAudioFifo(TestCase):
     def test_data(self) -> None:
-        container = av.open(fate_suite("audio-reference/chorusnoise_2ch_44kHz_s16.wav"))
+        container = bv.open(fate_suite("audio-reference/chorusnoise_2ch_44kHz_s16.wav"))
         stream = container.streams.audio[0]
 
-        fifo = av.AudioFifo()
+        fifo = AudioFifo()
 
         input_ = []
         output = []
@@ -31,13 +32,13 @@ class TestAudioFifo(TestCase):
         assert input_bytes[:min_len] == output_bytes[:min_len]
 
     def test_pts_simple(self) -> None:
-        fifo = av.AudioFifo()
+        fifo = AudioFifo()
 
         assert str(fifo).startswith(
-            "<av.AudioFifo uninitialized, use fifo.write(frame), at 0x"
+            "<bv.AudioFifo uninitialized, use fifo.write(frame), at 0x"
         )
 
-        iframe = av.AudioFrame(samples=1024)
+        iframe = AudioFrame(samples=1024)
         iframe.pts = 0
         iframe.sample_rate = 48000
         iframe.time_base = Fraction("1/48000")
@@ -45,7 +46,7 @@ class TestAudioFifo(TestCase):
         fifo.write(iframe)
 
         assert str(fifo).startswith(
-            "<av.AudioFifo 1024 samples of 48000hz <av.AudioLayout 'stereo'> <av.AudioFormat s16> at 0x"
+            "<bv.AudioFifo 1024 samples of 48000hz <bv.AudioLayout 'stereo'> <bv.AudioFormat s16> at 0x"
         )
 
         oframe = fifo.read(512)
@@ -69,9 +70,9 @@ class TestAudioFifo(TestCase):
         self.assertRaises(ValueError, fifo.write, iframe)
 
     def test_pts_complex(self) -> None:
-        fifo = av.AudioFifo()
+        fifo = AudioFifo()
 
-        iframe = av.AudioFrame(samples=1024)
+        iframe = AudioFrame(samples=1024)
         iframe.pts = 0
         iframe.sample_rate = 48000
         iframe.time_base = Fraction("1/96000")
@@ -86,9 +87,9 @@ class TestAudioFifo(TestCase):
         assert fifo.pts_per_sample == 2.0
 
     def test_missing_sample_rate(self) -> None:
-        fifo = av.AudioFifo()
+        fifo = AudioFifo()
 
-        iframe = av.AudioFrame(samples=1024)
+        iframe = AudioFrame(samples=1024)
         iframe.pts = 0
         iframe.time_base = Fraction("1/48000")
 
@@ -102,9 +103,9 @@ class TestAudioFifo(TestCase):
         assert oframe.time_base == iframe.time_base
 
     def test_missing_time_base(self) -> None:
-        fifo = av.AudioFifo()
+        fifo = AudioFifo()
 
-        iframe = av.AudioFrame(samples=1024)
+        iframe = AudioFrame(samples=1024)
         iframe.pts = 0
         iframe.sample_rate = 48000
 

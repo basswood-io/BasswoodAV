@@ -6,11 +6,11 @@ Utilities
 Logging
 -------
 
-.. automodule:: av.logging
+.. automodule:: bv.logging
     :members:
 
 Other
 -----
 
-.. automodule:: av.utils
+.. automodule:: bv.utils
     :members:

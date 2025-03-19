@@ -5,7 +5,7 @@ Audio
 Audio Streams
 -------------
 
-.. automodule:: av.audio.stream
+.. automodule:: bv.audio.stream
 
     .. autoclass:: AudioStream
         :members:
@@ -13,7 +13,7 @@ Audio Streams
 Audio Context
 -------------
 
-.. automodule:: av.audio.codeccontext
+.. automodule:: bv.audio.codeccontext
 
     .. autoclass:: AudioCodecContext
         :members:
@@ -22,7 +22,7 @@ Audio Context
 Audio Formats
 -------------
 
-.. automodule:: av.audio.format
+.. automodule:: bv.audio.format
 
     .. autoclass:: AudioFormat
         :members:
@@ -30,7 +30,7 @@ Audio Formats
 Audio Layouts
 -------------
 
-.. automodule:: av.audio.layout
+.. automodule:: bv.audio.layout
 
     .. autoclass:: AudioLayout
         :members:
@@ -41,7 +41,7 @@ Audio Layouts
 Audio Frames
 ------------
 
-.. automodule:: av.audio.frame
+.. automodule:: bv.audio.frame
 
     .. autoclass:: AudioFrame
         :members:
@@ -50,7 +50,7 @@ Audio Frames
 Audio FIFOs
 -----------
 
-.. automodule:: av.audio.fifo
+.. automodule:: bv.audio.fifo
 
     .. autoclass:: AudioFifo
         :members:
@@ -63,7 +63,7 @@ Audio FIFOs
 Audio Resamplers
 ----------------
 
-.. automodule:: av.audio.resampler
+.. automodule:: bv.audio.resampler
 
     .. autoclass:: AudioResampler
         :members:

@@ -5,8 +5,8 @@ Codecs
 Descriptors
 -----------
 
-.. currentmodule:: av.codec
-.. automodule:: av.codec
+.. currentmodule:: bv.codec
+.. automodule:: bv.codec
 
 .. autoclass:: Codec
 
@@ -47,8 +47,8 @@ Flags
 Contexts
 --------
 
-.. currentmodule:: av.codec.context
-.. automodule:: av.codec.context
+.. currentmodule:: bv.codec.context
+.. automodule:: bv.codec.context
 
 .. autoclass:: CodecContext
 
@@ -95,24 +95,24 @@ Enums and Flags
 
 .. autoattribute:: CodecContext.flags
 
-.. autoclass:: av.codec.context.Flags
+.. autoclass:: bv.codec.context.Flags
 
-    .. enumtable:: av.codec.context:Flags
-        :class: av.codec.context:CodecContext
+    .. enumtable:: bv.codec.context:Flags
+        :class: bv.codec.context:CodecContext
 
 .. autoattribute:: CodecContext.flags2
 
-.. autoclass:: av.codec.context.Flags2
+.. autoclass:: bv.codec.context.Flags2
 
-    .. enumtable:: av.codec.context:Flags2
-        :class: av.codec.context:CodecContext
+    .. enumtable:: bv.codec.context:Flags2
+        :class: bv.codec.context:CodecContext
 
-.. autoclass:: av.codec.context.ThreadType
+.. autoclass:: bv.codec.context.ThreadType
 
     Which multithreading methods to use.
     Use of FF_THREAD_FRAME will increase decoding delay by one frame per thread,
     so clients which cannot provide future frames should not use it.
 
-    .. enumtable:: av.codec.context.ThreadType
+    .. enumtable:: bv.codec.context.ThreadType
 
 

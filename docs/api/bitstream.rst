@@ -2,7 +2,7 @@
 Bitstream Filters
 =================
 
-.. automodule:: av.bitstream
+.. automodule:: bv.bitstream
 
     .. autoclass:: BitStreamFilterContext
         :members:

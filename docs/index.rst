@@ -49,10 +49,10 @@ Basic Demo
 
 .. testcode::
 
-    import av
+    import bv
 
-    av.logging.set_level(av.logging.VERBOSE)
-    container = av.open(path_to_video)
+    bv.logging.set_level(bv.logging.VERBOSE)
+    container = bv.open(path_to_video)
 
     for index, frame in enumerate(container.decode(video=0)):
         frame.save(f"frame-{index:04d}.jpg")

@@ -2,7 +2,7 @@
 Packets
 =======
 
-.. automodule:: av.packet
+.. automodule:: bv.packet
 
     .. autoclass:: Packet
         :members:

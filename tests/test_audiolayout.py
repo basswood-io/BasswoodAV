@@ -1,10 +1,10 @@
-from av import AudioLayout
+from bv import AudioLayout
 
 
 def _test_stereo(layout: AudioLayout) -> None:
     assert layout.name == "stereo"
     assert layout.nb_channels == 2
-    assert repr(layout) == "<av.AudioLayout 'stereo'>"
+    assert repr(layout) == "<bv.AudioLayout 'stereo'>"
 
     # Re-enable when FFmpeg 6.0 is dropped.
 

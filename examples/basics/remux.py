@@ -1,10 +1,10 @@
-import av
-import av.datasets
+import bv
+import bv.datasets
 
-av.logging.set_level(av.logging.VERBOSE)
+bv.logging.set_level(bv.logging.VERBOSE)
 
-input_ = av.open(av.datasets.curated("pexels/time-lapse-video-of-night-sky-857195.mp4"))
-output = av.open("remuxed.mkv", "w")
+input_ = bv.open(bv.datasets.curated("pexels/time-lapse-video-of-night-sky-857195.mp4"))
+output = bv.open("remuxed.mkv", "w")
 
 # Make an output stream using the input as a template. This copies the stream
 # setup from one to the other.

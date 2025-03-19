@@ -3,7 +3,7 @@ import time
 from http.server import BaseHTTPRequestHandler
 from socketserver import TCPServer
 
-import av
+import bv
 
 from .common import TestCase, fate_suite
 
@@ -46,22 +46,22 @@ class TestTimeout(TestCase):
 
     def test_no_timeout(self) -> None:
         start = time.time()
-        av.open(f"http://localhost:{PORT}/mpeg2_field_encoding.ts")
+        bv.open(f"http://localhost:{PORT}/mpeg2_field_encoding.ts")
         duration = time.time() - start
         assert duration > DELAY
 
     def test_open_timeout(self) -> None:
-        with self.assertRaises(av.ExitError):
+        with self.assertRaises(bv.ExitError):
             start = time.time()
-            av.open(f"http://localhost:{PORT}/mpeg2_field_encoding.ts", timeout=TIMEOUT)
+            bv.open(f"http://localhost:{PORT}/mpeg2_field_encoding.ts", timeout=TIMEOUT)
 
         duration = time.time() - start
         assert duration < DELAY
 
     def test_open_timeout_2(self) -> None:
-        with self.assertRaises(av.ExitError):
+        with self.assertRaises(bv.ExitError):
             start = time.time()
-            av.open(
+            bv.open(
                 f"http://localhost:{PORT}/mpeg2_field_encoding.ts",
                 timeout=(TIMEOUT, None),
             )

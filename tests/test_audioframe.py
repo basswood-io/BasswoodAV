@@ -3,7 +3,7 @@ from re import escape
 import numpy as np
 import pytest
 
-from av import AudioFrame
+from bv import AudioFrame
 
 from .common import assertNdarraysEqual
 

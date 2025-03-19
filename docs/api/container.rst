@@ -6,9 +6,9 @@ Containers
 Generic
 -------
 
-.. currentmodule:: av.container
+.. currentmodule:: bv.container
 
-.. automodule:: av.container
+.. automodule:: bv.container
 
 .. autoclass:: Container
 
@@ -24,14 +24,14 @@ Generic
 Flags
 ~~~~~
 
-.. attribute:: av.container.Container.flags
+.. attribute:: bv.container.Container.flags
 
-.. class:: av.container.Flags
+.. class:: bv.container.Flags
 
     Wraps :ffmpeg:`AVFormatContext.flags`.
 
-    .. enumtable:: av.container.core:Flags
-        :class: av.container.core:Container
+    .. enumtable:: bv.container.core:Flags
+        :class: bv.container.core:Container
 
 
 Input Containers
@@ -51,9 +51,9 @@ Output Containers
 Formats
 -------
 
-.. currentmodule:: av.format
+.. currentmodule:: bv.format
 
-.. automodule:: av.format
+.. automodule:: bv.format
 
 .. autoclass:: ContainerFormat
 
@@ -72,8 +72,8 @@ Flags
 
 .. autoattribute:: ContainerFormat.flags
 
-.. autoclass:: av.format.Flags
+.. autoclass:: bv.format.Flags
 
-    .. enumtable:: av.format.Flags
-        :class: av.format.ContainerFormat
+    .. enumtable:: bv.format.Flags
+        :class: bv.format.ContainerFormat
 

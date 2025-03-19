@@ -1,14 +1,14 @@
-import av
+import bv
 
-av.logging.set_level(av.logging.VERBOSE)
+bv.logging.set_level(bv.logging.VERBOSE)
 
-input_file = av.open("input.wav")
-output_file = av.open("output.wav", mode="w")
+input_file = bv.open("input.wav")
+output_file = bv.open("output.wav", mode="w")
 
 input_stream = input_file.streams.audio[0]
 output_stream = output_file.add_stream("pcm_s16le", rate=input_stream.rate)
 
-graph = av.filter.Graph()
+graph = bv.filter.Graph()
 graph.link_nodes(
     graph.add_abuffer(template=input_stream),
     graph.add("atempo", "2.0"),
@@ -21,7 +21,7 @@ for frame in input_file.decode(input_stream):
         try:
             for packet in output_stream.encode(graph.pull()):
                 output_file.mux(packet)
-        except (av.BlockingIOError, av.EOFError):
+        except (bv.BlockingIOError, bv.EOFError):
             break
 
 # Flush the stream

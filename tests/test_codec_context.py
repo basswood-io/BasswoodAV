@@ -6,8 +6,8 @@ from typing import Iterator, TypedDict, overload
 
 import pytest
 
-import av
-from av import (
+import bv
+from bv import (
     AudioCodecContext,
     AudioFrame,
     AudioLayout,
@@ -17,8 +17,8 @@ from av import (
     VideoCodecContext,
     VideoFrame,
 )
-from av.codec.codec import UnknownCodecError
-from av.video.frame import PictureType
+from bv.codec.codec import UnknownCodecError
+from bv.video.frame import PictureType
 
 from .common import TestCase, fate_suite
 
@@ -73,9 +73,9 @@ class TestCodecContext(TestCase):
         assert ctx.skip_frame == "DEFAULT"
 
     def test_codec_delay(self) -> None:
-        with av.open(fate_suite("mkv/codec_delay_opus.mkv")) as container:
+        with bv.open(fate_suite("mkv/codec_delay_opus.mkv")) as container:
             assert container.streams.audio[0].codec_context.delay == 312
-        with av.open(fate_suite("h264/interlaced_crop.mp4")) as container:
+        with bv.open(fate_suite("h264/interlaced_crop.mp4")) as container:
             assert container.streams.video[0].codec_context.delay == 0
 
     def test_codec_tag(self):
@@ -96,11 +96,11 @@ class TestCodecContext(TestCase):
         ):
             ctx.codec_tag = 123
 
-        with av.open(fate_suite("h264/interlaced_crop.mp4")) as container:
+        with bv.open(fate_suite("h264/interlaced_crop.mp4")) as container:
             assert container.streams[0].codec_tag == "avc1"
 
     def test_decoder_extradata(self):
-        ctx = av.codec.Codec("h264", "r").create()
+        ctx = Codec("h264", "r").create()
         assert ctx.extradata is None
         assert ctx.extradata_size == 0
 
@@ -117,13 +117,13 @@ class TestCodecContext(TestCase):
         assert ctx.extradata_size == 0
 
     def test_decoder_gop_size(self) -> None:
-        ctx = av.codec.Codec("h264", "r").create("video")
+        ctx = Codec("h264", "r").create("video")
 
         with pytest.raises(RuntimeError):
             ctx.gop_size
 
     def test_decoder_timebase(self) -> None:
-        ctx = av.codec.Codec("h264", "r").create()
+        ctx = Codec("h264", "r").create()
 
         with pytest.raises(RuntimeError):
             ctx.time_base
@@ -132,7 +132,7 @@ class TestCodecContext(TestCase):
             ctx.time_base = Fraction(1, 25)
 
     def test_encoder_extradata(self) -> None:
-        ctx = av.codec.Codec("h264", "w").create()
+        ctx = Codec("h264", "w").create()
         assert ctx.extradata is None
         assert ctx.extradata_size == 0
 
@@ -141,7 +141,7 @@ class TestCodecContext(TestCase):
         assert ctx.extradata_size == 3
 
     def test_encoder_pix_fmt(self) -> None:
-        ctx = av.codec.Codec("h264", "w").create("video")
+        ctx = Codec("h264", "w").create("video")
 
         # valid format
         ctx.pix_fmt = "yuv420p"
@@ -154,25 +154,25 @@ class TestCodecContext(TestCase):
         assert ctx.pix_fmt == "yuv420p"
 
     def test_bits_per_coded_sample(self):
-        with av.open(fate_suite("qtrle/aletrek-rle.mov")) as container:
+        with bv.open(fate_suite("qtrle/aletrek-rle.mov")) as container:
             stream = container.streams.video[0]
             stream.bits_per_coded_sample = 32
 
             for packet in container.demux(stream):
                 for frame in packet.decode():
                     pass
-                assert isinstance(packet.stream, av.VideoStream)
+                assert isinstance(packet.stream, bv.VideoStream)
                 assert packet.stream.bits_per_coded_sample == 32
 
-        with av.open(fate_suite("qtrle/aletrek-rle.mov")) as container:
+        with bv.open(fate_suite("qtrle/aletrek-rle.mov")) as container:
             stream = container.streams.video[0]
             stream.bits_per_coded_sample = 31
 
-            with pytest.raises(av.error.InvalidDataError):
+            with pytest.raises(bv.error.InvalidDataError):
                 for _ in container.decode(stream):
                     pass
 
-        with av.open(self.sandboxed("output.mov"), "w") as output:
+        with bv.open(self.sandboxed("output.mov"), "w") as output:
             stream = output.add_stream("qtrle")
 
             with pytest.raises(ValueError):
@@ -186,7 +186,7 @@ class TestCodecContext(TestCase):
         self._assert_parse("mpeg2video", fate_suite("mpeg2/mpeg2_field_encoding.ts"))
 
     def _assert_parse(self, codec_name: str, path: str) -> None:
-        fh = av.open(path)
+        fh = bv.open(path)
         packets = []
         for packet in fh.demux(video=0):
             packets.append(packet)
@@ -223,7 +223,7 @@ class TestEncoding(TestCase):
         except UnknownCodecError:
             pytest.skip(f"Unknown codec: {codec_name}")
 
-        container = av.open(fate_suite("h264/interlaced_crop.mp4"))
+        container = bv.open(fate_suite("h264/interlaced_crop.mp4"))
         video_stream = container.streams.video[0]
 
         width = 640
@@ -266,7 +266,7 @@ class TestEncoding(TestCase):
             if frame_count > 5:
                 break
 
-        ctx = av.Codec(codec_name, "r").create("video")
+        ctx = Codec(codec_name, "r").create("video")
 
         for path in path_list:
             with open(path, "rb") as f:
@@ -316,7 +316,7 @@ class TestEncoding(TestCase):
         except UnknownCodecError:
             pytest.skip(f"Unknown codec: {codec_name}")
 
-        container = av.open(fate_suite("h264/interlaced_crop.mp4"))
+        container = bv.open(fate_suite("h264/interlaced_crop.mp4"))
         video_stream = container.streams.video[0]
 
         assert video_stream.time_base is not None
@@ -367,7 +367,7 @@ class TestEncoding(TestCase):
         if codec_name == "libx264":
             dec_codec_name = "h264"
 
-        ctx = av.Codec(dec_codec_name, "r").create("video")
+        ctx = Codec(dec_codec_name, "r").create("video")
         ctx.open()
 
         keyframe_indices = []
@@ -439,7 +439,7 @@ class TestEncoding(TestCase):
 
         resampler = AudioResampler(sample_fmt, channel_layout, sample_rate)
 
-        container = av.open(fate_suite("audio-reference/chorusnoise_2ch_44kHz_s16.wav"))
+        container = bv.open(fate_suite("audio-reference/chorusnoise_2ch_44kHz_s16.wav"))
         audio_stream = container.streams.audio[0]
 
         path = self.sandboxed(f"encoder.{codec_name}")

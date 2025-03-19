@@ -1,31 +1,31 @@
 Filters
 =======
 
-.. automodule:: av.filter.filter
+.. automodule:: bv.filter.filter
 
     .. autoclass:: Filter
         :members:
 
 
-.. automodule:: av.filter.graph
+.. automodule:: bv.filter.graph
 
     .. autoclass:: Graph
         :members:
 
 
-.. automodule:: av.filter.context
+.. automodule:: bv.filter.context
 
     .. autoclass:: FilterContext
         :members:
 
 
-.. automodule:: av.filter.link
+.. automodule:: bv.filter.link
 
     .. autoclass:: FilterLink
         :members:
 
 
-.. automodule:: av.filter.pad
+.. automodule:: bv.filter.pad
 
     .. autoclass:: FilterPad
         :members:

@@ -2,19 +2,19 @@
 Side Data
 =========
 
-.. automodule:: av.sidedata.sidedata
+.. automodule:: bv.sidedata.sidedata
 
     .. autoclass:: SideData
         :members:
 
-.. autoclass:: av.sidedata.sidedata.Type
-.. enumtable:: av.sidedata.sidedata.Type
+.. autoclass:: bv.sidedata.sidedata.Type
+.. enumtable:: bv.sidedata.sidedata.Type
 
 
 Motion Vectors
 --------------
 
-.. automodule:: av.sidedata.motionvectors
+.. automodule:: bv.sidedata.motionvectors
 
     .. autoclass:: MotionVectors
         :members:

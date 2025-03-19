@@ -3,10 +3,10 @@ from fractions import Fraction
 
 import numpy as np
 
-import av
-from av import AudioFrame, VideoFrame
-from av.audio.frame import format_dtypes
-from av.filter import Filter, Graph
+import bv
+from bv import AudioFrame, VideoFrame
+from bv.audio.frame import format_dtypes
+from bv.filter import Filter, Graph
 
 from .common import TestCase
 
@@ -34,12 +34,12 @@ def generate_audio_frame(
     return frame
 
 
-def pull_until_blocked(graph: Graph) -> list[av.VideoFrame]:
-    frames: list[av.VideoFrame] = []
+def pull_until_blocked(graph: Graph) -> list[VideoFrame]:
+    frames: list[VideoFrame] = []
     while True:
         try:
             frames.append(graph.vpull())
-        except av.FFmpegError as e:
+        except bv.FFmpegError as e:
             if e.errno != errno.EAGAIN:
                 raise
             return frames
@@ -101,7 +101,7 @@ class TestFilters(TestCase):
         graph.configure()
 
         frame = src.pull()
-        assert isinstance(frame, av.VideoFrame)
+        assert isinstance(frame, VideoFrame)
 
         frame.save(self.sandboxed("mandelbrot4.png"))
 
@@ -144,7 +144,7 @@ class TestFilters(TestCase):
             )
         )
         out_frame = graph.pull()
-        assert isinstance(out_frame, av.AudioFrame)
+        assert isinstance(out_frame, AudioFrame)
         assert out_frame.format.name == "s16"
         assert out_frame.layout.name == "stereo"
         assert out_frame.sample_rate == 44100
@@ -203,10 +203,10 @@ class TestFilters(TestCase):
         assert np.allclose(input_data * 0.5, output_data)
 
     def test_video_buffer(self):
-        input_container = av.open(format="lavfi", file="color=c=pink:duration=1:r=30")
+        input_container = bv.open(format="lavfi", file="color=c=pink:duration=1:r=30")
         input_video_stream = input_container.streams.video[0]
 
-        graph = av.filter.Graph()
+        graph = bv.filter.Graph()
         buffer = graph.add_buffer(template=input_video_stream)
         bwdif = graph.add("bwdif", "send_field:tff:all")
         buffersink = graph.add("buffersink")
@@ -233,10 +233,10 @@ class TestFilters(TestCase):
                 assert filtered_frames[1].time_base == Fraction(1, 60)
 
     def test_EOF(self) -> None:
-        input_container = av.open(format="lavfi", file="color=c=pink:duration=1:r=30")
+        input_container = bv.open(format="lavfi", file="color=c=pink:duration=1:r=30")
         video_stream = input_container.streams.video[0]
 
-        graph = av.filter.Graph()
+        graph = bv.filter.Graph()
         video_in = graph.add_buffer(template=video_stream)
         palette_gen_filter = graph.add("palettegen")
         video_out = graph.add("buffersink")
@@ -252,6 +252,6 @@ class TestFilters(TestCase):
         # if we do not push None, we get a BlockingIOError
         palette_frame = graph.vpull()
 
-        assert isinstance(palette_frame, av.VideoFrame)
+        assert isinstance(palette_frame, VideoFrame)
         assert palette_frame.width == 16
         assert palette_frame.height == 16

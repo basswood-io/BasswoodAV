@@ -1,11 +1,11 @@
-import av
-from av.video.reformatter import ColorRange, Colorspace
+import bv
+from bv.video.reformatter import ColorRange, Colorspace
 
 from .common import fate_suite
 
 
 def test_penguin_joke() -> None:
-    container = av.open(
+    container = bv.open(
         fate_suite("amv/MTV_high_res_320x240_sample_Penguin_Joke_MTV_from_WMV.amv")
     )
     stream = container.streams.video[0]
@@ -26,12 +26,12 @@ def test_penguin_joke() -> None:
 
 
 def test_sky_timelapse() -> None:
-    container = av.open(
-        av.datasets.curated("pexels/time-lapse-video-of-night-sky-857195.mp4")
+    container = bv.open(
+        bv.datasets.curated("pexels/time-lapse-video-of-night-sky-857195.mp4")
     )
     stream = container.streams.video[0]
 
-    assert stream.disposition == av.stream.Disposition.default
+    assert stream.disposition == bv.stream.Disposition.default
 
     assert stream.codec_context.color_range == 1
     assert stream.codec_context.color_range == ColorRange.MPEG

@@ -26,7 +26,7 @@ This is due to the ``PyGILState_Ensure`` calls made by Cython in a C callback fr
 
 The two main features that can cause lockups are:
 
-1. Python IO (passing a file-like object to ``av.open``). While this is in theory possible, so far it seems like the callbacks are made in the calling thread, and so are safe.
+1. Python IO (passing a file-like object to ``bv.open``). While this is in theory possible, so far it seems like the callbacks are made in the calling thread, and so are safe.
 
 2. Logging. If you have logging enabled (disabled by default), those log messages could cause lockups when using threads.
 
@@ -42,7 +42,7 @@ BasswoodAV currently has a number of reference cycles that make it more difficul
 
 Until we resolve this issue, you should explicitly call :meth:`.Container.close` or use the container as a context manager::
 
-    with av.open(path) as container:
+    with bv.open(path) as container:
         # Do stuff with it.
 
 

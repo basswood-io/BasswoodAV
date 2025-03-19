@@ -2,4 +2,4 @@
 Globals
 =======
 
-.. autofunction:: av.open
+.. autofunction:: bv.open

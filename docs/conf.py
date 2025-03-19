@@ -34,7 +34,7 @@ copyright = "2025, The BasswoodAV Team"
 # built documents.
 
 about = {}
-with open("../av/about.py") as fp:
+with open("../bv/about.py") as fp:
     exec(fp.read(), about)
 
 release = about["__version__"]
@@ -70,8 +70,8 @@ doctest_global_setup = """
 import errno
 import os
 
-import av
-from av.datasets import fate, fate as fate_suite, curated
+import bv
+from bv.datasets import fate, fate as fate_suite, curated
 
 from tests import common
 from tests.common import sandboxed as _sandboxed
