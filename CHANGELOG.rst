@@ -16,6 +16,12 @@ We are operating with `semantic versioning <https://semver.org>`_.
     Note that they these tags will not actually close the issue/PR until they
     are merged into the "default" branch.
 
+v15.0.1
+-------
+
+Major:
+
+- Use ``bv`` instead of ``av`` for imports so both projects can play nice.
 
 v15.0.0
 -------
