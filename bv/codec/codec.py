@@ -1,22 +1,24 @@
-cimport libav as lib
-
-from bv.audio.format cimport get_audio_format
-from bv.codec.hwaccel cimport wrap_hwconfig
-from bv.descriptor cimport wrap_avclass
-from bv.utils cimport avrational_to_fraction
-from bv.video.format cimport get_video_format
-
 from enum import Flag, IntEnum
 
+import cython
+from cython.cimports import libav as lib
+from cython.cimports.bv.audio.format import get_audio_format
+from cython.cimports.bv.codec.hwaccel import wrap_hwconfig
+from cython.cimports.bv.descriptor import wrap_avclass
+from cython.cimports.bv.utils import avrational_to_fraction
+from cython.cimports.bv.video.format import get_video_format
 
-cdef object _cinit_sentinel = object()
+_cinit_sentinel = cython.declare(object, object())
 
-cdef Codec wrap_codec(const lib.AVCodec *ptr):
-    cdef Codec codec = Codec(_cinit_sentinel)
+
+@cython.cfunc
+def wrap_codec(ptr: cython.pointer[cython.const[lib.AVCodec]]) -> Codec:
+    codec: Codec = Codec(_cinit_sentinel)
     codec.ptr = ptr
     codec.is_encoder = lib.av_codec_is_encoder(ptr)
     codec._init()
     return codec
+
 
 class Properties(Flag):
     NONE = 0
@@ -57,7 +59,8 @@ class UnknownCodecError(ValueError):
     pass
 
 
-cdef class Codec:
+@cython.cclass
+class Codec:
     """Codec(name, mode='r')
 
     :param str name: The codec name.
@@ -105,7 +108,8 @@ cdef class Codec:
         if (mode == "w") != self.is_encoder:
             raise RuntimeError("Found codec does not match mode.", name, mode)
 
-    cdef _init(self, name=None):
+    @cython.cfunc
+    def _init(self, name=None):
         if not self.ptr:
             raise UnknownCodecError(name)
 
@@ -124,12 +128,13 @@ cdef class Codec:
         mode = self.mode
         return f"<bv.{self.__class__.__name__} {self.name} {mode=}>"
 
-    def create(self, kind = None):
+    def create(self, kind=None):
         """Create a :class:`.CodecContext` for this codec.
 
         :param str kind: Gives a hint to static type checkers for what exact CodecContext is used.
         """
         from .context import CodecContext
+
         return CodecContext.create(self)
 
     @property
@@ -141,10 +146,12 @@ cdef class Codec:
         return not self.is_encoder
 
     @property
-    def descriptor(self): return wrap_avclass(self.ptr.priv_class)
+    def descriptor(self):
+        return wrap_avclass(self.ptr.priv_class)
 
     @property
-    def name(self): return self.ptr.name or ""
+    def name(self):
+        return self.ptr.name or ""
 
     @property
     def canonical_name(self):
@@ -154,7 +161,8 @@ cdef class Codec:
         return lib.avcodec_get_name(self.ptr.id)
 
     @property
-    def long_name(self): return self.ptr.long_name or ""
+    def long_name(self):
+        return self.ptr.long_name or ""
 
     @property
     def type(self):
@@ -167,7 +175,8 @@ cdef class Codec:
         return lib.av_get_media_type_string(self.ptr.type)
 
     @property
-    def id(self): return self.ptr.id
+    def id(self):
+        return self.ptr.id
 
     @property
     def frame_rates(self):
@@ -176,9 +185,12 @@ cdef class Codec:
             return
 
         ret = []
-        cdef int i = 0
+        i: cython.int = 0
+
         while self.ptr.supported_framerates[i].denum:
-            ret.append(avrational_to_fraction(&self.ptr.supported_framerates[i]))
+            ret.append(
+                avrational_to_fraction(cython.address(self.ptr.supported_framerates[i]))
+            )
             i += 1
         return ret
 
@@ -189,7 +201,7 @@ cdef class Codec:
             return
 
         ret = []
-        cdef int i = 0
+        i: cython.int = 0
         while self.ptr.supported_samplerates[i]:
             ret.append(self.ptr.supported_samplerates[i])
             i += 1
@@ -202,7 +214,7 @@ cdef class Codec:
             return
 
         ret = []
-        cdef int i = 0
+        i: cython.int = 0
         while self.ptr.pix_fmts[i] != -1:
             ret.append(get_video_format(self.ptr.pix_fmts[i], 0, 0))
             i += 1
@@ -215,7 +227,7 @@ cdef class Codec:
             return
 
         ret = []
-        cdef int i = 0
+        i: cython.int = 0
         while self.ptr.sample_fmts[i] != -1:
             ret.append(get_audio_format(self.ptr.sample_fmts[i]))
             i += 1
@@ -226,8 +238,8 @@ cdef class Codec:
         if self._hardware_configs:
             return self._hardware_configs
         ret = []
-        cdef int i = 0
-        cdef const lib.AVCodecHWConfig *ptr
+        i: cython.int = 0
+        ptr = cython.declare(cython.pointer[cython.const[lib.AVCodecHWConfig]])
         while True:
             ptr = lib.avcodec_get_hw_config(self.ptr, i)
             if not ptr:
@@ -309,12 +321,14 @@ cdef class Codec:
         """
         return bool(self.ptr.capabilities & lib.AV_CODEC_CAP_DELAY)
 
-cdef get_codec_names():
-    names = set()
-    cdef const lib.AVCodec *ptr
-    cdef void *opaque = NULL
+
+@cython.cfunc
+def get_codec_names():
+    names: cython.set = set()
+    ptr = cython.declare(cython.pointer[cython.const[lib.AVCodec]])
+    opaque: cython.p_void = cython.NULL
     while True:
-        ptr = lib.av_codec_iterate(&opaque)
+        ptr = lib.av_codec_iterate(cython.address(opaque))
         if ptr:
             names.add(ptr.name)
         else:
@@ -372,6 +386,7 @@ def dump_codecs():
             )
         except Exception as e:
             print(f"...... {codec.name:<18} ERROR: {e}")
+
 
 def dump_hwconfigs():
     print("Hardware configs:")
