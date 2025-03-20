@@ -11,7 +11,7 @@ default: html
 TEMPLATES := $(wildcard api/*.py development/*.py)
 RENDERED := $(TEMPLATES:%.py=_build/rst/%.rst)
 
-_build/rst/%.rst: %.py $(TAGFILE) $(shell find ../include ../av -name '*.pyx' -or -name '*.pxd')
+_build/rst/%.rst: %.py $(TAGFILE) $(shell find ../include ../bv -name '*.pyx' -or -name '*.pxd')
 	@ mkdir -p $(@D)
 	python $< > $@.tmp
 	mv $@.tmp $@

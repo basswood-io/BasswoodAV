@@ -219,7 +219,7 @@ for dirname, dirnames, filenames in os.walk(IMPORT_NAME):
         # We are looking for Cython sources.
         if filename.startswith("."):
             continue
-        if filename in {"__init__.py", "__main__.py", "about.py"}:
+        if filename in {"__init__.py", "__main__.py", "about.py", "datasets.py"}:
             continue
         if os.path.splitext(filename)[1] not in {".pyx", ".py"}:
             continue
