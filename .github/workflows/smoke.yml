@@ -103,42 +103,35 @@ jobs:
   windows:
     name: "py-${{ matrix.config.python }} ${{matrix.config.os}}"
     runs-on: ${{ matrix.config.os }}
-
     strategy:
       fail-fast: false
       matrix:
         config:
           - {os: windows-latest, python: "3.11"}
-
     steps:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Set up Conda
-      shell: bash
-      run: |
-        . $CONDA/etc/profile.d/conda.sh
-        conda config --set always_yes true
-        conda config --add channels conda-forge
-        conda create -q -n pyav \
-          numpy \
-          pytest \
-          python=${{ matrix.config.python }} \
-          setuptools
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.config.python }}
 
-    - name: Build
-      shell: bash
+    - name: Install dependencies
       run: |
-        . $CONDA/etc/profile.d/conda.sh
-        conda activate pyav
-        pip install 'Cython==3.1.0a1'
-
-        python scripts\\fetch-vendor.py $CONDA_PREFIX\\Library
-        python setup.py build_ext --inplace --ffmpeg-dir=$CONDA_PREFIX\\Library
+        python -m pip install --upgrade pip setuptools
+        python -m pip install numpy pytest 'Cython==3.1.0a1'
 
     - name: Test
-      shell: bash
+      env:
+        CIBW_ARCHS: AMD64
+        CIBW_BEFORE_BUILD: python scripts/fetch-vendor.py /tmp/vendor
+        CIBW_BEFORE_BUILD_WINDOWS: python scripts\fetch-vendor.py C:\cibw\vendor
+        CIBW_ENVIRONMENT_WINDOWS: INCLUDE=C:\\cibw\\vendor\\include LIB=C:\\cibw\\vendor\\lib PYAV_SKIP_TESTS=unicode_filename
+        CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: delvewheel repair --add-path C:\cibw\vendor\bin -w {dest_dir} {wheel}
+        CIBW_TEST_COMMAND: mv {project}/bv {project}/bv.disabled && python -m pytest {package}/tests && mv {project}/bv.disabled {project}/bv
+        CIBW_TEST_REQUIRES: pytest numpy
       run: |
-        . $CONDA/etc/profile.d/conda.sh
-        conda activate pyav
-        python -m pytest
+        pip install cibuildwheel delvewheel
+        cibuildwheel --output-dir dist
+      shell: bash
