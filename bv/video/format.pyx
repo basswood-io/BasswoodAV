@@ -4,7 +4,7 @@ cdef VideoFormat get_video_format(lib.AVPixelFormat c_format, unsigned int width
     if c_format == lib.AV_PIX_FMT_NONE:
         return None
 
-    cdef VideoFormat format = VideoFormat.__new__(VideoFormat, _cinit_bypass_sentinel)
+    cdef VideoFormat format = VideoFormat(_cinit_bypass_sentinel)
     format._init(c_format, width, height)
     return format
 
@@ -54,8 +54,7 @@ cdef class VideoFormat:
     def __repr__(self):
         if self.width or self.height:
             return f"<bv.{self.__class__.__name__} {self.name}, {self.width}x{self.height}>"
-        else:
-            return f"<bv.{self.__class__.__name__} {self.name}>"
+        return f"<bv.{self.__class__.__name__} {self.name}>"
 
     def __int__(self):
         return int(self.pix_fmt)

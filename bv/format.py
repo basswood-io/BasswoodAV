@@ -14,10 +14,7 @@ def build_container_format(
     if not iptr and not optr:
         raise ValueError("needs input format or output format")
 
-    format = cython.declare(
-        ContainerFormat,
-        ContainerFormat.__new__(ContainerFormat, _cinit_bypass_sentinel),
-    )
+    format = cython.declare(ContainerFormat, ContainerFormat(_cinit_bypass_sentinel))
     format.iptr = iptr
     format.optr = optr
     format.name = optr.name if optr else iptr.name

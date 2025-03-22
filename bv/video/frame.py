@@ -79,7 +79,7 @@ def alloc_video_frame() -> VideoFrame:
     before exposing to the user.
 
     """
-    return VideoFrame.__new__(VideoFrame, _cinit_bypass_sentinel)
+    return VideoFrame(_cinit_bypass_sentinel)
 
 
 class PictureType(IntEnum):
@@ -642,7 +642,7 @@ class VideoFrame(Frame):
                 f"Conversion from numpy array with format `{format}` is not yet supported"
             )
 
-        frame = alloc_video_frame()
+        frame = VideoFrame(_cinit_bypass_sentinel)
         frame._image_fill_pointers_numpy(array, width, height, linesizes, format)
         return frame
 
