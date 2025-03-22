@@ -45,7 +45,7 @@ cdef class AudioFrame(Frame):
 
     cdef _init(self, lib.AVSampleFormat format, lib.AVChannelLayout layout, unsigned int nb_samples, unsigned int align):
         self.ptr.nb_samples = nb_samples
-        self.ptr.format = <int>format
+        self.ptr.format = format
         self.ptr.ch_layout = layout
 
         # Sometimes this is called twice. Oh well.
