@@ -15,5 +15,4 @@ cdef class AudioResampler:
     cdef readonly unsigned int frame_size
 
     cdef Graph graph
-
-    cpdef resample(self, AudioFrame)
+    cpdef list resample(self, AudioFrame)
