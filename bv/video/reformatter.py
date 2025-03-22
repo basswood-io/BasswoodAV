@@ -180,14 +180,9 @@ class VideoReformatter:
 
         # We want to change the colorspace/color_range transforms. We do that by
         # grabbing all of the current settings, changing a couple, and setting them all.
-        inv_tbl: cython.p_const_int
-        tbl: cython.p_const_int
-
-        src_colorspace_range: cython.int
-        dst_colorspace_range: cython.int
-        brightness: cython.int
-        contrast: cython.int
-        saturation: cython.int
+        tbl, inv_tbl = cython.declare(cython.p_const_int)
+        src_colorspace_range, dst_colorspace_range = cython.declare(cython.int)
+        brightness, contrast, saturation = cython.declare(cython.int)
         ret: cython.int
 
         if src_colorspace != dst_colorspace or src_color_range != dst_color_range:
