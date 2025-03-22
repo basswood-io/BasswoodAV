@@ -1,8 +1,10 @@
-from bv.video.frame cimport VideoFrame
+import cython
+from cython.cimports.bv.video.frame import VideoFrame
 
 
-cdef class VideoPlane(Plane):
-    def __cinit__(self, VideoFrame frame, int index):
+@cython.cclass
+class VideoPlane(Plane):
+    def __cinit__(self, frame: VideoFrame, index: cython.int):
         # The palette plane has no associated component or linesize; set fields manually
         if frame.format.name == "pal8" and index == 1:
             self.width = 256
@@ -24,7 +26,8 @@ cdef class VideoPlane(Plane):
         # ignore it's direction.
         self.buffer_size = abs(self.frame.ptr.linesize[self.index]) * self.height
 
-    cdef size_t _buffer_size(self):
+    @cython.cfunc
+    def _buffer_size(self) -> cython.size_t:
         return self.buffer_size
 
     @property
