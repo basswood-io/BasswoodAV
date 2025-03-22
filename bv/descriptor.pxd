@@ -1,6 +1,14 @@
 cimport libav as lib
 
-from .option cimport Option, OptionChoice, wrap_option, wrap_option_choice
+
+cdef class BaseOption:
+    cdef const lib.AVOption *ptr
+
+cdef class Option(BaseOption):
+    cdef readonly tuple choices
+
+cdef class OptionChoice(BaseOption):
+    cdef readonly bint is_default
 
 
 cdef class Descriptor:
@@ -14,7 +22,7 @@ cdef class Descriptor:
     # - AVFilter.priv_class
 
     cdef const lib.AVClass *ptr
-    cdef object _options  # Option list cache.
+    cdef tuple _options  # Option list cache.
 
 
 cdef Descriptor wrap_avclass(const lib.AVClass*)

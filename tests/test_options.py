@@ -1,5 +1,5 @@
 from bv import ContainerFormat
-from bv.option import Option, OptionType
+from bv.descriptor import Option, OptionType
 
 
 class TestOptions:

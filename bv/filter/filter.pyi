@@ -1,5 +1,4 @@
-from bv.descriptor import Descriptor
-from bv.option import Option
+from bv.descriptor import Descriptor, Option
 
 from .pad import FilterPad
 
