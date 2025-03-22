@@ -1,25 +1,32 @@
 import cython
 from cython.cimports.cpython import PyBuffer_FillInfo, PyBytes_FromString
-from cython.cimports.libc.stdint cimport uint64_t
+from cython.cimports.libc.stdint import uint64_t
 
 
-cdef class SubtitleProxy:
+@cython.cclass
+class SubtitleProxy:
     def __dealloc__(self):
-        lib.avsubtitle_free(&self.struct)
+        lib.avsubtitle_free(cython.address(self.struct))
 
 
-cdef class SubtitleSet:
+@cython.cclass
+class SubtitleSet:
     """
     A :class:`SubtitleSet` can contain many :class:`Subtitle` objects.
 
     Wraps :ffmpeg:`AVSubtitle`.
     """
-    def __cinit__(self, SubtitleProxy proxy):
+
+    def __cinit__(self, proxy: SubtitleProxy):
         self.proxy = proxy
-        self.rects = tuple(build_subtitle(self, i) for i in range(self.proxy.struct.num_rects))
+        self.rects = tuple(
+            build_subtitle(self, i) for i in range(self.proxy.struct.num_rects)
+        )
 
     def __repr__(self):
-        return f"<{self.__class__.__module__}.{self.__class__.__name__} at 0x{id(self):x}>"
+        return (
+            f"<{self.__class__.__module__}.{self.__class__.__name__} at 0x{id(self):x}>"
+        )
 
     @property
     def format(self):
@@ -67,13 +74,18 @@ def build_subtitle(subtitle: SubtitleSet, index: cython.int) -> Subtitle:
     raise ValueError("unknown subtitle type %r" % ptr.type)
 
 
-cdef class Subtitle:
+@cython.cclass
+class Subtitle:
     """
     An abstract base class for each concrete type of subtitle.
     Wraps :ffmpeg:`AVSubtitleRect`
     """
+
     def __cinit__(self, subtitle: SubtitleSet, index: cython.int):
-        if index < 0 or cython.cast(cython.uint, index) >= subtitle.proxy.struct.num_rects:
+        if (
+            index < 0
+            or cython.cast(cython.uint, index) >= subtitle.proxy.struct.num_rects
+        ):
             raise ValueError("subtitle rect index out of range")
         self.proxy = subtitle.proxy
         self.ptr = self.proxy.struct.rects[index]
@@ -93,12 +105,11 @@ cdef class Subtitle:
         return f"<bv.{self.__class__.__name__} at 0x{id(self):x}>"
 
 
-cdef class BitmapSubtitle(Subtitle):
+@cython.cclass
+class BitmapSubtitle(Subtitle):
     def __cinit__(self, subtitle: SubtitleSet, index: cython.int):
         self.planes = tuple(
-            BitmapSubtitlePlane(self, i)
-            for i in range(4)
-            if self.ptr.linesize[i]
+            BitmapSubtitlePlane(self, i) for i in range(4) if self.ptr.linesize[i]
         )
 
     def __repr__(self):
@@ -108,15 +119,24 @@ cdef class BitmapSubtitle(Subtitle):
         )
 
     @property
-    def x(self): return self.ptr.x
+    def x(self):
+        return self.ptr.x
+
     @property
-    def y(self): return self.ptr.y
+    def y(self):
+        return self.ptr.y
+
     @property
-    def width(self): return self.ptr.w
+    def width(self):
+        return self.ptr.w
+
     @property
-    def height(self): return self.ptr.h
+    def height(self):
+        return self.ptr.h
+
     @property
-    def nb_colors(self): return self.ptr.nb_colors
+    def nb_colors(self):
+        return self.ptr.nb_colors
 
     def __len__(self):
         return len(self.planes)
@@ -128,7 +148,8 @@ cdef class BitmapSubtitle(Subtitle):
         return self.planes[i]
 
 
-cdef class BitmapSubtitlePlane:
+@cython.cclass
+class BitmapSubtitlePlane:
     def __cinit__(self, subtitle: BitmapSubtitle, index: cython.int):
         if index >= 4:
             raise ValueError("BitmapSubtitles have only 4 planes")
@@ -145,10 +166,12 @@ cdef class BitmapSubtitlePlane:
         PyBuffer_FillInfo(view, self, self._buffer, self.buffer_size, 0, flags)
 
 
-cdef class AssSubtitle(Subtitle):
+@cython.cclass
+class AssSubtitle(Subtitle):
     """
     Represents an ASS/Text subtitle format, as opposed to a bitmap Subtitle format.
     """
+
     def __repr__(self):
         return f"<bv.AssSubtitle {self.dialogue!r} at 0x{id(self):x}>"
 
@@ -157,7 +180,7 @@ cdef class AssSubtitle(Subtitle):
         """
         Returns the subtitle in the ASS/SSA format. Used by the vast majority of subtitle formats.
         """
-        if self.ptr.ass is not NULL:
+        if self.ptr.ass is not cython.NULL:
             return PyBytes_FromString(self.ptr.ass)
         return b""
 
@@ -170,32 +193,34 @@ cdef class AssSubtitle(Subtitle):
         i: uint64_t = 0
         state: cython.bint = False
         ass_text: bytes = self.ass
-        result: bytes = b""
+        char, next_char = cython.declare(cython.char)
+        result: bytearray = bytearray()
+        text_len: cython.Py_ssize_t = len(ass_text)
 
-        while comma_count < 8 and i < len(ass_text):
-            if bytes([ass_text[i]]) == b",":
+        while comma_count < 8 and i < text_len:
+            if ass_text[i] == b","[0]:
                 comma_count += 1
             i += 1
 
-        while i < len(ass_text):
-            char = bytes([ass_text[i]])
-            next_char = b"" if i + 1 >= len(ass_text) else bytes([ass_text[i + 1]])
+        while i < text_len:
+            char = ass_text[i]
+            next_char = 0 if i + 1 >= text_len else ass_text[i + 1]
 
-            if char == b"\\" and next_char == b"N":
-                result += b"\n"
+            if char == b"\\"[0] and next_char == b"N"[0]:
+                result.append(b"\n"[0])
                 i += 2
                 continue
 
             if not state:
-                if char == b"{" and next_char != b"\\":
+                if char == b"{"[0] and next_char != b"\\"[0]:
                     state = True
                 else:
-                    result += char
-            elif char == b"}":
+                    result.append(char)
+            elif char == b"}"[0]:
                 state = False
             i += 1
 
-        return result
+        return bytes(result)
 
     @property
     def text(self):
