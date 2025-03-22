@@ -1,11 +1,11 @@
+from enum import IntEnum
+
 import cython
 from cython.cimports import libav as lib
-from cython.cimports.libc.stdint import uint8_t
 from cython.cimports.bv.error import err_check
 from cython.cimports.bv.video.format import VideoFormat
 from cython.cimports.bv.video.frame import alloc_video_frame
-
-from enum import IntEnum
+from cython.cimports.libc.stdint import uint8_t
 
 
 class Interpolation(IntEnum):
@@ -38,6 +38,7 @@ class Colorspace(IntEnum):
     smpte240m = lib.SWS_CS_SMPTE240M
     default = lib.SWS_CS_DEFAULT
 
+
 class ColorRange(IntEnum):
     UNSPECIFIED: "Unspecified" = lib.AVCOL_RANGE_UNSPECIFIED
     MPEG: "MPEG (limited) YUV range, 219*2^(n-8)" = lib.AVCOL_RANGE_MPEG
@@ -58,10 +59,18 @@ class VideoReformatter:
         with cython.nogil:
             lib.sws_freeContext(self.ptr)
 
-    def reformat(self, frame: VideoFrame, width=None, height=None,
-                 format=None, src_colorspace=None, dst_colorspace=None,
-                 interpolation=None, src_color_range=None,
-                 dst_color_range=None):
+    def reformat(
+        self,
+        frame: VideoFrame,
+        width=None,
+        height=None,
+        format=None,
+        src_colorspace=None,
+        dst_colorspace=None,
+        interpolation=None,
+        src_color_range=None,
+        dst_color_range=None,
+    ):
         """Create a new :class:`VideoFrame` with the given width/height/format/colorspace.
 
         Returns the same frame untouched if nothing needs to be done to it.
@@ -83,7 +92,7 @@ class VideoReformatter:
 
         """
 
-        def _resolve_enum_value(value, enum_class, default):
+        def _enum_val(value, enum_class, default):
             # Helper function to resolve enum values from different input types.
             if value is None:
                 return default
@@ -95,12 +104,20 @@ class VideoReformatter:
                 return enum_class[value].value
             raise ValueError(f"Cannot convert {value} to {enum_class.__name__}")
 
-        video_format: VideoFormat = VideoFormat(format if format is not None else frame.format)
-        c_src_colorspace: cython.int = _resolve_enum_value(src_colorspace, Colorspace, frame.colorspace)
-        c_dst_colorspace: cython.int = _resolve_enum_value(dst_colorspace, Colorspace, frame.colorspace)
-        c_interpolation: cython.int = _resolve_enum_value(interpolation, Interpolation, int(Interpolation.BILINEAR))
-        c_src_color_range: cython.int = _resolve_enum_value(src_color_range, ColorRange, 0)
-        c_dst_color_range: cython.int = _resolve_enum_value(dst_color_range, ColorRange, 0)
+        video_format: VideoFormat = VideoFormat(
+            format if format is not None else frame.format
+        )
+        c_src_colorspace: cython.int = _enum_val(
+            src_colorspace, Colorspace, frame.colorspace
+        )
+        c_dst_colorspace: cython.int = _enum_val(
+            dst_colorspace, Colorspace, frame.colorspace
+        )
+        c_interpolation: cython.int = _enum_val(
+            interpolation, Interpolation, int(Interpolation.BILINEAR)
+        )
+        c_src_color_range: cython.int = _enum_val(src_color_range, ColorRange, 0)
+        c_dst_color_range: cython.int = _enum_val(dst_color_range, ColorRange, 0)
 
         return self._reformat(
             frame,
@@ -115,11 +132,18 @@ class VideoReformatter:
         )
 
     @cython.cfunc
-    def _reformat(self, frame: VideoFrame, width: cython.int, height: cython.int,
-                dst_format: lib.AVPixelFormat, src_colorspace: cython.int,
-                dst_colorspace: cython.int, interpolation: cython.int,
-                src_color_range: cython.int, dst_color_range: cython.int):
-
+    def _reformat(
+        self,
+        frame: VideoFrame,
+        width: cython.int,
+        height: cython.int,
+        dst_format: lib.AVPixelFormat,
+        src_colorspace: cython.int,
+        dst_colorspace: cython.int,
+        interpolation: cython.int,
+        src_color_range: cython.int,
+        dst_color_range: cython.int,
+    ):
         if frame.ptr.format < 0:
             raise ValueError("Frame does not have format set.")
 
@@ -131,11 +155,11 @@ class VideoReformatter:
 
         # Shortcut!
         if (
-            dst_format == src_format and
-            width == frame.ptr.width and
-            height == frame.ptr.height and
-            dst_colorspace == src_colorspace and
-            src_color_range == dst_color_range
+            dst_format == src_format
+            and width == frame.ptr.width
+            and height == frame.ptr.height
+            and dst_colorspace == src_colorspace
+            and src_color_range == dst_color_range
         ):
             return frame
 
@@ -151,14 +175,13 @@ class VideoReformatter:
                 interpolation,
                 cython.NULL,
                 cython.NULL,
-                cython.NULL
+                cython.NULL,
             )
 
-        # We want to change the colorspace/color_range transforms.
-        # We do that by grabbing all of the current settings, changing a
-        # couple, and setting them all. We need a lot of state here.
-        inv_tbl: cython.pointer[cython.const[cython.int]]
-        tbl: cython.pointer[cython.const[cython.int]]
+        # We want to change the colorspace/color_range transforms. We do that by
+        # grabbing all of the current settings, changing a couple, and setting them all.
+        inv_tbl: cython.p_const_int
+        tbl: cython.p_const_int
 
         src_colorspace_range: cython.int
         dst_colorspace_range: cython.int
@@ -169,16 +192,15 @@ class VideoReformatter:
 
         if src_colorspace != dst_colorspace or src_color_range != dst_color_range:
             with cython.nogil:
-                # Casts for const-ness, because Cython isn't expressive enough.
                 ret = lib.sws_getColorspaceDetails(
                     self.ptr,
-                    <int**>&inv_tbl,
-                    &src_colorspace_range,
-                    <int**>&tbl,
-                    &dst_colorspace_range,
+                    cython.address(inv_tbl),
+                    cython.address(src_colorspace_range),
+                    cython.address(tbl),
+                    cython.address(dst_colorspace_range),
                     cython.address(brightness),
                     cython.address(contrast),
-                    cython.address(saturation)
+                    cython.address(saturation),
                 )
 
             err_check(ret)
@@ -191,7 +213,6 @@ class VideoReformatter:
                 if dst_colorspace != lib.SWS_CS_DEFAULT:
                     tbl = lib.sws_getCoefficients(dst_colorspace)
 
-                # Apply!
                 ret = lib.sws_setColorspaceDetails(
                     self.ptr,
                     inv_tbl,
@@ -200,22 +221,20 @@ class VideoReformatter:
                     dst_color_range,
                     brightness,
                     contrast,
-                    saturation
+                    saturation,
                 )
 
             err_check(ret)
 
-        # Create a new VideoFrame.
         new_frame: VideoFrame = alloc_video_frame()
         new_frame._copy_internal_attributes(frame)
         new_frame._init(dst_format, width, height)
 
-        # Finally, scale the image.
+        # Scale the image
         with cython.nogil:
             lib.sws_scale(
                 self.ptr,
-                # Cast for const-ness, because Cython isn't expressive enough.
-                <const uint8_t**>frame.ptr.data,
+                frame.ptr.data,
                 frame.ptr.linesize,
                 0,  # slice Y
                 frame.ptr.height,
