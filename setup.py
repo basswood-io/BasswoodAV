@@ -186,7 +186,7 @@ IMPORT_NAME = "bv"
 loudnorm_extension = Extension(
     f"{IMPORT_NAME}.filter.loudnorm",
     sources=[
-        f"{IMPORT_NAME}/filter/loudnorm.pyx",
+        f"{IMPORT_NAME}/filter/loudnorm.py",
         f"{IMPORT_NAME}/filter/loudnorm_impl.c",
     ],
     include_dirs=[f"{IMPORT_NAME}/filter"] + extension_extra["include_dirs"],
