@@ -1,13 +1,12 @@
-cimport libav as lib
+import cython
+from cython.cimports import libav as lib
+from cython.cimports.bv.filter.graph import Graph
 
-from bv.filter.graph cimport Graph
+_cinit_sentinel = cython.declare(object, object())
 
 
-cdef _cinit_sentinel = object()
-
-
-cdef class FilterLink:
-
+@cython.cclass
+class FilterLink:
     def __cinit__(self, sentinel):
         if sentinel is not _cinit_sentinel:
             raise RuntimeError("cannot instantiate FilterLink")
@@ -16,14 +15,15 @@ cdef class FilterLink:
     def input(self):
         if self._input:
             return self._input
-        cdef lib.AVFilterContext *cctx = self.ptr.src
-        cdef unsigned int i
+
+        cctx: cython.pointer[lib.AVFilterContext] = self.ptr.src
+        i: cython.uint
         for i in range(cctx.nb_outputs):
             if self.ptr == cctx.outputs[i]:
                 break
         else:
             raise RuntimeError("could not find link in context")
-        ctx = self.graph._context_by_ptr[<long>cctx]
+        ctx = self.graph._context_by_ptr[cython.cast(cython.int, cctx)]
         self._input = ctx.outputs[i]
         return self._input
 
@@ -31,23 +31,26 @@ cdef class FilterLink:
     def output(self):
         if self._output:
             return self._output
-        cdef lib.AVFilterContext *cctx = self.ptr.dst
-        cdef unsigned int i
+        cctx: cython.pointer[lib.AVFilterContext] = self.ptr.dst
+        i: cython.uint
         for i in range(cctx.nb_inputs):
             if self.ptr == cctx.inputs[i]:
                 break
         else:
             raise RuntimeError("could not find link in context")
         try:
-            ctx = self.graph._context_by_ptr[<long>cctx]
+            ctx = self.graph._context_by_ptr[cython.cast(cython.int, cctx)]
         except KeyError:
-            raise RuntimeError("could not find context in graph", (cctx.name, cctx.filter.name))
+            raise RuntimeError(
+                "could not find context in graph", (cctx.name, cctx.filter.name)
+            )
         self._output = ctx.inputs[i]
         return self._output
 
 
-cdef FilterLink wrap_filter_link(Graph graph, lib.AVFilterLink *ptr):
-    cdef FilterLink link = FilterLink(_cinit_sentinel)
+@cython.cfunc
+def wrap_filter_link(graph: Graph, ptr: cython.pointer[lib.AVFilterLink]) -> FilterLink:
+    link: FilterLink = FilterLink(_cinit_sentinel)
     link.graph = graph
     link.ptr = ptr
     return link

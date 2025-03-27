@@ -1,5 +1,6 @@
 from bv.audio.stream cimport AudioStream
 
+
 cdef extern from "libavcodec/avcodec.h":
     ctypedef struct AVCodecContext:
         pass
