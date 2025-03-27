@@ -38,13 +38,14 @@ API Reference
 
 """
 
-cimport libav as lib
-from libc.stdio cimport fprintf, stderr
-from libc.stdlib cimport free, malloc
-
 import logging
 import sys
 from threading import Lock, get_ident
+
+import cython
+from cython.cimports import libav as lib
+from cython.cimports.libc.stdio import fprintf, stderr
+from cython.cimports.libc.stdlib import free, malloc
 
 # Library levels.
 PANIC = lib.AV_LOG_PANIC  # 0
@@ -60,7 +61,8 @@ TRACE = lib.AV_LOG_TRACE
 CRITICAL = FATAL
 
 
-cpdef adapt_level(int level):
+@cython.ccall
+def adapt_level(level: cython.int):
     """Convert a library log level to a Python log level."""
 
     if level <= lib.AV_LOG_FATAL:  # Includes PANIC
@@ -79,7 +81,7 @@ cpdef adapt_level(int level):
         return 1
 
 
-cdef object level_threshold = None
+level_threshold = cython.declare(object, None)
 
 # ... but lets limit ourselves to WARNING (assuming nobody already did this).
 if "libav" not in logging.Logger.manager.loggerDict:
@@ -133,10 +135,10 @@ def restore_default_callback():
     lib.av_log_set_callback(lib.av_log_default_callback)
 
 
-cdef bint skip_repeated = True
-cdef skip_lock = Lock()
-cdef object last_log = None
-cdef int skip_count = 0
+skip_repeated = cython.declare(cython.bint, True)
+skip_lock = Lock()
+last_log = cython.declare(object, None)
+skip_count = cython.declare(cython.int, 0)
 
 
 def get_skip_repeated():
@@ -151,10 +153,11 @@ def set_skip_repeated(v):
 
 
 # For error reporting.
-cdef object last_error = None
-cdef int error_count = 0
+last_error = cython.declare(object, None)
+error_count = cython.declare(cython.int, 0)
 
-cpdef get_last_error():
+@cython.ccall
+def get_last_error():
     """Get the last log that was at least ``ERROR``."""
     if error_count:
         with skip_lock:
@@ -163,8 +166,8 @@ cpdef get_last_error():
         return 0, None
 
 
-cdef global_captures = []
-cdef thread_captures = {}
+global_captures = cython.declare(list, [])
+thread_captures = cython.declare(dict, {})
 
 cdef class Capture:
     """A context manager for capturing logs.
@@ -184,6 +187,9 @@ cdef class Capture:
     cdef readonly list logs
     cdef list captures
 
+    # logs = cython.declare(list, visbility="readonly")
+    # captures = cython.declare(list)
+
     def __init__(self, bint local=True):
         self.logs = []
 
@@ -200,9 +206,7 @@ cdef class Capture:
         self.captures.pop(-1)
 
 
-cdef struct log_context:
-    lib.AVClass *class_
-    const char *name
+log_context = cython.struct(class_=cython.pointer[lib.AVClass], name=cython.p_const_char)
 
 cdef const char *log_context_name(void *ptr) noexcept nogil:
     cdef log_context *obj = <log_context*>ptr
@@ -211,42 +215,42 @@ cdef const char *log_context_name(void *ptr) noexcept nogil:
 cdef lib.AVClass log_class
 log_class.item_name = log_context_name
 
-cpdef log(int level, str name, str message):
+@cython.ccall
+def log(level: cython.int, name: str, message: str):
     """Send a log through the library logging system.
 
     This is mostly for testing.
-
     """
-
-    cdef log_context *obj = <log_context*>malloc(sizeof(log_context))
-    obj.class_ = &log_class
+    obj: cython.pointer[log_context] = cython.cast(cython.pointer[log_context], malloc(sizeof(log_context)))
+    obj.class_ = cython.address(log_class)
     obj.name = name
-    cdef bytes message_bytes = message.encode("utf-8")
+    message_bytes: bytes = message.encode("utf-8")
 
-    lib.av_log(<void*>obj, level, "%s", <char*>message_bytes)
+    lib.av_log(cython.cast(cython.p_void, obj), level, "%s", cython.cast(cython.p_char, message_bytes))
     free(obj)
 
 
-cdef log_callback_gil(int level, const char *c_name, const char *c_message):
+@cython.cfunc
+def log_callback_gil(level: cython.int, c_name: cython.p_const_char, c_message: cython.p_const_char):
     global error_count
     global skip_count
     global last_log
     global last_error
 
-    name = <str>c_name if c_name is not NULL else ""
-    message = (<bytes>c_message).decode("utf8", "backslashreplace")
+    name = cython.cast(str, c_name) if c_name is not cython.NULL else ""
+    message = (cython.cast(bytes, c_message)).decode("utf8", "backslashreplace")
     log = (level, name, message)
 
     # We have to filter it ourselves, but we will still process it in general so
     # it is available to our error handling.
     # Note that FFmpeg's levels are backwards from Python's.
-    cdef bint is_interesting = level <= level_threshold
+    is_interesting: cython.bint = level <= level_threshold
 
     # Skip messages which are identical to the previous.
     # TODO: Be smarter about threads.
-    cdef bint is_repeated = False
+    is_repeated: cython.bint = False
 
-    cdef object repeat_log = None
+    repeat_log: object = None
 
     with skip_lock:
         if is_interesting:
