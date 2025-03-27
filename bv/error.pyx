@@ -1,14 +1,14 @@
-cimport libav as lib
-from libc.stdio cimport fprintf, stderr
-from libc.stdlib cimport free, malloc
-
-from bv.logging cimport get_last_error
-
 import errno
 import os
 import sys
 import traceback
 from threading import local
+
+import cython
+from cython.cimports import libav as lib
+from cython.cimports.bv.logging import get_last_error
+from cython.cimports.libc.stdio import fprintf, stderr
+from cython.cimports.libc.stdlib import free, malloc
 
 # Will get extended with all of the exceptions.
 __all__ = [
@@ -17,7 +17,8 @@ __all__ = [
 ]
 
 
-cpdef code_to_tag(int code):
+@cython.ccall
+def code_to_tag(code: cython.int) -> bytes:
     """Convert an integer error code into 4-byte tag.
 
     >>> code_to_tag(1953719668)
@@ -31,7 +32,8 @@ cpdef code_to_tag(int code):
         (code >> 24) & 0xff,
     ))
 
-cpdef tag_to_code(bytes tag):
+@cython.ccall
+def tag_to_code(tag: bytes) -> cython.int:
     """Convert a 4-byte error tag into an integer code.
 
     >>> tag_to_code(b'test')
@@ -110,8 +112,8 @@ class FFmpegError(Exception):
 
 
 # Our custom error, used in callbacks.
-cdef int c_PYAV_STASHED_ERROR = tag_to_code(b"PyAV")
-cdef str PYAV_STASHED_ERROR_message = "Error in PyAV callback"
+c_PYAV_STASHED_ERROR: cython.int = tag_to_code(b"PyAV")
+PYAV_STASHED_ERROR_message: str = "Error in PyAV callback"
 
 
 # Bases for the FFmpeg-based exceptions.
@@ -239,12 +241,12 @@ for enum in ErrorType:
     else:
         enum.strerror = lib.av_err2str(-enum.value)
 
-classes = {}
+classes: dict = {}
 
 
 def _extend_builtin(name, codes):
     base = getattr(__builtins__, name, OSError)
-    cls = type(name, (FFmpegError, base), dict(__module__=__name__))
+    cls = type(name, (FFmpegError, base), {"__module__": __name__})
 
     # Register in builder.
     for code in codes:
@@ -323,8 +325,8 @@ del _ffmpeg_specs
 
 
 # Storage for stashing.
-cdef object _local = local()
-cdef int _err_count = 0
+_local: object = local()
+_err_count: cython.int = 0
 
 cdef int stash_exception(exc_info=None):
     global _err_count
@@ -343,7 +345,7 @@ cdef int stash_exception(exc_info=None):
     return -c_PYAV_STASHED_ERROR
 
 
-cdef int _last_log_count = 0
+_last_log_count: cython.int = 0
 
 cpdef int err_check(int res, filename=None) except -1:
     """Raise appropriate exceptions from library return code."""
@@ -372,7 +374,7 @@ cpdef int err_check(int res, filename=None) except -1:
 
     cdef int code = -res
     cdef char* error_buffer = <char*>malloc(lib.AV_ERROR_MAX_STRING_SIZE * sizeof(char))
-    if error_buffer == NULL:
+    if error_buffer == cython.NULL:
         raise MemoryError()
 
     try:
