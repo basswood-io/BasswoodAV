@@ -2,7 +2,7 @@ from enum import Enum
 
 import cython
 from cython.cimports import libav as lib
-from cython.cimports.bv.utils import flag_in_bitfield
+from cython.cimports.libc.stdint import uint64_t
 
 _cinit_sentinel = object()
 
@@ -39,6 +39,14 @@ _INT_TYPES: tuple = (
     lib.AV_OPT_TYPE_CHLAYOUT,
     lib.AV_OPT_TYPE_BOOL,
 )
+
+
+@cython.cfunc
+def flag_in_bitfield(bitfield: uint64_t, flag: uint64_t):
+    # Not every flag exists in every version of ffmpeg, so we define them to 0.
+    if not flag:
+        return None
+    return bool(bitfield & flag)
 
 
 @cython.cclass
