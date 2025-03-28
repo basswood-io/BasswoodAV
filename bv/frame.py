@@ -1,6 +1,5 @@
 import cython
 from cython.cimports.bv.error import err_check
-from cython.cimports.bv.opaque import opaque_container
 from cython.cimports.bv.utils import avrational_to_fraction, to_avrational
 
 from bv.sidedata.sidedata import SideDataContainer
@@ -158,17 +157,3 @@ class Frame:
         """
         ret: cython.int = lib.av_frame_make_writable(self.ptr)
         err_check(ret)
-
-    @property
-    def opaque(self):
-        if self.ptr.opaque_ref is not cython.NULL:
-            return opaque_container.get(
-                cython.cast(cython.p_char, self.ptr.opaque_ref.data)
-            )
-
-    @opaque.setter
-    def opaque(self, v):
-        lib.av_buffer_unref(cython.address(self.ptr.opaque_ref))
-
-        if v is not None:
-            self.ptr.opaque_ref = opaque_container.add(v)

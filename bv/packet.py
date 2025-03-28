@@ -2,7 +2,6 @@ import cython
 from cython.cimports import libav as lib
 from cython.cimports.bv.buffer import bytesource
 from cython.cimports.bv.error import err_check
-from cython.cimports.bv.opaque import opaque_container
 from cython.cimports.bv.utils import avrational_to_fraction, to_avrational
 
 
@@ -221,18 +220,3 @@ class Packet(Buffer):
     @property
     def is_disposable(self):
         return bool(self.ptr.flags & lib.AV_PKT_FLAG_DISPOSABLE)
-
-    @property
-    def opaque(self):
-        if self.ptr.opaque_ref is not cython.NULL:
-            return opaque_container.get(
-                cython.cast(cython.p_char, self.ptr.opaque_ref.data)
-            )
-
-    @opaque.setter
-    def opaque(self, v):
-        lib.av_buffer_unref(cython.address(self.ptr.opaque_ref))
-
-        if v is None:
-            return
-        self.ptr.opaque_ref = opaque_container.add(v)

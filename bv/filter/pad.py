@@ -54,7 +54,7 @@ class FilterContextPad(FilterPad):
         if self._link:
             return self._link
 
-        links: cython.pp[lib.AVFilterLink] = (
+        links: cython.pointer[cython.pointer[lib.AVFilterLink]] = (
             self.context.ptr.inputs if self.is_input else self.context.ptr.outputs
         )
         link: cython.pointer[lib.AVFilterLink] = links[self.index]

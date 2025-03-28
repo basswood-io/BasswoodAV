@@ -24,26 +24,6 @@ def assertPixelValue16(plane, expected, byteorder: str) -> None:
         assert view[1] == (expected >> 8 & 0xFF)
 
 
-def test_opaque() -> None:
-    with bv.open(fate_suite("h264/interlaced_crop.mp4")) as container:
-        video_stream = container.streams.video[0]
-
-        ctx = video_stream.codec_context
-        ctx.flags |= bv.codec.context.Flags.copy_opaque
-
-        assert video_stream.codec_context.copy_opaque
-
-        for packet_idx, packet in enumerate(container.demux()):
-            packet.opaque = (time.time(), packet_idx)
-            for frame in packet.decode():
-                assert isinstance(frame, Frame)
-
-                if frame.opaque is None:
-                    continue
-
-                assert type(frame.opaque) is tuple and len(frame.opaque) == 2
-
-
 def test_invalid_pixel_format() -> None:
     with pytest.raises(ValueError, match="not a pixel format: '__unknown_pix_fmt'"):
         VideoFrame(640, 480, "__unknown_pix_fmt")
