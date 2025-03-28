@@ -10,12 +10,10 @@ cdef class FilterPad:
     cdef readonly FilterContext context
     cdef readonly bint is_input
     cdef readonly int index
-
     cdef const lib.AVFilterPad *base_ptr
 
 
 cdef class FilterContextPad(FilterPad):
-
     cdef FilterLink _link
 
 
