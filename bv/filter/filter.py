@@ -1,32 +1,26 @@
-cimport libav as lib
+import cython
+from cython.cimports import libav as lib
+from cython.cimports.bv.descriptor import wrap_avclass
+from cython.cimports.bv.filter.pad import alloc_filter_pads
 
-from bv.descriptor cimport wrap_avclass
-from bv.filter.pad cimport alloc_filter_pads
+_cinit_sentinel = cython.declare(object, object())
 
 
-cdef object _cinit_sentinel = object()
-
-
-cdef Filter wrap_filter(const lib.AVFilter *ptr):
-    cdef Filter filter_ = Filter(_cinit_sentinel)
+@cython.cfunc
+def wrap_filter(ptr: cython.pointer[cython.const[lib.AVFilter]]) -> Filter:
+    filter_: Filter = Filter(_cinit_sentinel)
     filter_.ptr = ptr
     return filter_
 
 
-cpdef enum FilterFlags:
-    DYNAMIC_INPUTS = lib.AVFILTER_FLAG_DYNAMIC_INPUTS
-    DYNAMIC_OUTPUTS = lib.AVFILTER_FLAG_DYNAMIC_OUTPUTS
-    SLICE_THREADS = lib.AVFILTER_FLAG_SLICE_THREADS
-    SUPPORT_TIMELINE_GENERIC = lib.AVFILTER_FLAG_SUPPORT_TIMELINE_GENERIC
-    SUPPORT_TIMELINE_INTERNAL = lib.AVFILTER_FLAG_SUPPORT_TIMELINE_INTERNAL
-
-
-cdef class Filter:
+@cython.cclass
+class Filter:
     def __cinit__(self, name):
         if name is _cinit_sentinel:
             return
         if not isinstance(name, str):
             raise TypeError("takes a filter name as a string")
+
         self.ptr = lib.avfilter_get_by_name(name)
         if not self.ptr:
             raise ValueError(f"no filter {name}")
@@ -73,7 +67,7 @@ cdef class Filter:
 
     @property
     def command_support(self):
-        return self.ptr.process_command != NULL
+        return self.ptr.process_command != cython.NULL
 
     @property
     def inputs(self):
@@ -88,19 +82,19 @@ cdef class Filter:
         return self._outputs
 
 
-cdef get_filter_names():
-    names = set()
-    cdef const lib.AVFilter *ptr
-    cdef void *opaque = NULL
+@cython.cfunc
+def get_filter_names() -> set:
+    names: set = set()
+    ptr: cython.pointer[cython.const[lib.AVFilter]]
+    opaque: cython.p_void = cython.NULL
     while True:
-        ptr = lib.av_filter_iterate(&opaque)
+        ptr = lib.av_filter_iterate(cython.address(opaque))
         if ptr:
             names.add(ptr.name)
         else:
             break
     return names
 
+
 filters_available = get_filter_names()
-
-
 filter_descriptor = wrap_avclass(lib.avfilter_get_class())
