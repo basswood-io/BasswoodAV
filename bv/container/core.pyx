@@ -1,41 +1,41 @@
-from cython.operator cimport dereference
-from libc.stdint cimport int64_t
-
 import os
 import time
 from enum import Flag, IntEnum
 from pathlib import Path
 
-cimport libav as lib
-
-from bv.codec.hwaccel cimport HWAccel
-from bv.container.core cimport timeout_info
-from bv.container.input cimport InputContainer
-from bv.container.output cimport OutputContainer
-from bv.container.pyio cimport pyio_close_custom_gil, pyio_close_gil
-from bv.error cimport err_check, stash_exception
-from bv.format cimport build_container_format
-from bv.utils cimport avdict_to_dict
+import cython
+from cython import NULL
+from cython.cimports import libav as lib
+from cython.cimports.bv.codec.hwaccel import HWAccel
+from cython.cimports.bv.container.core import timeout_info
+from cython.cimports.bv.container.input import InputContainer
+from cython.cimports.bv.container.output import OutputContainer
+from cython.cimports.bv.container.pyio import pyio_close_custom_gil, pyio_close_gil
+from cython.cimports.bv.error import err_check, stash_exception
+from cython.cimports.bv.format import build_container_format
+from cython.cimports.bv.utils import avdict_to_dict
+from cython.cimports.libc.stdint import int64_t
+from cython.operator import dereference
 
 from bv.dictionary import Dictionary
 from bv.logging import Capture as LogCapture
 
-
-cdef object _cinit_sentinel = object()
-
+_cinit_sentinel = cython.declare(object, object())
 
 # We want to use the monotonic clock if it is available.
-cdef object clock = getattr(time, "monotonic", time.time)
+clock = cython.declare(object, getattr(time, "monotonic", time.time))
 
-cdef int interrupt_cb (void *p) noexcept nogil:
-    cdef timeout_info info = dereference(<timeout_info*> p)
+@cython.cfunc
+@cython.nogil
+@cython.exceptval(check=False)
+def interrupt_cb (p: cython.p_void) -> cython.int:
+    info: timeout_info = dereference(cython.cast(cython.pointer[timeout_info], p))
     if info.timeout < 0:  # timeout < 0 means no timeout
         return 0
 
-    cdef double current_time
-    with gil:
+    current_time: cython.double
+    with cython.gil:
         current_time = clock()
-
         # Check if the clock has been changed.
         if current_time < info.start_time:
             # Raise this when we get back to Python.
@@ -47,26 +47,34 @@ cdef int interrupt_cb (void *p) noexcept nogil:
 
     return 0
 
-
-cdef int pyav_io_open(lib.AVFormatContext *s,
-                      lib.AVIOContext **pb,
-                      const char *url,
-                      int flags,
-                      lib.AVDictionary **options) noexcept nogil:
-    with gil:
+@cython.cfunc
+@cython.nogil
+@cython.exceptval(check=False)
+def pyav_io_open(
+    s: cython.pointer[lib.AVFormatContext],
+    pb: cython.pointer[cython.pointer[lib.AVIOContext]],
+    url: cython.p_const_char,
+    flags: cython.int,
+    options: cython.pointer[cython.pointer[lib.AVDictionary]]
+) -> cython.int:
+    with cython.gil:
         return pyav_io_open_gil(s, pb, url, flags, options)
 
 
-cdef int pyav_io_open_gil(lib.AVFormatContext *s,
-                          lib.AVIOContext **pb,
-                          const char *url,
-                          int flags,
-                          lib.AVDictionary **options) noexcept:
-    cdef Container container
-    cdef object file
-    cdef PyIOFile pyio_file
+@cython.cfunc
+@cython.exceptval(check=False)
+def pyav_io_open_gil(
+    s: cython.pointer[lib.AVFormatContext],
+    pb: cython.pointer[cython.pointer[lib.AVIOContext]],
+    url: cython.p_const_char,
+    flags: cython.int,
+    options: cython.pointer[cython.pointer[lib.AVDictionary]]
+) -> cython.int:
+    container: Container
+    file: object
+    pyio_file: PyIOFile
     try:
-        container = <Container>dereference(s).opaque
+        container = cython.cast(Container, dereference(s).opaque)
 
         if options is not NULL:
             options_dict = avdict_to_dict(
@@ -78,7 +86,7 @@ cdef int pyav_io_open_gil(lib.AVFormatContext *s,
             options_dict = {}
 
         file = container.io_open(
-            <str>url if url is not NULL else "",
+            cython.cast(str, url) if url is not NULL else "",
             flags,
             options_dict
         )
@@ -90,7 +98,7 @@ cdef int pyav_io_open_gil(lib.AVFormatContext *s,
         )
 
         # Add it to the container to avoid it being deallocated
-        container.open_files[<int64_t>pyio_file.iocontext.opaque] = pyio_file
+        container.open_files[cython.cast(int64_t, pyio_file.iocontext.opaque)] = pyio_file
 
         pb[0] = pyio_file.iocontext
         return 0
@@ -99,9 +107,13 @@ cdef int pyav_io_open_gil(lib.AVFormatContext *s,
         return stash_exception()
 
 
-cdef int pyav_io_close(lib.AVFormatContext *s, lib.AVIOContext *pb) noexcept nogil:
-    with gil:
+@cython.cfunc
+@cython.nogil
+@cython.exceptval(check=False)
+def pyav_io_close(s: cython.pointer[lib.AVFormatContext], pb: cython.pointer[lib.AVIOContext]) -> cython.int:
+    with cython.gil:
         return pyav_io_close_gil(s, pb)
+
 
 cdef int pyav_io_close_gil(lib.AVFormatContext *s, lib.AVIOContext *pb) noexcept:
     cdef Container container
