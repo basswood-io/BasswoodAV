@@ -211,6 +211,9 @@ class EnumItem:
         The error message that would be returned.
     """
 
+    name = cython.declare(str, visibility="readonly")
+    value = cython.declare(cython.int, visibility="readonly")
+
     def __cinit__(self, sentinel_, name: str, value: cython.int, doc=None):
         if sentinel_ is not sentinel:
             raise RuntimeError(f"Cannot instantiate {self.__class__.__name__}.")
