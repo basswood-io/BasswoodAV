@@ -213,7 +213,7 @@ log_context = cython.struct(
 @cython.cfunc
 @cython.nogil
 @cython.exceptval(check=False)
-def log_context_name(ptr: cython.p_void) -> cython.p_char:
+def log_context_name(ptr: cython.p_void) -> cython.p_const_char:
     obj: cython.pointer[log_context] = cython.cast(cython.pointer[log_context], ptr)
     return obj.name
 

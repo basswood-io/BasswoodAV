@@ -1,71 +1,68 @@
-from libc.stdint cimport int64_t
-from libc.stdlib cimport free, malloc
-
-from bv.codec.context cimport CodecContext, wrap_codec_context
-from bv.container.streams cimport StreamContainer
-from bv.dictionary cimport _Dictionary
-from bv.error cimport err_check
-from bv.packet cimport Packet
-from bv.stream cimport Stream, wrap_stream
-from bv.utils cimport avdict_to_dict
+import cython
+from cython import NULL, sizeof
+from cython.cimports.bv.codec.context import CodecContext, wrap_codec_context
+from cython.cimports.bv.container.streams import StreamContainer
+from cython.cimports.bv.dictionary import _Dictionary
+from cython.cimports.bv.error import err_check
+from cython.cimports.bv.packet import Packet
+from cython.cimports.bv.stream import Stream, wrap_stream
+from cython.cimports.bv.utils import avdict_to_dict
+from cython.cimports.libc.stdint import int64_t
+from cython.cimports.libc.stdlib import free, malloc
 
 from bv.dictionary import Dictionary
 
 
-cdef close_input(InputContainer self):
+@cython.cfunc
+def close_input(self: InputContainer):
     self.streams = StreamContainer()
     if self.input_was_opened:
-        with nogil:
+        with cython.nogil:
             # This causes `self.ptr` to be set to NULL.
-            lib.avformat_close_input(&self.ptr)
+            lib.avformat_close_input(cython.address(self.ptr))
         self.input_was_opened = False
 
 
-cdef class InputContainer(Container):
+@cython.cclass
+class InputContainer(Container):
     def __cinit__(self, *args, **kwargs):
-        cdef CodecContext py_codec_context
-        cdef unsigned int i
-        cdef lib.AVStream *stream
-        cdef lib.AVCodec *codec
-        cdef lib.AVCodecContext *codec_context
+        py_codec_context: CodecContext
+        i: cython.uint
+        stream: cython.pointer[lib.AVStream]
+        codec: cython.pointer[lib.AVCodec]
+        codec_context: cython.pointer[lib.AVCodecContext]
 
         # If we have either the global `options`, or a `stream_options`, prepare
         # a mashup of those options for each stream.
-        cdef lib.AVDictionary **c_options = NULL
-        cdef _Dictionary base_dict, stream_dict
+        c_options: cython.pointer[cython.pointer[lib.AVDictionary]] = NULL
+        base_dict, stream_dict = cython.declare(_Dictionary)
         if self.options or self.stream_options:
             base_dict = Dictionary(self.options)
-            c_options = <lib.AVDictionary**>malloc(self.ptr.nb_streams * sizeof(void*))
+            c_options = cython.cast(
+                cython.pointer[cython.pointer[lib.AVDictionary]],
+                malloc(self.ptr.nb_streams * sizeof(cython.p_void)),
+            )
             for i in range(self.ptr.nb_streams):
                 c_options[i] = NULL
                 if i < len(self.stream_options) and self.stream_options:
                     stream_dict = base_dict.copy()
                     stream_dict.update(self.stream_options[i])
-                    lib.av_dict_copy(&c_options[i], stream_dict.ptr, 0)
+                    lib.av_dict_copy(cython.address(c_options[i]), stream_dict.ptr, 0)
                 else:
-                    lib.av_dict_copy(&c_options[i], base_dict.ptr, 0)
+                    lib.av_dict_copy(cython.address(c_options[i]), base_dict.ptr, 0)
 
         self.set_timeout(self.open_timeout)
         self.start_timeout()
-        with nogil:
-            # This peeks are the first few frames to:
-            #   - set stream.disposition from codec.audio_service_type (not exposed);
-            #   - set stream.codec.bits_per_coded_sample;
-            #   - set stream.duration;
-            #   - set stream.start_time;
-            #   - set stream.r_frame_rate to average value;
-            #   - open and closes codecs with the options provided.
-            ret = lib.avformat_find_stream_info(
-                self.ptr,
-                c_options
-            )
+        with cython.nogil:
+            ret = lib.avformat_find_stream_info(self.ptr, c_options)
+
         self.set_timeout(None)
         self.err_check(ret)
 
         # Cleanup all of our options.
         if c_options:
             for i in range(self.ptr.nb_streams):
-                lib.av_dict_free(&c_options[i])
+                lib.av_dict_free(cython.address(c_options[i]))
             free(c_options)
 
         at_least_one_accelerated_context = False
@@ -77,9 +74,13 @@ cdef class InputContainer(Container):
             if codec:
                 # allocate and initialise decoder
                 codec_context = lib.avcodec_alloc_context3(codec)
-                err_check(lib.avcodec_parameters_to_context(codec_context, stream.codecpar))
+                err_check(
+                    lib.avcodec_parameters_to_context(codec_context, stream.codecpar)
+                )
                 codec_context.pkt_timebase = stream.time_base
-                py_codec_context = wrap_codec_context(codec_context, codec, self.hwaccel)
+                py_codec_context = wrap_codec_context(
+                    codec_context, codec, self.hwaccel
+                )
                 if py_codec_context.is_hwaccel:
                     at_least_one_accelerated_context = True
             else:
@@ -87,10 +88,18 @@ cdef class InputContainer(Container):
                 py_codec_context = None
             self.streams.add_stream(wrap_stream(self, stream, py_codec_context))
 
-        if self.hwaccel and not self.hwaccel.allow_software_fallback and not at_least_one_accelerated_context:
-            raise RuntimeError("Hardware accelerated decode requested but no stream is compatible")
+        if (
+            self.hwaccel
+            and not self.hwaccel.allow_software_fallback
+            and not at_least_one_accelerated_context
+        ):
+            raise RuntimeError(
+                "Hardware accelerated decode requested but no stream is compatible"
+            )
 
-        self.metadata = avdict_to_dict(self.ptr.metadata, self.metadata_encoding, self.metadata_errors)
+        self.metadata = avdict_to_dict(
+            self.ptr.metadata, self.metadata_encoding, self.metadata_errors
+        )
 
     def __dealloc__(self):
         close_input(self)
@@ -147,13 +156,15 @@ cdef class InputContainer(Container):
 
         streams = self.streams.get(*args, **kwargs)
 
-        cdef bint *include_stream = <bint*>malloc(self.ptr.nb_streams * sizeof(bint))
+        include_stream: cython.p_bint = cython.cast(
+            cython.p_bint, malloc(self.ptr.nb_streams * sizeof(bint))
+        )
         if include_stream == NULL:
             raise MemoryError()
 
-        cdef unsigned int i
-        cdef Packet packet
-        cdef int ret
+        i: cython.uint
+        packet: Packet
+        ret: cython.int
 
         self.set_timeout(self.read_timeout)
         try:
@@ -169,7 +180,7 @@ cdef class InputContainer(Container):
                 packet = Packet()
                 try:
                     self.start_timeout()
-                    with nogil:
+                    with cython.nogil:
                         ret = lib.av_read_frame(self.ptr, packet.ptr)
                     self.err_check(ret)
                 except EOFError:
@@ -217,8 +228,14 @@ cdef class InputContainer(Container):
                 yield frame
 
     def seek(
-        self, offset, *, bint backward=True, bint any_frame=False, Stream stream=None,
-        bint unsupported_frame_offset=False, bint unsupported_byte_offset=False
+        self,
+        offset,
+        *,
+        backward: bint = True,
+        any_frame: bint = False,
+        stream: Stream | None = None,
+        unsupported_frame_offset: bint = False,
+        unsupported_byte_offset: bint = False,
     ):
         """seek(offset, *, backward=True, any_frame=False, stream=None)
 
@@ -255,10 +272,9 @@ cdef class InputContainer(Container):
         if not isinstance(offset, int):
             raise TypeError("Container.seek only accepts integer offset.", type(offset))
 
-        cdef int64_t c_offset = offset
-
-        cdef int flags = 0
-        cdef int ret
+        c_offset: int64_t = offset
+        flags: cython.int = 0
+        ret: cython.int
 
         if backward:
             flags |= lib.AVSEEK_FLAG_BACKWARD
@@ -271,18 +287,17 @@ cdef class InputContainer(Container):
         if unsupported_byte_offset:
             flags |= lib.AVSEEK_FLAG_BYTE
 
-        cdef int stream_index = stream.index if stream else -1
-        with nogil:
+        stream_index: cython.int = stream.index if stream else -1
+        with cython.nogil:
             ret = lib.av_seek_frame(self.ptr, stream_index, c_offset, flags)
         err_check(ret)
-
         self.flush_buffers()
 
-    cdef flush_buffers(self):
+    @cython.cfunc
+    def flush_buffers(self):
         self._assert_open()
-
-        cdef Stream stream
-        cdef CodecContext codec_context
+        stream: Stream
+        codec_context: CodecContext
 
         for stream in self.streams:
             codec_context = stream.codec_context
