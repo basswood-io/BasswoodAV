@@ -1,27 +1,33 @@
 import weakref
 
-from bv.audio.frame cimport alloc_audio_frame
-from bv.dictionary cimport _Dictionary
+import cython
+from cython import NULL
+from cython.cimports.bv.audio.frame import alloc_audio_frame
+from cython.cimports.bv.dictionary import _Dictionary
+from cython.cimports.bv.error import err_check
+from cython.cimports.bv.filter.pad import alloc_filter_pads
+from cython.cimports.bv.frame import Frame
+from cython.cimports.bv.utils import avrational_to_fraction
+from cython.cimports.bv.video.frame import alloc_video_frame
+
 from bv.dictionary import Dictionary
-from bv.error cimport err_check
-from bv.filter.pad cimport alloc_filter_pads
-from bv.frame cimport Frame
-from bv.utils cimport avrational_to_fraction
-from bv.video.frame cimport alloc_video_frame
+
+_cinit_sentinel = cython.declare(object, object())
 
 
-cdef object _cinit_sentinel = object()
-
-
-cdef FilterContext wrap_filter_context(Graph graph, Filter filter, lib.AVFilterContext *ptr):
-    cdef FilterContext self = FilterContext(_cinit_sentinel)
+@cython.cfunc
+def wrap_filter_context(
+    graph: Graph, filter: Filter, ptr: cython.pointer[lib.AVFilterContext]
+) -> FilterContext:
+    self: FilterContext = FilterContext(_cinit_sentinel)
     self._graph = weakref.ref(graph)
     self.filter = filter
     self.ptr = ptr
     return self
 
 
-cdef class FilterContext:
+@cython.cclass
+class FilterContext:
     def __cinit__(self, sentinel):
         if sentinel is not _cinit_sentinel:
             raise RuntimeError("cannot construct FilterContext")
@@ -32,7 +38,9 @@ cdef class FilterContext:
         else:
             name = "None"
 
-        parent = self.filter.ptr.name if self.filter and self.filter.ptr != NULL else None
+        parent = (
+            self.filter.ptr.name if self.filter and self.filter.ptr != NULL else None
+        )
         return f"<bv.FilterContext {name} of {parent!r} at 0x{id(self):x}>"
 
     @property
@@ -43,13 +51,17 @@ cdef class FilterContext:
     @property
     def inputs(self):
         if self._inputs is None:
-            self._inputs = alloc_filter_pads(self.filter, self.ptr.input_pads, True, self)
+            self._inputs = alloc_filter_pads(
+                self.filter, self.ptr.input_pads, True, self
+            )
         return self._inputs
 
     @property
     def outputs(self):
         if self._outputs is None:
-            self._outputs = alloc_filter_pads(self.filter, self.ptr.output_pads, False, self)
+            self._outputs = alloc_filter_pads(
+                self.filter, self.ptr.output_pads, False, self
+            )
         return self._outputs
 
     def init(self, args=None, **kwargs):
@@ -58,40 +70,44 @@ cdef class FilterContext:
         if args and kwargs:
             raise ValueError("cannot init from args and kwargs")
 
-        cdef _Dictionary dict_ = None
-        cdef char *c_args = NULL
+        dict_: _Dictionary | None = None
+        c_args: cython.p_char = NULL
         if args or not kwargs:
             if args:
                 c_args = args
             err_check(lib.avfilter_init_str(self.ptr, c_args))
         else:
             dict_ = Dictionary(kwargs)
-            err_check(lib.avfilter_init_dict(self.ptr, &dict_.ptr))
+            err_check(lib.avfilter_init_dict(self.ptr, cython.address(dict_.ptr)))
 
         self.inited = True
         if dict_:
             raise ValueError(f"unused config: {', '.join(sorted(dict_))}")
 
-    def link_to(self, FilterContext input_, int output_idx=0, int input_idx=0):
+    def link_to(
+        self,
+        input_: FilterContext,
+        output_idx: cython.int = 0,
+        input_idx: cython.int = 0,
+    ):
         err_check(lib.avfilter_link(self.ptr, output_idx, input_.ptr, input_idx))
-    
+
     @property
     def graph(self):
-        if (graph := self._graph()):
+        if graph := self._graph():
             return graph
-        else:
-            raise RuntimeError("graph is unallocated")
+        raise RuntimeError("graph is unallocated")
 
-    def push(self, Frame frame):
-        cdef int res
+    def push(self, frame: Frame | None):
+        res: cython.int
 
         if frame is None:
-            with nogil:
+            with cython.nogil:
                 res = lib.av_buffersrc_write_frame(self.ptr, NULL)
             err_check(res)
             return
         elif self.filter.name in ("abuffer", "buffer"):
-            with nogil:
+            with cython.nogil:
                 res = lib.av_buffersrc_write_frame(self.ptr, frame.ptr)
             err_check(res)
             return
@@ -106,8 +122,8 @@ cdef class FilterContext:
         self.inputs[0].linked.context.push(frame)
 
     def pull(self):
-        cdef Frame frame
-        cdef int res
+        frame: Frame
+        res: cython.int
 
         if self.filter.name == "buffersink":
             frame = alloc_video_frame()
@@ -125,10 +141,12 @@ cdef class FilterContext:
 
         self.graph.configure()
 
-        with nogil:
+        with cython.nogil:
             res = lib.av_buffersink_get_frame(self.ptr, frame.ptr)
         err_check(res)
 
         frame._init_user_attributes()
-        frame.time_base = avrational_to_fraction(&self.ptr.inputs[0].time_base)
+        frame.time_base = avrational_to_fraction(
+            cython.address(self.ptr.inputs[0].time_base)
+        )
         return frame
