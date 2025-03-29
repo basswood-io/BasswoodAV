@@ -195,12 +195,3 @@ class VideoFormatComponent:
 
         """
         return self.format.chroma_height() if self.is_chroma else self.format.height
-
-
-names = cython.declare(set, set())
-desc = cython.declare(cython.pointer[cython.const[lib.AVPixFmtDescriptor]], cython.NULL)
-while True:
-    desc = lib.av_pix_fmt_desc_next(desc)
-    if not desc:
-        break
-    names.add(desc.name)
