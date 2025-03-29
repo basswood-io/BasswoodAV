@@ -25,10 +25,11 @@ _cinit_sentinel = cython.declare(object, object())
 # We want to use the monotonic clock if it is available.
 clock = cython.declare(object, getattr(time, "monotonic", time.time))
 
+
 @cython.cfunc
 @cython.nogil
 @cython.exceptval(check=False)
-def interrupt_cb (p: cython.p_void) -> cython.int:
+def interrupt_cb(p: cython.p_void) -> cython.int:
     info: timeout_info = dereference(cython.cast(cython.pointer[timeout_info], p))
     if info.timeout < 0:  # timeout < 0 means no timeout
         return 0
@@ -39,13 +40,20 @@ def interrupt_cb (p: cython.p_void) -> cython.int:
         # Check if the clock has been changed.
         if current_time < info.start_time:
             # Raise this when we get back to Python.
-            stash_exception((RuntimeError, RuntimeError("Clock has been changed to before timeout start"), None))
+            stash_exception(
+                (
+                    RuntimeError,
+                    RuntimeError("Clock has been changed to before timeout start"),
+                    None,
+                )
+            )
             return 1
 
     if current_time > info.start_time + info.timeout:
         return 1
 
     return 0
+
 
 @cython.cfunc
 @cython.nogil
@@ -55,7 +63,7 @@ def pyav_io_open(
     pb: cython.pointer[cython.pointer[lib.AVIOContext]],
     url: cython.p_const_char,
     flags: cython.int,
-    options: cython.pointer[cython.pointer[lib.AVDictionary]]
+    options: cython.pointer[cython.pointer[lib.AVDictionary]],
 ) -> cython.int:
     with cython.gil:
         return pyav_io_open_gil(s, pb, url, flags, options)
@@ -68,7 +76,7 @@ def pyav_io_open_gil(
     pb: cython.pointer[cython.pointer[lib.AVIOContext]],
     url: cython.p_const_char,
     flags: cython.int,
-    options: cython.pointer[cython.pointer[lib.AVDictionary]]
+    options: cython.pointer[cython.pointer[lib.AVDictionary]],
 ) -> cython.int:
     container: Container
     file: object
@@ -78,27 +86,29 @@ def pyav_io_open_gil(
 
         if options is not NULL:
             options_dict = avdict_to_dict(
-                dereference(<lib.AVDictionary**>options),
+                dereference(
+                    cython.cast(
+                        cython.pointer[cython.pointer[lib.AVDictionary]], options
+                    )
+                ),
                 encoding=container.metadata_encoding,
-                errors=container.metadata_errors
+                errors=container.metadata_errors,
             )
         else:
             options_dict = {}
 
         file = container.io_open(
-            cython.cast(str, url) if url is not NULL else "",
-            flags,
-            options_dict
+            cython.cast(str, url) if url is not NULL else "", flags, options_dict
         )
 
         pyio_file = PyIOFile(
-            file,
-            container.buffer_size,
-            (flags & lib.AVIO_FLAG_WRITE) != 0
+            file, container.buffer_size, (flags & lib.AVIO_FLAG_WRITE) != 0
         )
 
         # Add it to the container to avoid it being deallocated
-        container.open_files[cython.cast(int64_t, pyio_file.iocontext.opaque)] = pyio_file
+        container.open_files[cython.cast(int64_t, pyio_file.iocontext.opaque)] = (
+            pyio_file
+        )
 
         pb[0] = pyio_file.iocontext
         return 0
@@ -110,22 +120,30 @@ def pyav_io_open_gil(
 @cython.cfunc
 @cython.nogil
 @cython.exceptval(check=False)
-def pyav_io_close(s: cython.pointer[lib.AVFormatContext], pb: cython.pointer[lib.AVIOContext]) -> cython.int:
+def pyav_io_close(
+    s: cython.pointer[lib.AVFormatContext], pb: cython.pointer[lib.AVIOContext]
+) -> cython.int:
     with cython.gil:
         return pyav_io_close_gil(s, pb)
 
 
-cdef int pyav_io_close_gil(lib.AVFormatContext *s, lib.AVIOContext *pb) noexcept:
-    cdef Container container
-    cdef int result = 0
+@cython.cfunc
+@cython.exceptval(check=False)
+def pyav_io_close_gil(
+    s: cython.pointer[lib.AVFormatContext], pb: cython.pointer[lib.AVIOContext]
+) -> cython.int:
+    container: Container
+    result: cython.int = 0
     try:
-        container = <Container>dereference(s).opaque
-
-        if container.open_files is not None and <int64_t>pb.opaque in container.open_files:
+        container = cython.cast(Container, dereference(s).opaque)
+        if (
+            container.open_files is not None
+            and cython.cast(int64_t, pb.opaque) in container.open_files
+        ):
             result = pyio_close_custom_gil(pb)
 
             # Remove it from the container so that it can be deallocated
-            del container.open_files[<int64_t>pb.opaque]
+            del container.open_files[cython.cast(int64_t, pb.opaque)]
         else:
             result = pyio_close_gil(pb)
 
@@ -137,7 +155,9 @@ cdef int pyav_io_close_gil(lib.AVFormatContext *s, lib.AVIOContext *pb) noexcept
 
 
 class Flags(Flag):
-    gen_pts: "Generate missing pts even if it requires parsing future frames." = lib.AVFMT_FLAG_GENPTS
+    gen_pts: "Generate missing pts even if it requires parsing future frames." = (
+        lib.AVFMT_FLAG_GENPTS
+    )
     ign_idx: "Ignore index." = lib.AVFMT_FLAG_IGNIDX
     non_block: "Do not block when reading packets from input." = lib.AVFMT_FLAG_NONBLOCK
     ign_dts: "Ignore DTS on frames that contain both DTS & PTS." = lib.AVFMT_FLAG_IGNDTS
@@ -149,12 +169,18 @@ class Flags(Flag):
     flush_packets: "Flush the AVIOContext every packet." = lib.AVFMT_FLAG_FLUSH_PACKETS
     bitexact: "When muxing, try to avoid writing any random/volatile data to the output. This includes any random IDs, real-time timestamps/dates, muxer version, etc. This flag is mainly intended for testing." = lib.AVFMT_FLAG_BITEXACT
     sort_dts: "Try to interleave outputted packets by dts (using this flag can slow demuxing down)." = lib.AVFMT_FLAG_SORT_DTS
-    fast_seek: "Enable fast, but inaccurate seeks for some formats." = lib.AVFMT_FLAG_FAST_SEEK
+    fast_seek: "Enable fast, but inaccurate seeks for some formats." = (
+        lib.AVFMT_FLAG_FAST_SEEK
+    )
     shortest: "Stop muxing when the shortest stream stops." = lib.AVFMT_FLAG_SHORTEST
-    auto_bsf: "Add bitstream filters as requested by the muxer." = lib.AVFMT_FLAG_AUTO_BSF
+    auto_bsf: "Add bitstream filters as requested by the muxer." = (
+        lib.AVFMT_FLAG_AUTO_BSF
+    )
+
 
 class AudioCodec(IntEnum):
     """Enumeration for audio codec IDs."""
+
     none = lib.AV_CODEC_ID_NONE  # No codec.
     pcm_alaw = lib.AV_CODEC_ID_PCM_ALAW  # PCM A-law.
     pcm_bluray = lib.AV_CODEC_ID_PCM_BLURAY  # PCM Blu-ray.
@@ -168,16 +194,24 @@ class AudioCodec(IntEnum):
     pcm_lxf = lib.AV_CODEC_ID_PCM_LXF  # PCM LXF.
     pcm_mulaw = lib.AV_CODEC_ID_PCM_MULAW  # PCM μ-law.
     pcm_s16be = lib.AV_CODEC_ID_PCM_S16BE  # PCM signed 16-bit big-endian.
-    pcm_s16be_planar = lib.AV_CODEC_ID_PCM_S16BE_PLANAR  # PCM signed 16-bit big-endian planar.
+    pcm_s16be_planar = (
+        lib.AV_CODEC_ID_PCM_S16BE_PLANAR
+    )  # PCM signed 16-bit big-endian planar.
     pcm_s16le = lib.AV_CODEC_ID_PCM_S16LE  # PCM signed 16-bit little-endian.
-    pcm_s16le_planar = lib.AV_CODEC_ID_PCM_S16LE_PLANAR  # PCM signed 16-bit little-endian planar.
+    pcm_s16le_planar = (
+        lib.AV_CODEC_ID_PCM_S16LE_PLANAR
+    )  # PCM signed 16-bit little-endian planar.
     pcm_s24be = lib.AV_CODEC_ID_PCM_S24BE  # PCM signed 24-bit big-endian.
     pcm_s24daud = lib.AV_CODEC_ID_PCM_S24DAUD  # PCM signed 24-bit D-Cinema audio.
     pcm_s24le = lib.AV_CODEC_ID_PCM_S24LE  # PCM signed 24-bit little-endian.
-    pcm_s24le_planar = lib.AV_CODEC_ID_PCM_S24LE_PLANAR  # PCM signed 24-bit little-endian planar.
+    pcm_s24le_planar = (
+        lib.AV_CODEC_ID_PCM_S24LE_PLANAR
+    )  # PCM signed 24-bit little-endian planar.
     pcm_s32be = lib.AV_CODEC_ID_PCM_S32BE  # PCM signed 32-bit big-endian.
     pcm_s32le = lib.AV_CODEC_ID_PCM_S32LE  # PCM signed 32-bit little-endian.
-    pcm_s32le_planar = lib.AV_CODEC_ID_PCM_S32LE_PLANAR  # PCM signed 32-bit little-endian planar.
+    pcm_s32le_planar = (
+        lib.AV_CODEC_ID_PCM_S32LE_PLANAR
+    )  # PCM signed 32-bit little-endian planar.
     pcm_s64be = lib.AV_CODEC_ID_PCM_S64BE  # PCM signed 64-bit big-endian.
     pcm_s64le = lib.AV_CODEC_ID_PCM_S64LE  # PCM signed 64-bit little-endian.
     pcm_s8 = lib.AV_CODEC_ID_PCM_S8  # PCM signed 8-bit.
@@ -192,13 +226,24 @@ class AudioCodec(IntEnum):
     pcm_vidc = lib.AV_CODEC_ID_PCM_VIDC  # PCM VIDC.
 
 
-cdef class Container:
-    def __cinit__(self, sentinel, file_, format_name, options,
-                  container_options, stream_options, hwaccel,
-                  metadata_encoding, metadata_errors,
-                  buffer_size, open_timeout, read_timeout,
-                  io_open):
-
+@cython.cclass
+class Container:
+    def __cinit__(
+        self,
+        sentinel,
+        file_,
+        format_name,
+        options,
+        container_options,
+        stream_options,
+        hwaccel,
+        metadata_encoding,
+        metadata_errors,
+        buffer_size,
+        open_timeout,
+        read_timeout,
+        io_open,
+    ):
         if sentinel is not _cinit_sentinel:
             raise RuntimeError("cannot construct base Container")
 
@@ -233,25 +278,24 @@ cdef class Container:
             self.format = ContainerFormat(format_name)
 
         self.input_was_opened = False
-        cdef int res
+        res: cython.int
+        name_obj: bytes = os.fsencode(self.name)
+        name: cython.p_char = name_obj
+        ofmt: cython.pointer[lib.AVOutputFormat]
 
-        cdef bytes name_obj = os.fsencode(self.name)
-        cdef char *name = name_obj
-
-        cdef lib.AVOutputFormat *ofmt
         if self.writeable:
-
-            ofmt = self.format.optr if self.format else lib.av_guess_format(NULL, name, NULL)
+            ofmt = (
+                self.format.optr
+                if self.format
+                else lib.av_guess_format(NULL, name, NULL)
+            )
             if ofmt == NULL:
                 raise ValueError("Could not determine output format")
 
-            with nogil:
+            with cython.nogil:
                 # This does not actually open the file.
                 res = lib.avformat_alloc_output_context2(
-                    &self.ptr,
-                    ofmt,
-                    NULL,
-                    name,
+                    cython.address(self.ptr), ofmt, NULL, name
                 )
             self.err_check(res)
 
@@ -262,13 +306,15 @@ cdef class Container:
             # Setup interrupt callback
             if self.open_timeout is not None or self.read_timeout is not None:
                 self.ptr.interrupt_callback.callback = interrupt_cb
-                self.ptr.interrupt_callback.opaque = &self.interrupt_callback_info
+                self.ptr.interrupt_callback.opaque = cython.address(
+                    self.interrupt_callback_info
+                )
 
             if acodec is not None:
                 self.ptr.audio_codec_id = getattr(AudioCodec, acodec)
 
         self.ptr.flags |= lib.AVFMT_FLAG_GENPTS
-        self.ptr.opaque = <void*>self
+        self.ptr.opaque = cython.cast(cython.p_void, self)
 
         # Setup Python IO.
         self.open_files = {}
@@ -281,16 +327,18 @@ cdef class Container:
             self.ptr.io_close2 = pyav_io_close
             self.ptr.flags |= lib.AVFMT_FLAG_CUSTOM_IO
 
-        cdef lib.AVInputFormat *ifmt
-        cdef _Dictionary c_options
+        ifmt: cython.pointer[lib.AVInputFormat]
+        c_options: _Dictionary
         if not self.writeable:
             ifmt = self.format.iptr if self.format else NULL
             c_options = Dictionary(self.options, self.container_options)
 
             self.set_timeout(self.open_timeout)
             self.start_timeout()
-            with nogil:
-                res = lib.avformat_open_input(&self.ptr, name, ifmt, &c_options.ptr)
+            with cython.nogil:
+                res = lib.avformat_open_input(
+                    cython.address(self.ptr), name, ifmt, cython.address(c_options.ptr)
+                )
             self.set_timeout(None)
             self.err_check(res)
             self.input_was_opened = True
@@ -299,7 +347,7 @@ cdef class Container:
             self.format = build_container_format(self.ptr.iformat, self.ptr.oformat)
 
     def __dealloc__(self):
-        with nogil:
+        with cython.nogil:
             lib.avformat_free_context(self.ptr)
 
     def __enter__(self):
@@ -311,7 +359,9 @@ cdef class Container:
     def __repr__(self):
         return f"<bv.{self.__class__.__name__} {self.file or self.name!r}>"
 
-    cdef int err_check(self, int value) except -1:
+    @cython.cfunc
+    @cython.exceptval(-1, check=False)
+    def err_check(self, value: cython.int) -> cython.int:
         return err_check(value, filename=self.name)
 
     def dumps_format(self):
@@ -320,16 +370,19 @@ cdef class Container:
             lib.av_dump_format(self.ptr, 0, "", isinstance(self, OutputContainer))
         return "".join(log[2] for log in logs)
 
-    cdef set_timeout(self, timeout):
+    @cython.cfunc
+    def set_timeout(self, timeout):
         if timeout is None:
             self.interrupt_callback_info.timeout = -1.0
         else:
             self.interrupt_callback_info.timeout = timeout
 
-    cdef start_timeout(self):
+    @cython.cfunc
+    def start_timeout(self):
         self.interrupt_callback_info.start_time = clock()
 
-    cdef _assert_open(self):
+    @cython.cfunc
+    def _assert_open(self):
         if self.ptr == NULL:
             raise AssertionError("Container is not open")
 
@@ -339,9 +392,10 @@ cdef class Container:
         return self.ptr.flags
 
     @flags.setter
-    def flags(self, int value):
+    def flags(self, value: cython.int):
         self._assert_open()
         self.ptr.flags = value
+
 
 def open(
     file,
@@ -355,7 +409,7 @@ def open(
     buffer_size=32768,
     timeout=None,
     io_open=None,
-    hwaccel=None
+    hwaccel=None,
 ):
     """open(file, mode='r', **kwargs)
 
@@ -427,16 +481,38 @@ def open(
         read_timeout = timeout
 
     if mode.startswith("r"):
-        return InputContainer(_cinit_sentinel, file, format, options,
-            container_options, stream_options, hwaccel, metadata_encoding, metadata_errors,
-            buffer_size, open_timeout, read_timeout, io_open,
+        return InputContainer(
+            _cinit_sentinel,
+            file,
+            format,
+            options,
+            container_options,
+            stream_options,
+            hwaccel,
+            metadata_encoding,
+            metadata_errors,
+            buffer_size,
+            open_timeout,
+            read_timeout,
+            io_open,
         )
 
     if stream_options:
         raise ValueError(
             "Provide stream options via Container.add_stream(..., options={})."
         )
-    return OutputContainer(_cinit_sentinel, file, format, options,
-        container_options, stream_options, None, metadata_encoding, metadata_errors,
-        buffer_size, open_timeout, read_timeout, io_open,
+    return OutputContainer(
+        _cinit_sentinel,
+        file,
+        format,
+        options,
+        container_options,
+        stream_options,
+        None,
+        metadata_encoding,
+        metadata_errors,
+        buffer_size,
+        open_timeout,
+        read_timeout,
+        io_open,
     )
