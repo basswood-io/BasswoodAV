@@ -32,11 +32,9 @@ class InputContainer(Container):
         codec: cython.pointer[lib.AVCodec]
         codec_context: cython.pointer[lib.AVCodecContext]
 
-        # If we have either the global `options`, or a `stream_options`, prepare
-        # a mashup of those options for each stream.
         c_options: cython.pointer[cython.pointer[lib.AVDictionary]] = NULL
         base_dict, stream_dict = cython.declare(_Dictionary)
-        if self.options or self.stream_options:
+        if self.options:
             base_dict = Dictionary(self.options)
             c_options = cython.cast(
                 cython.pointer[cython.pointer[lib.AVDictionary]],
@@ -44,12 +42,7 @@ class InputContainer(Container):
             )
             for i in range(self.ptr.nb_streams):
                 c_options[i] = NULL
-                if i < len(self.stream_options) and self.stream_options:
-                    stream_dict = base_dict.copy()
-                    stream_dict.update(self.stream_options[i])
-                    lib.av_dict_copy(cython.address(c_options[i]), stream_dict.ptr, 0)
-                else:
-                    lib.av_dict_copy(cython.address(c_options[i]), base_dict.ptr, 0)
+                lib.av_dict_copy(cython.address(c_options[i]), base_dict.ptr, 0)
 
         self.set_timeout(self.open_timeout)
         self.start_timeout()
