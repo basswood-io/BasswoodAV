@@ -1,10 +1,6 @@
 import cython
-from cython.cimports import libav as lib
-from cython.cimports.bv.audio.codeccontext import AudioCodecContext
 from cython.cimports.bv.audio.stream import AudioStream
 from cython.cimports.bv.container.core import Container
-from cython.cimports.bv.stream import Stream
-from cython.cimports.cpython.bytes import PyBytes_FromString
 from cython.cimports.libc.stdlib import free
 
 from bv.logging import get_level, set_level
