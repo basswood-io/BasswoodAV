@@ -3,7 +3,6 @@ from cython.cimports import libav as lib
 from cython.cimports.bv.audio.format import AudioFormat, get_audio_format
 from cython.cimports.bv.audio.frame import AudioFrame, alloc_audio_frame
 from cython.cimports.bv.audio.layout import AudioLayout, get_audio_layout
-from cython.cimports.bv.codec.hwaccel import HWAccel
 from cython.cimports.bv.frame import Frame
 from cython.cimports.bv.packet import Packet
 
