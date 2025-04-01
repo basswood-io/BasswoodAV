@@ -1,10 +1,12 @@
 from fractions import Fraction
-from typing import Literal, Sequence, TypeVar, Union, overload
+from typing import Sequence, TypeVar, Union, overload
 
+from bv.audio import _AudioCodecName
 from bv.audio.stream import AudioStream
 from bv.packet import Packet
-from bv.stream import DataStream, Stream
+from bv.stream import DataStream
 from bv.subtitles.stream import SubtitleStream
+from bv.video import _VideoCodecName
 from bv.video.stream import VideoStream
 
 from .core import Container
@@ -16,7 +18,7 @@ class OutputContainer(Container):
     @overload
     def add_stream(
         self,
-        codec_name: Literal["pcm_s16le", "aac", "mp3", "mp2"],
+        codec_name: _AudioCodecName,
         rate: int | None = None,
         options: dict[str, str] | None = None,
         **kwargs,
@@ -24,7 +26,7 @@ class OutputContainer(Container):
     @overload
     def add_stream(
         self,
-        codec_name: Literal["h264", "hevc", "mpeg4", "png", "gif", "qtrle"],
+        codec_name: _VideoCodecName,
         rate: Fraction | int | None = None,
         options: dict[str, str] | None = None,
         **kwargs,

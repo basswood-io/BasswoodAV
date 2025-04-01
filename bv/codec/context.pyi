@@ -1,8 +1,12 @@
 from enum import Flag, IntEnum
 from fractions import Fraction
-from typing import ClassVar, Literal, cast
+from typing import ClassVar, Literal, cast, overload
 
+from bv.audio import _AudioCodecName
+from bv.audio.codeccontext import AudioCodecContext
 from bv.packet import Packet
+from bv.video import _VideoCodecName
+from bv.video.codeccontext import VideoCodecContext
 
 from .codec import Codec
 from .hwaccel import HWAccel
@@ -87,6 +91,21 @@ class CodecContext:
     @property
     def is_hwaccel(self) -> bool: ...
     def open(self, strict: bool = True) -> None: ...
+    @overload
+    @staticmethod
+    def create(
+        codec: _AudioCodecName,
+        mode: Literal["r", "w"] | None = None,
+        hwaccel: HWAccel | None = None,
+    ) -> AudioCodecContext: ...
+    @overload
+    @staticmethod
+    def create(
+        codec: _VideoCodecName,
+        mode: Literal["r", "w"] | None = None,
+        hwaccel: HWAccel | None = None,
+    ) -> VideoCodecContext: ...
+    @overload
     @staticmethod
     def create(
         codec: str | Codec,
