@@ -40,7 +40,6 @@ jobs:
       - name: Build wheels
         env:
           CIBW_ARCHS: ${{ matrix.arch }}
-          CIBW_BEFORE_ALL_LINUX: yum install -y alsa-lib libxcb
           CIBW_BEFORE_BUILD: python scripts/fetch-vendor.py /tmp/vendor
           CIBW_BEFORE_BUILD_MACOS: python scripts/fetch-vendor.py /tmp/vendor
           CIBW_BEFORE_BUILD_WINDOWS: python scripts\fetch-vendor.py C:\cibw\vendor

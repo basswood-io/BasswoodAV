@@ -21,6 +21,7 @@ v15.1.0
 
 Misc:
 
+- Remove the ``opaque`` property and avoid using the ``uuid`` module.
 - Remove ``stream_options`` parameter in ``InputContainer()``. ``options`` already passes to all streams.
 
 v15.0.1

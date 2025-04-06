@@ -10,20 +10,21 @@ def get_platform():
     system = platform.system()
     machine = platform.machine()
     if system == "Linux":
-        return f"manylinux_{machine}"
-    elif system == "Darwin":
+        if platform.libc_ver()[0] == "glibc":
+            return f"manylinux_{machine}"
+        return f"musllinux_{machine}"
+
+    if system == "Darwin":
         # cibuildwheel sets ARCHFLAGS:
         # https://github.com/pypa/cibuildwheel/blob/5255155bc57eb6224354356df648dc42e31a0028/cibuildwheel/macos.py#L207-L220
         if "ARCHFLAGS" in os.environ:
             machine = os.environ["ARCHFLAGS"].split()[1]
         return f"macosx_{machine}"
-    elif system == "Windows":
-        if struct.calcsize("P") * 8 == 64:
-            return "win_amd64"
-        else:
-            return "win32"
-    else:
-        raise Exception(f"Unsupported system {system}")
+
+    if system == "Windows":
+        return "win_amd64" if struct.calcsize("P") * 8 == 64 else "win32"
+
+    raise Exception(f"Unsupported system {system}")
 
 
 parser = argparse.ArgumentParser(description="Fetch and extract tarballs")
