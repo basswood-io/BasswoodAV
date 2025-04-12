@@ -5,7 +5,6 @@ import numpy as np
 
 import bv
 from bv import AudioFrame, VideoFrame
-from bv.audio.frame import format_dtypes
 from bv.filter import Filter, Graph
 
 from .common import TestCase
@@ -21,12 +20,14 @@ def generate_audio_frame(
     """
     Generate audio frame representing part of the sinusoidal wave
     """
+
+    dtype = "i2" if input_format == "s16" else "f4"  # fltp
     frame = AudioFrame(format=input_format, layout=layout, samples=frame_size)
     frame.sample_rate = sample_rate
     frame.pts = frame_num * frame_size
 
     for i in range(frame.layout.nb_channels):
-        data = np.zeros(frame_size, dtype=format_dtypes[input_format])
+        data = np.zeros(frame_size, dtype=dtype)
         for j in range(frame_size):
             data[j] = np.sin(2 * np.pi * (frame_num + j) * (i + 1) / float(frame_size))
         frame.planes[i].update(data)  # type: ignore

@@ -13,18 +13,21 @@ def alloc_audio_frame() -> AudioFrame:
     return AudioFrame(_cinit_bypass_sentinel)
 
 
-format_dtypes = {
-    "dbl": "f8",
-    "dblp": "f8",
-    "flt": "f4",
-    "fltp": "f4",
-    "s16": "i2",
-    "s16p": "i2",
-    "s32": "i4",
-    "s32p": "i4",
-    "u8": "u1",
-    "u8p": "u1",
-}
+format_dtypes = cython.declare(
+    dict,
+    {
+        "dbl": "f8",
+        "dblp": "f8",
+        "flt": "f4",
+        "fltp": "f4",
+        "s16": "i2",
+        "s16p": "i2",
+        "s32": "i4",
+        "s32p": "i4",
+        "u8": "u1",
+        "u8p": "u1",
+    },
+)
 
 
 @cython.cclass
@@ -103,6 +106,10 @@ class AudioFrame(Frame):
         """
         import numpy as np
 
+        py_format = format if isinstance(format, AudioFormat) else AudioFormat(format)
+        py_layout = layout if isinstance(layout, AudioLayout) else AudioLayout(layout)
+        format = py_format.name
+
         # map avcodec type to numpy type
         try:
             dtype = np.dtype(format_dtypes[format])
@@ -112,9 +119,9 @@ class AudioFrame(Frame):
             )
 
         # check input format
-        nb_channels = AudioLayout(layout).nb_channels
+        nb_channels = py_layout.nb_channels
         check_ndarray(array, dtype, 2)
-        if AudioFormat(format).is_planar:
+        if py_format.is_planar:
             if array.shape[0] != nb_channels:
                 raise ValueError(
                     f"Expected planar `array.shape[0]` to equal `{nb_channels}` but got `{array.shape[0]}`"
@@ -127,7 +134,7 @@ class AudioFrame(Frame):
                 )
             samples = array.shape[1] // nb_channels
 
-        frame = AudioFrame(format=format, layout=layout, samples=samples)
+        frame = AudioFrame(format=py_format, layout=py_layout, samples=samples)
         for i, plane in enumerate(frame.planes):
             plane.update(array[i, :])
         return frame
