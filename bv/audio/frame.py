@@ -96,7 +96,7 @@ class AudioFrame(Frame):
     def __repr__(self):
         return (
             f"<bv.{self.__class__.__name__} pts={self.pts}, {self.samples} "
-            f"samples at {self.rate}Hz, {self.layout.name}, {self.format.name} at 0x{id(self):x}"
+            f"samples at {self.rate}Hz, {self.layout.name}, {self.format.name} at 0x{id(self):x}>"
         )
 
     @staticmethod
