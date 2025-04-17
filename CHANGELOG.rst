@@ -16,6 +16,19 @@ We are operating with `semantic versioning <https://semver.org>`_.
     Note that they these tags will not actually close the issue/PR until they
     are merged into the "default" branch.
 
+
+v15.1.1
+-------
+
+Fixes:
+
+- Support using using AudioFormat and AudioLayout python classes, in ``AudioFrame.__init__()`` and ``AudioFrame.from_ndarray()``.
+
+Misc:
+
+- Linux: Build binary wheels for musl linux.
+- MacOS: Binary wheels require MacOS 13 or greater.
+
 v15.1.0
 -------
 
