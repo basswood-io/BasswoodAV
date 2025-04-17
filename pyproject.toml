@@ -46,7 +46,7 @@ homepage = "https://av.basswood-io.com"
 
 [tool.cibuildwheel]
 enable = ['cpython-freethreading']
-skip = "pp* *-musllinux*"
+skip = "pp*"
 
 [tool.isort]
 profile = "black"
