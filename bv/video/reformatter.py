@@ -189,9 +189,9 @@ class VideoReformatter:
             with cython.nogil:
                 ret = lib.sws_getColorspaceDetails(
                     self.ptr,
-                    cython.address(inv_tbl),
+                    cython.cast(cython.p_p_int, cython.address(inv_tbl)),
                     cython.address(src_colorspace_range),
-                    cython.address(tbl),
+                    cython.cast(cython.p_p_int, cython.address(tbl)),
                     cython.address(dst_colorspace_range),
                     cython.address(brightness),
                     cython.address(contrast),
@@ -229,7 +229,11 @@ class VideoReformatter:
         with cython.nogil:
             lib.sws_scale(
                 self.ptr,
-                frame.ptr.data,
+                # Cast for const-ness, because musl is more strict.
+                cython.cast(
+                    cython.pointer[cython.pointer[cython.const[uint8_t]]],
+                    frame.ptr.data,
+                ),
                 frame.ptr.linesize,
                 0,  # slice Y
                 frame.ptr.height,
