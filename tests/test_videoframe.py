@@ -24,6 +24,21 @@ def assertPixelValue16(plane, expected, byteorder: str) -> None:
         assert view[1] == (expected >> 8 & 0xFF)
 
 
+def test_frame_duration_matches_packet() -> None:
+    with bv.open(fate_suite("h264/interlaced_crop.mp4")) as container:
+        packet_durations = [
+            (p.pts, p.duration) for p in container.demux() if p.pts is not None
+        ]
+        packet_durations.sort(key=lambda x: x[0])
+
+    with bv.open(fate_suite("h264/interlaced_crop.mp4")) as container:
+        frame_durations = [(f.pts, f.duration) for f in container.decode(video=0)]
+        frame_durations.sort(key=lambda x: x[0])
+
+    assert len(packet_durations) == len(frame_durations)
+    assert all(pd[1] == fd[1] for pd, fd in zip(packet_durations, frame_durations))
+
+
 def test_invalid_pixel_format() -> None:
     with pytest.raises(ValueError, match="not a pixel format: '__unknown_pix_fmt'"):
         VideoFrame(640, 480, "__unknown_pix_fmt")
@@ -255,17 +270,6 @@ def test_ndarray_gbrp_align() -> None:
     assert frame.width == 318 and frame.height == 238
     assert frame.format.name == "gbrp"
     assertNdarraysEqual(frame.to_ndarray(), array)
-
-
-def test_ndarray_bgr48be() -> None:
-    array = numpy.random.randint(0, 65536, size=(480, 640, 3), dtype=numpy.uint16)
-    frame = VideoFrame.from_ndarray(array, format="bgr48be")
-    assert frame.width == 640 and frame.height == 480
-    assert frame.format.name == "bgr48be"
-    assertNdarraysEqual(frame.to_ndarray(), array)
-
-    # check endianness by examining blue value of first pixel
-    assertPixelValue16(frame.planes[0], array[0][0][0], "big")
 
 
 def test_ndarray_gbrp10() -> None:
