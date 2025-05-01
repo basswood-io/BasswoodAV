@@ -30,6 +30,10 @@ supported_np_pix_fmts = {
     "bgr24",
     "bgr8",
     "bgra",
+    "bgr48be",
+    "bgr48le",
+    "bgra64be",
+    "bgra64le",
     "gbrapf32be",
     "gbrapf32le",
     "gbrp",
@@ -449,6 +453,8 @@ class VideoFrame(Frame):
             "bayer_rggb16le": (2, "uint16"),
             "bayer_rggb16be": (2, "uint16"),
             "bgr24": (3, "uint8"),
+            "bgr48be": (6, "uint16"),
+            "bgr48le": (6, "uint16"),
             "bgr8": (1, "uint8"),
             "bgra": (4, "uint8"),
             "gbrapf32be": (4, "float32"),
@@ -477,6 +483,8 @@ class VideoFrame(Frame):
             "rgba": (4, "uint8"),
             "rgba64be": (8, "uint16"),
             "rgba64le": (8, "uint16"),
+            "bgra64be": (8, "uint16"),
+            "bgra64le": (8, "uint16"),
             "yuv444p": (1, "uint8"),
             "yuv444p16be": (2, "uint16"),
             "yuv444p16le": (2, "uint16"),
@@ -583,31 +591,72 @@ class VideoFrame(Frame):
         if not width:
             width = array.shape[1]
 
-        if format in ("rgb24", "bgr24"):
+        if format in {"rgb24", "bgr24"}:
             check_ndarray(array, "uint8", 3)
             check_ndarray_shape(array, array.shape[2] == 3)
             if array.strides[1:] != (3, 1):
                 raise ValueError("provided array does not have C_CONTIGUOUS rows")
             linesizes = (array.strides[0],)
-        elif format in ("rgba", "bgra"):
+        elif format in {"rgb48le", "rgb48be", "bgr48le", "bgr48be"}:
+            check_ndarray(array, "uint16", 3)
+            check_ndarray_shape(array, array.shape[2] == 3)
+            if array.strides[1:] != (6, 2):
+                raise ValueError("provided array does not have C_CONTIGUOUS rows")
+            linesizes = (array.strides[0],)
+        elif format in {"rgba", "bgra", "argb", "abgr"}:
             check_ndarray(array, "uint8", 3)
             check_ndarray_shape(array, array.shape[2] == 4)
             if array.strides[1:] != (4, 1):
                 raise ValueError("provided array does not have C_CONTIGUOUS rows")
             linesizes = (array.strides[0],)
-        elif format in ("gray", "gray8", "rgb8", "bgr8"):
+        elif format in {"rgba64le", "rgba64be", "bgra64le", "bgra64be"}:
+            check_ndarray(array, "uint16", 3)
+            check_ndarray_shape(array, array.shape[2] == 4)
+            if array.strides[1:] != (8, 2):
+                raise ValueError("provided array does not have C_CONTIGUOUS rows")
+            linesizes = (array.strides[0],)
+        elif format in {
+            "gray",
+            "gray8",
+            "rgb8",
+            "bgr8",
+            "bayer_bggr8",
+            "bayer_rggb8",
+            "bayer_gbrg8",
+            "bayer_grbg8",
+        }:
             check_ndarray(array, "uint8", 2)
             if array.strides[1] != 1:
                 raise ValueError("provided array does not have C_CONTIGUOUS rows")
             linesizes = (array.strides[0],)
-        elif format in ("yuv420p", "yuvj420p", "nv12"):
+        elif format in {
+            "gray16le",
+            "gray16be",
+            "bayer_rggb16le",
+            "bayer_gbrg16le",
+            "bayer_grbg16le",
+            "bayer_bggr16be",
+            "bayer_rggb16be",
+            "bayer_gbrg16be",
+            "bayer_grbg16be",
+        }:
+            check_ndarray(array, "uint16", 2)
+            if array.strides[1] != 2:
+                raise ValueError("provided array does not have C_CONTIGUOUS rows")
+            linesizes = (array.strides[0],)
+        elif format in {"grayf32le", "grayf32be"}:
+            check_ndarray(array, "float32", 2)
+            if array.strides[1] != 4:
+                raise ValueError("provided array does not have C_CONTIGUOUS rows")
+            linesizes = (array.strides[0],)
+        elif format in {"yuv420p", "yuvj420p", "nv12"}:
             check_ndarray(array, "uint8", 2)
             check_ndarray_shape(array, array.shape[0] % 3 == 0)
             check_ndarray_shape(array, array.shape[1] % 2 == 0)
             height = height // 6 * 4
             if array.strides[1] != 1:
                 raise ValueError("provided array does not have C_CONTIGUOUS rows")
-            if format in ("yuv420p", "yuvj420p"):
+            if format in {"yuv420p", "yuvj420p"}:
                 # For YUV420 planar formats, the UV plane stride is always half the Y stride.
                 linesizes = (
                     array.strides[0],
@@ -617,26 +666,6 @@ class VideoFrame(Frame):
             else:
                 # Planes where U and V are interleaved have the same stride as Y.
                 linesizes = (array.strides[0], array.strides[0])
-        elif format in {
-            "bayer_bggr8",
-            "bayer_rggb8",
-            "bayer_gbrg8",
-            "bayer_grbg8",
-            "bayer_bggr16le",
-            "bayer_rggb16le",
-            "bayer_gbrg16le",
-            "bayer_grbg16le",
-            "bayer_bggr16be",
-            "bayer_rggb16be",
-            "bayer_gbrg16be",
-            "bayer_grbg16be",
-        }:
-            check_ndarray(array, "uint8" if format.endswith("8") else "uint16", 2)
-
-            if array.strides[1] != (1 if format.endswith("8") else 2):
-                raise ValueError("provided array does not have C_CONTIGUOUS rows")
-
-            linesizes = (array.strides[0],)
         else:
             raise ValueError(
                 f"Conversion from numpy array with format `{format}` is not yet supported"
@@ -833,7 +862,7 @@ class VideoFrame(Frame):
         elif format in {"argb", "rgba", "abgr", "bgra"}:
             check_ndarray(array, "uint8", 3)
             check_ndarray_shape(array, array.shape[2] == 4)
-        elif format in {"rgb48be", "rgb48le"}:
+        elif format in {"rgb48be", "rgb48le", "bgr48be", "bgr48le"}:
             check_ndarray(array, "uint16", 3)
             check_ndarray_shape(array, array.shape[2] == 3)
             frame = VideoFrame(array.shape[1], array.shape[0], format)
@@ -841,7 +870,7 @@ class VideoFrame(Frame):
                 byteswap_array(array, format.endswith("be")), frame.planes[0], 6
             )
             return frame
-        elif format in {"rgba64be", "rgba64le"}:
+        elif format in {"rgba64be", "rgba64le", "bgra64be", "bgra64le"}:
             check_ndarray(array, "uint16", 3)
             check_ndarray_shape(array, array.shape[2] == 4)
             frame = VideoFrame(array.shape[1], array.shape[0], format)
