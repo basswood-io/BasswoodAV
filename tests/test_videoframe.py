@@ -167,6 +167,112 @@ def test_ndarray_gray_align() -> None:
         assertNdarraysEqual(frame.to_ndarray(), array)
 
 
+def test_ndarray_gray9be() -> None:
+    array = numpy.random.randint(0, 512, size=(480, 640), dtype=numpy.uint16)
+    frame = VideoFrame.from_ndarray(array, format="gray9be")
+    assert frame.width == 640 and frame.height == 480
+    assert frame.format.name == "gray9be"
+    assertNdarraysEqual(frame.to_ndarray(), array)
+
+    # check endianness by examining value of first pixel
+    assertPixelValue16(frame.planes[0], array[0][0], "big")
+
+
+def test_ndarray_gray9le() -> None:
+    array = numpy.random.randint(0, 512, size=(480, 640), dtype=numpy.uint16)
+    frame = VideoFrame.from_ndarray(array, format="gray16le")
+    assert frame.width == 640 and frame.height == 480
+    assert frame.format.name == "gray9le"
+    assertNdarraysEqual(frame.to_ndarray(), array)
+
+    # check endianness by examining value of first pixel
+    assertPixelValue16(frame.planes[0], array[0][0], "little")
+    
+def test_ndarray_gray10be() -> None:
+    array = numpy.random.randint(0, 1024, size=(480, 640), dtype=numpy.uint16)
+    frame = VideoFrame.from_ndarray(array, format="gray10be")
+    assert frame.width == 640 and frame.height == 480
+    assert frame.format.name == "gray10be"
+    assertNdarraysEqual(frame.to_ndarray(), array)
+
+    # check endianness by examining value of first pixel
+    assertPixelValue16(frame.planes[0], array[0][0], "big")
+
+
+def test_ndarray_gray10le() -> None:
+    array = numpy.random.randint(0, 1024, size=(480, 640), dtype=numpy.uint16)
+    frame = VideoFrame.from_ndarray(array, format="gray10le")
+    assert frame.width == 640 and frame.height == 480
+    assert frame.format.name == "gray10le"
+    assertNdarraysEqual(frame.to_ndarray(), array)
+
+    # check endianness by examining value of first pixel
+    assertPixelValue16(frame.planes[0], array[0][0], "little")
+    
+def test_ndarray_gray12be() -> None:
+    array = numpy.random.randint(0, 4096, size=(480, 640), dtype=numpy.uint16)
+    frame = VideoFrame.from_ndarray(array, format="gray12be")
+    assert frame.width == 640 and frame.height == 480
+    assert frame.format.name == "gray12be"
+    assertNdarraysEqual(frame.to_ndarray(), array)
+
+    # check endianness by examining value of first pixel
+    assertPixelValue16(frame.planes[0], array[0][0], "big")
+
+
+def test_ndarray_gray12le() -> None:
+    array = numpy.random.randint(0, 4096, size=(480, 640), dtype=numpy.uint16)
+    frame = VideoFrame.from_ndarray(array, format="gray12le")
+    assert frame.width == 640 and frame.height == 480
+    assert frame.format.name == "gray12le"
+    assertNdarraysEqual(frame.to_ndarray(), array)
+
+    # check endianness by examining value of first pixel
+    assertPixelValue16(frame.planes[0], array[0][0], "little")
+    
+def test_ndarray_gray14be() -> None:
+    array = numpy.random.randint(0, 16384, size=(480, 640), dtype=numpy.uint16)
+    frame = VideoFrame.from_ndarray(array, format="gray14be")
+    assert frame.width == 640 and frame.height == 480
+    assert frame.format.name == "gray14be"
+    assertNdarraysEqual(frame.to_ndarray(), array)
+
+    # check endianness by examining value of first pixel
+    assertPixelValue16(frame.planes[0], array[0][0], "big")
+
+
+def test_ndarray_gray14le() -> None:
+    array = numpy.random.randint(0, 16384, size=(480, 640), dtype=numpy.uint16)
+    frame = VideoFrame.from_ndarray(array, format="gray14le")
+    assert frame.width == 640 and frame.height == 480
+    assert frame.format.name == "gray14le"
+    assertNdarraysEqual(frame.to_ndarray(), array)
+
+    # check endianness by examining value of first pixel
+    assertPixelValue16(frame.planes[0], array[0][0], "little")
+    
+def test_ndarray_gray16be() -> None:
+    array = numpy.random.randint(0, 65536, size=(480, 640), dtype=numpy.uint16)
+    frame = VideoFrame.from_ndarray(array, format="gray16be")
+    assert frame.width == 640 and frame.height == 480
+    assert frame.format.name == "gray16be"
+    assertNdarraysEqual(frame.to_ndarray(), array)
+
+    # check endianness by examining value of first pixel
+    assertPixelValue16(frame.planes[0], array[0][0], "big")
+
+
+def test_ndarray_gray16le() -> None:
+    array = numpy.random.randint(0, 65536, size=(480, 640), dtype=numpy.uint16)
+    frame = VideoFrame.from_ndarray(array, format="gray16le")
+    assert frame.width == 640 and frame.height == 480
+    assert frame.format.name == "gray16le"
+    assertNdarraysEqual(frame.to_ndarray(), array)
+
+    # check endianness by examining value of first pixel
+    assertPixelValue16(frame.planes[0], array[0][0], "little")
+
+
 def test_ndarray_grayf32() -> None:
     array = numpy.random.random_sample(size=(480, 640)).astype(numpy.float32)
     for format in ("grayf32be", "grayf32le"):
@@ -207,6 +313,15 @@ def test_ndarray_rgb_align() -> None:
         assertNdarraysEqual(frame.to_ndarray(), array)
 
 
+def test_ndarray_rgbf32() -> None:
+    array = numpy.random.random_sample(size=(480, 640, 3)).astype(numpy.float32)
+    for format in ("rgbf32be", "rgbf32le"):
+        frame = VideoFrame.from_ndarray(array, format=format)
+        assert frame.width == 640 and frame.height == 480
+        assert frame.format.name == format
+        assertNdarraysEqual(frame.to_ndarray(), array)
+
+    
 def test_ndarray_rgba() -> None:
     array = numpy.random.randint(0, 256, size=(480, 640, 4), dtype=numpy.uint8)
     for format in ("argb", "rgba", "abgr", "bgra"):
@@ -255,6 +370,119 @@ def test_ndarray_bayer16() -> None:
         assert frame.format.name == format
         assertNdarraysEqual(frame.to_ndarray(), array)
 
+def test_ndarray_gbrap() -> None:
+    array = numpy.random.randint(0, 256, size=(480, 640, 4), dtype=numpy.uint8)
+    frame = VideoFrame.from_ndarray(array, format="gbrap")
+    assert frame.width == 640 and frame.height == 480
+    assert frame.format.name == "gbrap"
+    assertNdarraysEqual(frame.to_ndarray(), array)
+
+
+def test_ndarray_gbrap_align() -> None:
+    array = numpy.random.randint(0, 256, size=(238, 318, 4), dtype=numpy.uint8)
+    frame = VideoFrame.from_ndarray(array, format="gbrap")
+    assert frame.width == 318 and frame.height == 238
+    assert frame.format.name == "gbrap"
+    assertNdarraysEqual(frame.to_ndarray(), array)
+
+
+def test_ndarray_gbrap10() -> None:
+    array = numpy.random.randint(0, 1024, size=(480, 640, 4), dtype=numpy.uint16)
+    for format in ("gbrap10be", "gbrap10le"):
+        frame = VideoFrame.from_ndarray(array, format=format)
+        assert format in supported_np_pix_fmts
+        assert frame.width == 640 and frame.height == 480
+        assert frame.format.name == format
+        assertNdarraysEqual(frame.to_ndarray(), array)
+
+
+def test_ndarray_gbrap10_align() -> None:
+    array = numpy.random.randint(0, 1024, size=(238, 318, 4), dtype=numpy.uint16)
+    for format in ("gbrap10be", "gbrap10le"):
+        frame = VideoFrame.from_ndarray(array, format=format)
+        assert format in supported_np_pix_fmts
+        assert frame.width == 318 and frame.height == 238
+        assert frame.format.name == format
+        assertNdarraysEqual(frame.to_ndarray(), array)
+
+
+def test_ndarray_gbrap12() -> None:
+    array = numpy.random.randint(0, 4096, size=(480, 640, 4), dtype=numpy.uint16)
+    for format in ("gbrap12be", "gbrap12le"):
+        frame = VideoFrame.from_ndarray(array, format=format)
+        assert format in supported_np_pix_fmts
+        assert frame.width == 640 and frame.height == 480
+        assert frame.format.name == format
+        assertNdarraysEqual(frame.to_ndarray(), array)
+
+
+def test_ndarray_gbrap12_align() -> None:
+    array = numpy.random.randint(0, 4096, size=(238, 318, 4), dtype=numpy.uint16)
+    for format in ("gbrap12be", "gbrap12le"):
+        frame = VideoFrame.from_ndarray(array, format=format)
+        assert format in supported_np_pix_fmts
+        assert frame.width == 318 and frame.height == 238
+        assert frame.format.name == format
+        assertNdarraysEqual(frame.to_ndarray(), array)
+
+
+def test_ndarray_gbrap14() -> None:
+    array = numpy.random.randint(0, 16384, size=(480, 640, 4), dtype=numpy.uint16)
+    for format in ("gbrap14be", "gbrap14le"):
+        frame = VideoFrame.from_ndarray(array, format=format)
+        assert format in supported_np_pix_fmts
+        assert frame.width == 640 and frame.height == 480
+        assert frame.format.name == format
+        assertNdarraysEqual(frame.to_ndarray(), array)
+
+
+def test_ndarray_gbrap14_align() -> None:
+    array = numpy.random.randint(0, 16384, size=(238, 318, 4), dtype=numpy.uint16)
+    for format in ("gbrap14be", "gbrap14le"):
+        frame = VideoFrame.from_ndarray(array, format=format)
+        assert format in supported_np_pix_fmts
+        assert frame.width == 318 and frame.height == 238
+        assert frame.format.name == format
+        assertNdarraysEqual(frame.to_ndarray(), array)
+
+
+def test_ndarray_gbrap16() -> None:
+    array = numpy.random.randint(0, 65536, size=(480, 640, 4), dtype=numpy.uint16)
+    for format in ("gbrap16be", "gbrap16le"):
+        frame = VideoFrame.from_ndarray(array, format=format)
+        assert format in supported_np_pix_fmts
+        assert frame.width == 640 and frame.height == 480
+        assert frame.format.name == format
+        assertNdarraysEqual(frame.to_ndarray(), array)
+
+
+def test_ndarray_gbrap16_align() -> None:
+    array = numpy.random.randint(0, 65536, size=(238, 318, 4), dtype=numpy.uint16)
+    for format in ("gbrap16be", "gbrap16le"):
+        frame = VideoFrame.from_ndarray(array, format=format)
+        assert format in supported_np_pix_fmts
+        assert frame.width == 318 and frame.height == 238
+        assert frame.format.name == format
+        assertNdarraysEqual(frame.to_ndarray(), array)
+
+
+def test_ndarray_gbrapf32() -> None:
+    array = numpy.random.random_sample(size=(480, 640, 4)).astype(numpy.float32)
+    for format in ("gbrapf32be", "gbrapf32le"):
+        frame = VideoFrame.from_ndarray(array, format=format)
+        assert frame.width == 640 and frame.height == 480
+        assert frame.format.name == format
+        assertNdarraysEqual(frame.to_ndarray(), array)
+
+
+def test_ndarray_gbrapf32_align() -> None:
+    array = numpy.random.random_sample(size=(238, 318, 4)).astype(numpy.float32)
+    for format in ("gbrapf32be", "gbrapf32le"):
+        frame = VideoFrame.from_ndarray(array, format=format)
+        assert frame.width == 318 and frame.height == 238
+        assert frame.format.name == format
+        assertNdarraysEqual(frame.to_ndarray(), array)
+
 
 def test_ndarray_gbrp() -> None:
     array = numpy.random.randint(0, 256, size=(480, 640, 3), dtype=numpy.uint8)
@@ -270,6 +498,26 @@ def test_ndarray_gbrp_align() -> None:
     assert frame.width == 318 and frame.height == 238
     assert frame.format.name == "gbrp"
     assertNdarraysEqual(frame.to_ndarray(), array)
+
+
+def test_ndarray_gbrp9() -> None:
+    array = numpy.random.randint(0, 512, size=(480, 640, 3), dtype=numpy.uint16)
+    for format in ("gbrp9be", "gbrp9le"):
+        frame = VideoFrame.from_ndarray(array, format=format)
+        assert format in av.video.frame.supported_np_pix_fmts
+        assert frame.width == 640 and frame.height == 480
+        assert frame.format.name == format
+        assertNdarraysEqual(frame.to_ndarray(), array)
+
+
+def test_ndarray_gbrp9_align() -> None:
+    array = numpy.random.randint(0, 512, size=(238, 318, 3), dtype=numpy.uint16)
+    for format in ("gbrp9be", "gbrp9le"):
+        frame = VideoFrame.from_ndarray(array, format=format)
+        assert format in av.video.frame.supported_np_pix_fmts
+        assert frame.width == 318 and frame.height == 238
+        assert frame.format.name == format
+        assertNdarraysEqual(frame.to_ndarray(), array)
 
 
 def test_ndarray_gbrp10() -> None:
@@ -364,24 +612,6 @@ def test_ndarray_gbrpf32() -> None:
 def test_ndarray_gbrpf32_align() -> None:
     array = numpy.random.random_sample(size=(238, 318, 3)).astype(numpy.float32)
     for format in ["gbrpf32be", "gbrpf32le"]:
-        frame = VideoFrame.from_ndarray(array, format=format)
-        assert frame.width == 318 and frame.height == 238
-        assert frame.format.name == format
-        assertNdarraysEqual(frame.to_ndarray(), array)
-
-
-def test_ndarray_gbrapf32() -> None:
-    array = numpy.random.random_sample(size=(480, 640, 4)).astype(numpy.float32)
-    for format in ("gbrapf32be", "gbrapf32le"):
-        frame = VideoFrame.from_ndarray(array, format=format)
-        assert frame.width == 640 and frame.height == 480
-        assert frame.format.name == format
-        assertNdarraysEqual(frame.to_ndarray(), array)
-
-
-def test_ndarray_gbrapf32_allign() -> None:
-    array = numpy.random.random_sample(size=(238, 318, 4)).astype(numpy.float32)
-    for format in ("gbrapf32be", "gbrapf32le"):
         frame = VideoFrame.from_ndarray(array, format=format)
         assert frame.width == 318 and frame.height == 238
         assert frame.format.name == format
@@ -499,29 +729,6 @@ def test_ndarray_yuyv422_align() -> None:
     assert frame.format.name == "yuyv422"
     assertNdarraysEqual(frame.to_ndarray(), array)
 
-
-def test_ndarray_gray16be() -> None:
-    array = numpy.random.randint(0, 65536, size=(480, 640), dtype=numpy.uint16)
-    frame = VideoFrame.from_ndarray(array, format="gray16be")
-    assert frame.width == 640 and frame.height == 480
-    assert frame.format.name == "gray16be"
-    assertNdarraysEqual(frame.to_ndarray(), array)
-
-    # check endianness by examining value of first pixel
-    assertPixelValue16(frame.planes[0], array[0][0], "big")
-
-
-def test_ndarray_gray16le() -> None:
-    array = numpy.random.randint(0, 65536, size=(480, 640), dtype=numpy.uint16)
-    frame = VideoFrame.from_ndarray(array, format="gray16le")
-    assert frame.width == 640 and frame.height == 480
-    assert frame.format.name == "gray16le"
-    assertNdarraysEqual(frame.to_ndarray(), array)
-
-    # check endianness by examining value of first pixel
-    assertPixelValue16(frame.planes[0], array[0][0], "little")
-
-
 def test_ndarray_rgb48be() -> None:
     array = numpy.random.randint(0, 65536, size=(480, 640, 3), dtype=numpy.uint16)
     frame = VideoFrame.from_ndarray(array, format="rgb48be")
@@ -630,6 +837,24 @@ def test_ndarray_bgra64le() -> None:
 
     # check endianness by examining blue value of first pixel
     assertPixelValue16(frame.planes[0], array[0][0][0], "little")
+
+
+def test_ndarray_rgbaf16() -> None:
+    array = numpy.random.random_sample(size=(480, 640, 4)).astype(numpy.float16)
+    for format in ("rgbaf16be", "rgbaf16le"):
+        frame = VideoFrame.from_ndarray(array, format=format)
+        assert frame.width == 640 and frame.height == 480
+        assert frame.format.name == format
+        assertNdarraysEqual(frame.to_ndarray(), array)
+
+
+def test_ndarray_rgbaf32() -> None:
+    array = numpy.random.random_sample(size=(480, 640, 4)).astype(numpy.float32)
+    for format in ("rgbaf32be", "rgbaf32le"):
+        frame = VideoFrame.from_ndarray(array, format=format)
+        assert frame.width == 640 and frame.height == 480
+        assert frame.format.name == format
+        assertNdarraysEqual(frame.to_ndarray(), array)
 
 
 def test_ndarray_rgb8() -> None:
