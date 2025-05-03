@@ -42,7 +42,7 @@ supported_np_pix_fmts = {
     "gbrap14be",
     "gbrap14le",
     "gbrap16be",
-    "gbrap16le", 
+    "gbrap16le",
     "gbrapf32be",
     "gbrapf32le",
     "gbrp",
@@ -484,7 +484,7 @@ class VideoFrame(Frame):
             "bgra": (4, "uint8"),
             "bgra64be": (8, "uint16"),
             "bgra64le": (8, "uint16"),
-            "gbrap": (1, "uint8"),            
+            "gbrap": (1, "uint8"),
             "gbrap10be": (2, "uint16"),
             "gbrap10le": (2, "uint16"),
             "gbrap12be": (2, "uint16"),
@@ -634,14 +634,14 @@ class VideoFrame(Frame):
     def from_numpy_buffer(array, format="rgb24", width=0):
         """
         Construct a frame from a numpy buffer.
-        
-        :param int width: optional width of actual image, if different from the array width.        
-        
+
+        :param int width: optional width of actual image, if different from the array width.
+
         .. note:: For formats which expect an array of ``uint16``, ``float16`` or ``float32``,
             the samples must be in the system's native byte order.
-            
+
         .. note:: for ``gbrp`` formats, channels are assumed to be given in RGB order.
-        
+
         .. note:: For formats where width of the array is not the same as the width of the image,
         for example with yuv420p images the UV rows at the bottom have padding bytes in the middle of the
         row as well as at the end. To cope with these, callers need to be able to pass the actual width.
@@ -742,7 +742,11 @@ class VideoFrame(Frame):
             check_ndarray_shape(array, array.shape[2] == 3)
             if array.strides[1:] != (3, 1):
                 raise ValueError("provided array does not have C_CONTIGUOUS rows")
-            linesizes = (array.strides[0] // 3, array.strides[0] // 3, array.strides[0] // 3, )
+            linesizes = (
+                array.strides[0] // 3,
+                array.strides[0] // 3,
+                array.strides[0] // 3,
+            )
         elif format in {
             "gbrp9be",
             "gbrp9le",
@@ -759,19 +763,32 @@ class VideoFrame(Frame):
             check_ndarray_shape(array, array.shape[2] == 3)
             if array.strides[1:] != (6, 2):
                 raise ValueError("provided array does not have C_CONTIGUOUS rows")
-            linesizes = (array.strides[0] // 3, array.strides[0] // 3, array.strides[0] // 3, )
+            linesizes = (
+                array.strides[0] // 3,
+                array.strides[0] // 3,
+                array.strides[0] // 3,
+            )
         elif format in {"gbrpf32be", "gbrpf32le"}:
             check_ndarray(array, "float32", 3)
             check_ndarray_shape(array, array.shape[2] == 3)
             if array.strides[1:] != (12, 4):
                 raise ValueError("provided array does not have C_CONTIGUOUS rows")
-            linesizes = (array.strides[0] // 3, array.strides[0] // 3, array.strides[0] // 3, )
+            linesizes = (
+                array.strides[0] // 3,
+                array.strides[0] // 3,
+                array.strides[0] // 3,
+            )
         elif format in {"gbrap"}:
             check_ndarray(array, "uint8", 3)
             check_ndarray_shape(array, array.shape[2] == 4)
             if array.strides[1:] != (4, 1):
                 raise ValueError("provided array does not have C_CONTIGUOUS rows")
-            linesizes = (array.strides[0] // 4, array.strides[0] // 4, array.strides[0] // 4, array.strides[0] // 4, )
+            linesizes = (
+                array.strides[0] // 4,
+                array.strides[0] // 4,
+                array.strides[0] // 4,
+                array.strides[0] // 4,
+            )
         elif format in {
             "gbrap10be",
             "gbrap10le",
@@ -780,18 +797,29 @@ class VideoFrame(Frame):
             "gbrap14be",
             "gbrap14le",
             "gbrap16be",
-            "gbrap16le"}:
+            "gbrap16le",
+        }:
             check_ndarray(array, "uint16", 3)
             check_ndarray_shape(array, array.shape[2] == 4)
             if array.strides[1:] != (8, 2):
                 raise ValueError("provided array does not have C_CONTIGUOUS rows")
-            linesizes = (array.strides[0] // 4, array.strides[0] // 4, array.strides[0] // 4, array.strides[0] // 4, )
+            linesizes = (
+                array.strides[0] // 4,
+                array.strides[0] // 4,
+                array.strides[0] // 4,
+                array.strides[0] // 4,
+            )
         elif format in {"gbrapf32be", "gbrapf32le"}:
             check_ndarray(array, "float32", 3)
             check_ndarray_shape(array, array.shape[2] == 4)
             if array.strides[1:] != (16, 4):
                 raise ValueError("provided array does not have C_CONTIGUOUS rows")
-            linesizes = (array.strides[0] // 4, array.strides[0] // 4, array.strides[0] // 4, array.strides[0] // 4, )
+            linesizes = (
+                array.strides[0] // 4,
+                array.strides[0] // 4,
+                array.strides[0] // 4,
+                array.strides[0] // 4,
+            )
         elif format in {"yuv420p", "yuvj420p", "nv12"}:
             check_ndarray(array, "uint8", 2)
             check_ndarray_shape(array, array.shape[0] % 3 == 0)
@@ -813,12 +841,12 @@ class VideoFrame(Frame):
             raise ValueError(
                 f"Conversion from numpy array with format `{format}` is not yet supported"
             )
-            
+
         if format.startswith("gbrap"):  # rgba -> gbra
             array = np.ascontiguousarray(np.moveaxis(array[..., [1, 2, 0, 3]], -1, 0))
-        elif format.startswith("gbrp"): # rgb -> gbr
+        elif format.startswith("gbrp"):  # rgb -> gbr
             array = np.ascontiguousarray(np.moveaxis(array[..., [1, 2, 0]], -1, 0))
-            
+
         frame = VideoFrame(_cinit_bypass_sentinel)
         frame._image_fill_pointers_numpy(array, width, height, linesizes, format)
         return frame
@@ -880,7 +908,7 @@ class VideoFrame(Frame):
         .. note:: For formats which expect an array of ``uint16``, ``float16`` or ``float32``,
             the samples must be in the system's native byte order.
 
-        .. note:: for ``pal8``, an ``(image, palette)`` pair must be passed. `palette` must 
+        .. note:: for ``pal8``, an ``(image, palette)`` pair must be passed. `palette` must
             have shape (256, 4) and is given in ARGB format (PyAV will swap bytes if needed).
 
         .. note:: for ``gbrp`` formats, channels are assumed to be given in RGB order.
