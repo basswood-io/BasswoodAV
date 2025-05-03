@@ -504,7 +504,7 @@ def test_ndarray_gbrp9() -> None:
     array = numpy.random.randint(0, 512, size=(480, 640, 3), dtype=numpy.uint16)
     for format in ("gbrp9be", "gbrp9le"):
         frame = VideoFrame.from_ndarray(array, format=format)
-        assert format in av.video.frame.supported_np_pix_fmts
+        assert format in supported_np_pix_fmts
         assert frame.width == 640 and frame.height == 480
         assert frame.format.name == format
         assertNdarraysEqual(frame.to_ndarray(), array)
@@ -514,7 +514,7 @@ def test_ndarray_gbrp9_align() -> None:
     array = numpy.random.randint(0, 512, size=(238, 318, 3), dtype=numpy.uint16)
     for format in ("gbrp9be", "gbrp9le"):
         frame = VideoFrame.from_ndarray(array, format=format)
-        assert format in av.video.frame.supported_np_pix_fmts
+        assert format in supported_np_pix_fmts
         assert frame.width == 318 and frame.height == 238
         assert frame.format.name == format
         assertNdarraysEqual(frame.to_ndarray(), array)
