@@ -180,7 +180,7 @@ def test_ndarray_gray9be() -> None:
 
 def test_ndarray_gray9le() -> None:
     array = numpy.random.randint(0, 512, size=(480, 640), dtype=numpy.uint16)
-    frame = VideoFrame.from_ndarray(array, format="gray16le")
+    frame = VideoFrame.from_ndarray(array, format="gray9le")
     assert frame.width == 640 and frame.height == 480
     assert frame.format.name == "gray9le"
     assertNdarraysEqual(frame.to_ndarray(), array)
