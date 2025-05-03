@@ -504,6 +504,8 @@ class VideoFrame(Frame):
             "gbrp14le": (2, "uint16"),
             "gbrp16be": (2, "uint16"),
             "gbrp16le": (2, "uint16"),
+            "gbrp9be": (2, "uint16"),
+            "gbrp9le": (2, "uint16"),
             "gbrpf32be": (4, "float32"),
             "gbrpf32le": (4, "float32"),
             "gray": (1, "uint8"),
