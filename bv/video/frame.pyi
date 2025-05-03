@@ -12,6 +12,7 @@ from .plane import VideoPlane
 _SupportedNDarray = Union[
     np.ndarray[Any, np.dtype[np.uint8]],
     np.ndarray[Any, np.dtype[np.uint16]],
+    np.ndarray[Any, np.dtype[np.float16]],
     np.ndarray[Any, np.dtype[np.float32]],
 ]
 
