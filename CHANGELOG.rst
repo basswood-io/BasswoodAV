@@ -16,6 +16,15 @@ We are operating with `semantic versioning <https://semver.org>`_.
     Note that they these tags will not actually close the issue/PR until they
     are merged into the "default" branch.
 
+v15.1.2
+-------
+
+Fixes:
+
+- Expose the duration field for frames.
+- Add GBRP, GBRAP, RGBA formats by :gh-user:`z-khan` in (:pr:`29`).
+- Build binary wheels against libvpx 1.14.1 to fix CVE-2024-5197.
+- Build binary wheels against libxml2 2.13.7 to fix CVE-2022-40303 CVE-2022-40304 CVE-2023-29469.
 
 v15.1.1
 -------

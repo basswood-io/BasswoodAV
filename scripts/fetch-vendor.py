@@ -40,7 +40,7 @@ if not os.path.exists(args.destination_dir):
     os.makedirs(args.destination_dir)
 
 
-config_url = "https://github.com/basswood-io/av-ffmpeg/releases/download/7.1.1-a/ffmpeg-{platform}.tar.gz"
+config_url = "https://github.com/basswood-io/av-ffmpeg/releases/download/7.1.1-b/ffmpeg-{platform}.tar.gz"
 tarball_url = config_url.replace("{platform}", get_platform())
 
 # download tarball
