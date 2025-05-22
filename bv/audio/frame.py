@@ -13,21 +13,18 @@ def alloc_audio_frame() -> AudioFrame:
     return AudioFrame(_cinit_bypass_sentinel)
 
 
-format_dtypes = cython.declare(
-    dict,
-    {
-        "dbl": "f8",
-        "dblp": "f8",
-        "flt": "f4",
-        "fltp": "f4",
-        "s16": "i2",
-        "s16p": "i2",
-        "s32": "i4",
-        "s32p": "i4",
-        "u8": "u1",
-        "u8p": "u1",
-    },
-)
+format_dtypes = {
+    "dbl": "f8",
+    "dblp": "f8",
+    "flt": "f4",
+    "fltp": "f4",
+    "s16": "i2",
+    "s16p": "i2",
+    "s32": "i4",
+    "s32p": "i4",
+    "u8": "u1",
+    "u8p": "u1",
+}
 
 
 @cython.cclass

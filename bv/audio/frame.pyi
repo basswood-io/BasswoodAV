@@ -8,6 +8,7 @@ from .format import AudioFormat
 from .layout import AudioLayout
 from .plane import AudioPlane
 
+format_dtypes: dict[str, str]
 _SupportedNDarray = Union[
     np.ndarray[Any, np.dtype[np.float64]],  # f8
     np.ndarray[Any, np.dtype[np.float32]],  # f4
