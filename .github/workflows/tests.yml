@@ -16,6 +16,8 @@ jobs:
           pip install -U --pre cython setuptools
           rm -r tests AUTHORS.py
           sed -i -e 's/warnings = False/warnings = True/g' setup.py
+          echo "recursive-include include *.pxd *.h" >> MANIFEST.in
+          echo "recursive-include src/av *.c *.h" >> MANIFEST.in
           python scripts/fetch-vendor.py /tmp/vendor
           PKG_CONFIG_PATH=/tmp/vendor/lib/pkgconfig python setup.py sdist
       - name: Upload source package

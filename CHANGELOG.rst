@@ -16,6 +16,20 @@ We are operating with `semantic versioning <https://semver.org>`_.
     Note that they these tags will not actually close the issue/PR until they
     are merged into the "default" branch.
 
+
+v15.2.0
+-------
+
+Features:
+
+- Enable x265.
+- Package source builds.
+
+Fixes:
+
+- Make format_dtypes public again.
+- Copy template flags if creating a new Codec object. Fixes muxing error.
+
 v15.1.2
 -------
 
