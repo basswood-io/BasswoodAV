@@ -27,6 +27,23 @@ jobs:
       - name: Linters
         run: make lint
 
+  package-source:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Build source package
+        run: |
+          pip install -U --pre cython setuptools
+          python scripts/fetch-vendor.py /tmp/vendor
+          PKG_CONFIG_PATH=/tmp/vendor/lib/pkgconfig python setup.py sdist
+      - name: Upload source package
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-source
+          path: dist/
   nix:
     name: "py-${{ matrix.config.python }} lib-${{ matrix.config.ffmpeg }} ${{matrix.config.os}}"
     runs-on: ${{ matrix.config.os }}
