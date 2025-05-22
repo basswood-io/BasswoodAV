@@ -6,22 +6,23 @@ import re
 import shlex
 import subprocess
 import sys
-from time import sleep
 
 
 def is_virtualenv():
     return sys.base_prefix != sys.prefix
 
 
+print_warnings = False
+warnings = []
+
 if platform.system() == "Darwin":
     major_version = int(platform.mac_ver()[0].split(".")[0])
     if major_version < 12:
-        print(
+        warnings.append(
             "\033[1;91mWarning!\033[0m You are using an EOL, unsupported, and out-of-date OS."
         )
-        sleep(3)
 
-print(
+warnings.append(
     "\n\033[1;91mWarning!\033[0m You are installing from source.\n"
     "It is \033[1;37mEXPECTED\033[0m that it will fail. You are \033[1;37mREQUIRED\033[0m"
     " to use ffmpeg 7.\nYou \033[1;37mMUST\033[0m have Cython, pkg-config, and a C compiler.\n"
@@ -29,8 +30,11 @@ print(
 if os.getenv("GITHUB_ACTIONS") == "true" or is_virtualenv():
     pass
 else:
-    print("\033[1;91mWarning!\033[0m You are not using a virtual environment")
+    warnings.append("\033[1;91mWarning!\033[0m You are not using a virtual environment")
 
+if print_warnings:
+    for msg in warnings:
+        print(msg)
 
 from Cython.Build import cythonize
 from Cython.Compiler.AutoDocTransforms import EmbedSignature
