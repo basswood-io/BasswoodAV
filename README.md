@@ -1,4 +1,5 @@
-<p align="center"><img src="https://av.basswood-io.com/docs/stable/_static/logo.avif" title="BasswoodAV" width="700"></p>
+> [!IMPORTANT]
+> This repo is no longer being maintained. Use [PyAV](https://github.com/PyAV-Org/PyAV) instead.
 
 # BasswoodAV
 
